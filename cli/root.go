@@ -1,6 +1,10 @@
 package cli
 
-import "github.com/spf13/cobra"
+import (
+	"github.com/dominikbraun/timetrace/fs"
+
+	"github.com/spf13/cobra"
+)
 
 const (
 	defaultString = "---"
@@ -14,6 +18,9 @@ func RootCommand(version string) *cobra.Command {
 		Version:       version,
 		SilenceUsage:  true,
 		SilenceErrors: true,
+		PersistentPreRunE: func(cmd *cobra.Command, args []string) error {
+			return fs.EnsureDirectories()
+		},
 		Run: func(cmd *cobra.Command, args []string) {
 			_ = cmd.Help()
 		},

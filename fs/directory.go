@@ -74,6 +74,10 @@ func EnsureDirectories() error {
 	return nil
 }
 
+func EnsureRecordDir(date time.Time) error {
+	return os.MkdirAll(RecordDirFromDate(date), 0777)
+}
+
 func RecordDirFromDate(date time.Time) string {
 	dir := date.Format("2006-01-02")
 	return RecordDir(dir)

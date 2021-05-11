@@ -34,8 +34,12 @@ func LoadRecord(start time.Time) (*Record, error) {
 func SaveRecord(record Record, force bool) error {
 	path := fs.RecordFilepath(record.Start)
 
-	if _, err := os.Stat(path); os.IsExist(err) {
+	if _, err := os.Stat(path); os.IsExist(err) && !force {
 		return ErrRecordAlreadyExists
+	}
+
+	if err := fs.EnsureRecordDir(record.Start); err != nil {
+		return err
 	}
 
 	file, err := os.OpenFile(path, os.O_WRONLY|os.O_CREATE|os.O_TRUNC, 0600)

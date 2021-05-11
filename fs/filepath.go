@@ -1,6 +1,7 @@
 package fs
 
 import (
+	"fmt"
 	"io/ioutil"
 	"path/filepath"
 	"sort"
@@ -55,7 +56,8 @@ func RecordFilepaths(dir string, less func(a, b string) bool) ([]string, error) 
 
 // ProjectFilepath returns the filepath of the project with the given key.
 func ProjectFilepath(key string) string {
-	return filepath.Join(projectsDir(), key, ".json")
+	name := fmt.Sprintf("%s.json", key)
+	return filepath.Join(projectsDir(), name)
 }
 
 // RecordFilepath returns the filepath of the record with the given name.
