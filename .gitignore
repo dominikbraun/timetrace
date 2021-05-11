@@ -5,6 +5,13 @@
 *.so
 *.dylib
 
+# IDE directories
+.idea
+.vscode
+
+# Build artifacts
+target
+
 # Test binary, built with `go test -c`
 *.test
 

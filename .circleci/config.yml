@@ -1,0 +1,203 @@
+version: 2.1
+
+executors:
+  go-container:
+    docker:
+      - image: circleci/golang:1.16
+    environment:
+      GO111MODULE: "on"
+      GOPROXY: "https://proxy.golang.org"
+
+jobs:
+  # Run static Go-related checks, e.g. code formatting.
+  go-checks:
+    executor: go-container
+    steps:
+      - checkout
+      - run:
+          name: Install goimports tool
+          command: |
+            go get -u golang.org/x/tools/cmd/goimports
+            echo "export PATH=$GOPATH/bin:$PATH" >> $BASH_ENV
+      - run:
+          name: Check Go format
+          command: "! go fmt -l . | read"
+      - run:
+          name: Check Go imports
+          command: "! goimports -l . | read"
+
+  # Run all Go tests.
+  go-test:
+    executor: go-container
+    steps:
+      - checkout
+      - restore_cache:
+          keys:
+            - gomodules-v1-{{ checksum "go.mod" }}
+            - gomodules-v1-
+      - run:
+          name: Download dependencies
+          command: go mod download
+      - save_cache:
+          key: gomodules-v1-{{ checksum "go.mod" }}
+          paths: /go/pkg
+      - run:
+          name: Run all tests
+          command: go test -v ./...
+
+  # Verify that the requirements for creating a new release are met.
+  pre-release-check:
+    executor: go-container
+    steps:
+      - checkout
+      - run:
+          name: Check release in CHANGELOG.md
+          command: python jobs.py check-changelog --tag=${CIRCLE_TAG}
+
+  # Build timetrace binaries for multiple platforms.
+  build:
+    executor: go-container
+    steps:
+      - checkout
+      - restore_cache:
+          keys:
+            - gomodules-v1-{{ checksum "go.mod" }}
+            - gomodules-v1-
+      - run:
+          name: Download dependencies
+          command: go mod download
+      - save_cache:
+          key: gomodules-v1-{{ checksum "go.mod" }}
+          paths: /go/pkg
+      - run: mkdir -p /tmp/artifacts
+      - run:
+          name: Build and pack timetrace for Linux
+          command: |
+            GOOS=linux GOARCH=amd64 go build \
+              -v \
+              -ldflags "-X main.version=${CIRCLE_TAG}" \
+              -o target/timetrace .
+            cp target/timetrace timetrace
+            tar -czf /tmp/artifacts/timetrace-linux-amd64.tar.gz timetrace
+            rm timetrace
+      - run:
+          name: Build and pack timetrace for macOS
+          command: |
+            GOOS=darwin GOARCH=amd64 go build \
+              -v \
+              -ldflags "-X main.version=${CIRCLE_TAG}" \
+              -o target/timetrace .
+            cp target/timetrace timetrace
+            tar -czf /tmp/artifacts/timetrace-darwin-amd64.tar.gz timetrace
+            rm timetrace
+      - run:
+          name: Build and pack timetrace for Windows
+          command: |
+            GOOS=windows GOARCH=amd64 go build \
+              -v \
+              -ldflags "-X main.version=${CIRCLE_TAG}" \
+              -o target/timetrace.exe .
+            cp target/timetrace.exe timetrace.exe
+            zip /tmp/artifacts/timetrace-windows-amd64.zip timetrace.exe
+            rm timetrace.exe
+      - persist_to_workspace:
+          root: /tmp/artifacts
+          paths:
+            - timetrace-*
+
+  # Release the packaged binaries to GitHub.
+  release-github:
+    docker:
+      - image: cibuilds/github:0.10
+    steps:
+      - checkout
+      - attach_workspace:
+          at: /tmp/artifacts
+      - run:
+          name: Install Python
+          command: apk add --no-cache python2
+      - run:
+          name: Publish GitHub release
+          command: |
+            ghr -t "${GITHUB_TOKEN}" \
+                -u "${CIRCLE_PROJECT_USERNAME}" \
+                -r "${CIRCLE_PROJECT_REPONAME}" \
+                -c "${CIRCLE_SHA1}" \
+                -b "$(python jobs.py print-changelog --tag=${CIRCLE_TAG})" \
+                -delete "${CIRCLE_TAG}" \
+                /tmp/artifacts
+
+  # Release the Docker images to Docker Hub and GitHub Packages.
+  release-docker:
+    docker:
+      - image: circleci/buildpack-deps:stretch
+    steps:
+      - checkout
+      - setup_remote_docker
+      - run:
+          name: Log in to Docker Hub
+          command: |
+            echo ${DOCKER_PASS} | docker login --username ${DOCKER_USER} --password-stdin
+      - run:
+          name: Build the distribution Docker image
+          command: |
+            docker image build --build-arg VERSION=${CIRCLE_TAG} -t dominikbraun/timetrace:${CIRCLE_TAG} -f Dockerfile .
+      - run:
+          name: Tag the Docker images as latest
+          command: |
+            docker image tag dominikbraun/timetrace:${CIRCLE_TAG} dominikbraun/timetrace:latest
+      - run:
+          name: Publish the image on Docker Hub
+          command: |
+            docker image push dominikbraun/timetrace:${CIRCLE_TAG}
+            docker image push dominikbraun/timetrace:latest
+      - run:
+          name: Log in to GitHub Packages
+          command: |
+            docker logout
+            echo ${GITHUB_TOKEN} | docker login docker.pkg.github.com --username ${GITHUB_USER} --password-stdin
+      - run:
+          name: Tag the previously built Docker image
+          command: |
+            docker image tag dominikbraun/timetrace:${CIRCLE_TAG} docker.pkg.github.com/dominikbraun/timetrace/timetrace:${CIRCLE_TAG}
+      - run:
+          name: Publish the image on GitHub Packages
+          command: |
+            docker image push docker.pkg.github.com/dominikbraun/timetrace/timetrace:${CIRCLE_TAG}
+
+workflows:
+  version: 2
+  # The basic CI workflow for single commits and opened PRs.
+  timetrace-ci:
+    jobs:
+      - go-checks
+      - go-test:
+          requires:
+            - go-checks
+  # The workflow for delivering the timetrace application.
+  timetrace-cd:
+    jobs:
+      - pre-release-check:
+          filters:
+            tags:
+              only: /v.*/
+            branches:
+              ignore: /.*/
+      - build:
+          requires:
+            - pre-release-check
+          filters:
+            tags:
+              only: /v.*/
+      - release-github:
+          requires:
+            - build
+          filters:
+            tags:
+              only: /v.*/
+      - release-docker:
+          requires:
+            - release-github
+          filters:
+            tags:
+              only: /v.*/
