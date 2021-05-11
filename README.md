@@ -2,26 +2,26 @@
 
 > timetrace is a simple CLI for tracking your working time.
 
-![CLI screenshot](screenshot.png)
+![CLI screenshot](timetrace.png)
 
 ## Installation
 
 ### Homebrew
 
 ```
-brew tap timetrace/timetrace
+brew tap dominikbraun/timetrace
 brew install timetrace
 ```
 
 ### Docker
 
 ```
-docker container run -v ${HOME}:/data timetrace/timetrace
+docker container run -v ${HOME}:/data dominikbraun/timetrace
 ```
 
 ### Binary
 
-Download the [latest release](https://github.com/timetrace/timetrace/releases)
+Download the [latest release](https://github.com/dominikbraun/timetrace/releases)
 and extract the binary into a directory like `/usr/local/bin` or
 `C:\Program Files\timetrace`. Make sure the directory is in the `PATH` variable.
 
@@ -244,7 +244,10 @@ timetrace version
 
 ## Credits
 
-This project uses [spf13/cobra](https://github.com/spf13/cobra),
-[fatih/color](https://github.com/fatih/color),
-[olekukonko/tablewriter](https://github.com/olekukonko/tablewriter) and
-[enescakir/emoji](https://github.com/enescakir/emoji).
+This project depends on the following packages:
+
+* [spf13/cobra](https://github.com/spf13/cobra)
+* [spf13/viper](https://github.com/spf13/viper)
+* [fatih/color](https://github.com/fatih/color)
+* [olekukonko/tablewriter](https://github.com/olekukonko/tablewriter)
+* [enescakir/emoji](https://github.com/enescakir/emoji)
