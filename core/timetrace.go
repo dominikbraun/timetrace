@@ -122,3 +122,7 @@ func (t *Timetrace) Stop() error {
 func (t *Timetrace) EnsureDirectories() error {
 	return t.fs.EnsureDirectories()
 }
+
+func (t *Timetrace) Config() *config.Config {
+	return t.config
+}

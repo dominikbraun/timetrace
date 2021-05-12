@@ -6,12 +6,10 @@ import (
 	"io/ioutil"
 	"os"
 	"time"
-
-	"github.com/dominikbraun/timetrace/config"
 )
 
 const (
-	defaultRecordLayout = "15-04"
+	recordLayout = "15-04"
 )
 
 var (
@@ -92,8 +90,8 @@ func (t *Timetrace) loadLatestRecord() (*Record, error) {
 	dir := latestDirs[0]
 
 	latestRecords, err := t.fs.RecordFilepaths(dir, func(a, b string) bool {
-		timeA, _ := time.Parse(t.recordLayout(), a)
-		timeB, _ := time.Parse(t.recordLayout(), b)
+		timeA, _ := time.Parse(recordLayout, a)
+		timeB, _ := time.Parse(recordLayout, b)
 		return timeA.Before(timeB)
 	})
 	if err != nil {
@@ -115,8 +113,8 @@ func (t *Timetrace) loadOldestRecord(date time.Time) (*Record, error) {
 	dir := t.fs.RecordDirFromDate(date)
 
 	oldestRecords, err := t.fs.RecordFilepaths(dir, func(a, b string) bool {
-		timeA, _ := time.Parse(t.recordLayout(), a)
-		timeB, _ := time.Parse(t.recordLayout(), b)
+		timeA, _ := time.Parse(recordLayout, a)
+		timeB, _ := time.Parse(recordLayout, b)
 		return timeA.After(timeB)
 	})
 	if err != nil {
@@ -148,11 +146,4 @@ func (t *Timetrace) loadRecord(path string) (*Record, error) {
 	}
 
 	return &record, nil
-}
-
-func (t *Timetrace) recordLayout() string {
-	if config.Get().Use12Hours {
-		return "03-04PM"
-	}
-	return defaultRecordLayout
 }

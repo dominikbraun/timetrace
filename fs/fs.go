@@ -41,13 +41,7 @@ func (fs *Fs) ProjectFilepath(key string) string {
 // By default, a record started at 3:00 PM will be stored in a file called
 // 15-00.json. If use12hours is set in the config, it will be 03-00PM.json.
 func (fs *Fs) RecordFilepath(start time.Time) string {
-	layout := recordFilepathLayout
-
-	if config.Get().Use12Hours {
-		layout = "03-04PM.json"
-	}
-
-	name := start.Format(layout)
+	name := start.Format(recordFilepathLayout)
 	return filepath.Join(fs.RecordDirFromDate(start), name)
 }
 
@@ -177,10 +171,8 @@ func (fs *Fs) recordsDir() string {
 }
 
 func (fs *Fs) rootDir() string {
-	configuredRoot := config.Get().Store
-
-	if configuredRoot != "" {
-		return os.ExpandEnv(configuredRoot)
+	if fs.config.Store != "" {
+		return os.ExpandEnv(fs.config.Store)
 	}
 
 	homeDir, _ := os.UserHomeDir()

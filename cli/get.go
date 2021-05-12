@@ -3,7 +3,6 @@ package cli
 import (
 	"time"
 
-	"github.com/dominikbraun/timetrace/config"
 	"github.com/dominikbraun/timetrace/core"
 	"github.com/dominikbraun/timetrace/out"
 
@@ -58,7 +57,7 @@ func getRecordCommand(t *core.Timetrace) *cobra.Command {
 		Run: func(cmd *cobra.Command, args []string) {
 			layout := defaultRecordArgLayout
 
-			if config.Get().Use12Hours {
+			if t.Config().Use12Hours {
 				layout = "2006-01-02-03-04PM"
 			}
 

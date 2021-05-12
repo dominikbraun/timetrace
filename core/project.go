@@ -6,8 +6,6 @@ import (
 	"io/ioutil"
 	"os"
 	"os/exec"
-
-	"github.com/dominikbraun/timetrace/config"
 )
 
 const (
@@ -75,7 +73,7 @@ func (t *Timetrace) EditProject(projectKey string) error {
 		return err
 	}
 
-	editor := editorFromEnvironment()
+	editor := t.editorFromEnvironment()
 	path := t.fs.ProjectFilepath(projectKey)
 
 	cmd := exec.Command(editor, path)
@@ -98,9 +96,9 @@ func (t *Timetrace) DeleteProject(project Project) error {
 	return os.Remove(path)
 }
 
-func editorFromEnvironment() string {
-	if config.Get().Editor != "" {
-		return config.Get().Editor
+func (t *Timetrace) editorFromEnvironment() string {
+	if t.config.Editor != "" {
+		return t.config.Editor
 	}
 
 	if editor := os.Getenv("EDITOR"); editor != "" {
