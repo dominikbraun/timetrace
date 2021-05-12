@@ -9,7 +9,8 @@ import (
 
 func createCommand() *cobra.Command {
 	create := &cobra.Command{
-		Use: "create",
+		Use:   "create",
+		Short: "Create a new resource",
 		Run: func(cmd *cobra.Command, args []string) {
 			_ = cmd.Help()
 		},
@@ -22,8 +23,9 @@ func createCommand() *cobra.Command {
 
 func createProjectCommand() *cobra.Command {
 	createProject := &cobra.Command{
-		Use:  "project <KEY>",
-		Args: cobra.ExactArgs(1),
+		Use:   "project <KEY>",
+		Short: "Create a new project",
+		Args:  cobra.ExactArgs(1),
 		Run: func(cmd *cobra.Command, args []string) {
 			key := args[0]
 

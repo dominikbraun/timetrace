@@ -9,8 +9,9 @@ import (
 
 func stopCommand() *cobra.Command {
 	stop := &cobra.Command{
-		Use:  "stop",
-		Args: cobra.MaximumNArgs(1),
+		Use:   "stop",
+		Short: "Stop tracking your time",
+		Args:  cobra.ExactArgs(0),
 		Run: func(cmd *cobra.Command, args []string) {
 			if err := core.Stop(); err != nil {
 				out.Err("Failed to stop tracking: %s", err.Error())

@@ -11,7 +11,8 @@ import (
 
 func getCommand() *cobra.Command {
 	get := &cobra.Command{
-		Use: "get",
+		Use:   "get",
+		Short: "Display a resource",
 		Run: func(cmd *cobra.Command, args []string) {
 			_ = cmd.Help()
 		},
@@ -25,8 +26,9 @@ func getCommand() *cobra.Command {
 
 func getProjectCommand() *cobra.Command {
 	getProject := &cobra.Command{
-		Use:  "project <KEY>",
-		Args: cobra.ExactArgs(1),
+		Use:   "project <KEY>",
+		Short: "Display a project",
+		Args:  cobra.ExactArgs(1),
 		Run: func(cmd *cobra.Command, args []string) {
 			key := args[0]
 
@@ -45,8 +47,9 @@ func getProjectCommand() *cobra.Command {
 
 func getRecordCommand() *cobra.Command {
 	getRecord := &cobra.Command{
-		Use:  "record YYYY-MM-DD-HH-MM",
-		Args: cobra.ExactArgs(1),
+		Use:   "record YYYY-MM-DD-HH-MM",
+		Short: "Display a record",
+		Args:  cobra.ExactArgs(1),
 		Run: func(cmd *cobra.Command, args []string) {
 			start, err := time.Parse("2006-01-02-15-04", args[0])
 			if err != nil {

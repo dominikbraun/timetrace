@@ -9,7 +9,8 @@ import (
 
 func statusCommand() *cobra.Command {
 	status := &cobra.Command{
-		Use: "status",
+		Use:   "status",
+		Short: "Display the current tracking status",
 		Run: func(cmd *cobra.Command, args []string) {
 			report, err := core.Status()
 			if err != nil {
@@ -36,7 +37,7 @@ func statusCommand() *cobra.Command {
 				},
 			}
 
-			out.Table([]string{"Project", "Worked since start", "Worked today"}, rows)
+			out.Table([]string{"Current project", "Worked since start", "Worked today"}, rows)
 		},
 	}
 

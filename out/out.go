@@ -22,7 +22,7 @@ func Info(format string, a ...interface{}) {
 
 // Err prints a colored, formatted error message prefixed with an emoji.
 func Err(format string, a ...interface{}) {
-	p(color.FgRed, emoji.ExclamationMark, format, a...)
+	p(color.FgHiRed, emoji.ExclamationMark, format, a...)
 }
 
 // Table renders a table with the given rows to the standard output.

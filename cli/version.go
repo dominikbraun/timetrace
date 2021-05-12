@@ -8,7 +8,8 @@ import (
 
 func versionCommand(value string) *cobra.Command {
 	version := &cobra.Command{
-		Use: "version",
+		Use:   "version",
+		Short: "Display version information",
 		Run: func(cmd *cobra.Command, args []string) {
 			out.Err("timetrace version %s", value)
 		},

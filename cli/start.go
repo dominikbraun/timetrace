@@ -15,14 +15,11 @@ func startCommand() *cobra.Command {
 	var options startOptions
 
 	start := &cobra.Command{
-		Use:  "start [KEY]",
-		Args: cobra.MaximumNArgs(1),
+		Use:   "start <PROJECT KEY>",
+		Short: "Start tracking time",
+		Args:  cobra.ExactArgs(1),
 		Run: func(cmd *cobra.Command, args []string) {
-			var projectKey string
-
-			if len(args) > 0 {
-				projectKey = args[0]
-			}
+			projectKey := args[0]
 
 			if err := core.Start(projectKey, options.isBillable); err != nil {
 				out.Err("Failed to start tracking: %s", err.Error())
@@ -34,7 +31,7 @@ func startCommand() *cobra.Command {
 	}
 
 	start.Flags().BoolVarP(&options.isBillable, "billable", "b",
-		false, `Mark work as billable`)
+		false, `mark tracked time as billable`)
 
 	return start
 }

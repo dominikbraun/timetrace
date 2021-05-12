@@ -9,7 +9,8 @@ import (
 
 func editCommand() *cobra.Command {
 	edit := &cobra.Command{
-		Use: "edit",
+		Use:   "edit",
+		Short: "Edit a resource",
 		Run: func(cmd *cobra.Command, args []string) {
 			_ = cmd.Help()
 		},
@@ -22,8 +23,9 @@ func editCommand() *cobra.Command {
 
 func editProjectCommand() *cobra.Command {
 	editProject := &cobra.Command{
-		Use:  "project <KEY>",
-		Args: cobra.ExactArgs(1),
+		Use:   "project <KEY>",
+		Short: "Edit a project",
+		Args:  cobra.ExactArgs(1),
 		Run: func(cmd *cobra.Command, args []string) {
 			key := args[0]
 			out.Info("Opening %s in default editor", key)

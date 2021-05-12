@@ -9,7 +9,8 @@ import (
 
 func deleteCommand() *cobra.Command {
 	delete := &cobra.Command{
-		Use: "delete",
+		Use:   "delete",
+		Short: "Delete a resource",
 		Run: func(cmd *cobra.Command, args []string) {
 			_ = cmd.Help()
 		},
@@ -22,8 +23,9 @@ func deleteCommand() *cobra.Command {
 
 func deleteProjectCommand() *cobra.Command {
 	deleteProject := &cobra.Command{
-		Use:  "project <KEY>",
-		Args: cobra.ExactArgs(1),
+		Use:   "project <KEY>",
+		Short: "Delete a project",
+		Args:  cobra.ExactArgs(1),
 		Run: func(cmd *cobra.Command, args []string) {
 			key := args[0]
 
