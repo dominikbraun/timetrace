@@ -14,7 +14,7 @@ const (
 	defaultRecordArgLayout = "2006-01-02-15-04"
 )
 
-func getCommand() *cobra.Command {
+func getCommand(t *core.Timetrace) *cobra.Command {
 	get := &cobra.Command{
 		Use:   "get",
 		Short: "Display a resource",
@@ -23,13 +23,13 @@ func getCommand() *cobra.Command {
 		},
 	}
 
-	get.AddCommand(getProjectCommand())
-	get.AddCommand(getRecordCommand())
+	get.AddCommand(getProjectCommand(t))
+	get.AddCommand(getRecordCommand(t))
 
 	return get
 }
 
-func getProjectCommand() *cobra.Command {
+func getProjectCommand(t *core.Timetrace) *cobra.Command {
 	getProject := &cobra.Command{
 		Use:   "project <KEY>",
 		Short: "Display a project",
@@ -37,7 +37,7 @@ func getProjectCommand() *cobra.Command {
 		Run: func(cmd *cobra.Command, args []string) {
 			key := args[0]
 
-			project, err := core.LoadProject(key)
+			project, err := t.LoadProject(key)
 			if err != nil {
 				out.Err("Failed to get project: %s", key)
 				return
@@ -50,7 +50,7 @@ func getProjectCommand() *cobra.Command {
 	return getProject
 }
 
-func getRecordCommand() *cobra.Command {
+func getRecordCommand(t *core.Timetrace) *cobra.Command {
 	getRecord := &cobra.Command{
 		Use:   "record YYYY-MM-DD-HH-MM",
 		Short: "Display a record",
@@ -68,7 +68,7 @@ func getRecordCommand() *cobra.Command {
 				return
 			}
 
-			record, err := core.LoadRecord(start)
+			record, err := t.LoadRecord(start)
 			if err != nil {
 				out.Err("Failed to read record: %s", err.Error())
 				return

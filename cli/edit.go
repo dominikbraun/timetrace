@@ -7,7 +7,7 @@ import (
 	"github.com/spf13/cobra"
 )
 
-func editCommand() *cobra.Command {
+func editCommand(t *core.Timetrace) *cobra.Command {
 	edit := &cobra.Command{
 		Use:   "edit",
 		Short: "Edit a resource",
@@ -16,12 +16,12 @@ func editCommand() *cobra.Command {
 		},
 	}
 
-	edit.AddCommand(editProjectCommand())
+	edit.AddCommand(editProjectCommand(t))
 
 	return edit
 }
 
-func editProjectCommand() *cobra.Command {
+func editProjectCommand(t *core.Timetrace) *cobra.Command {
 	editProject := &cobra.Command{
 		Use:   "project <KEY>",
 		Short: "Edit a project",
@@ -30,7 +30,7 @@ func editProjectCommand() *cobra.Command {
 			key := args[0]
 			out.Info("Opening %s in default editor", key)
 
-			if err := core.EditProject(key); err != nil {
+			if err := t.EditProject(key); err != nil {
 				out.Err("Failed to edit project: %s", err.Error())
 				return
 			}

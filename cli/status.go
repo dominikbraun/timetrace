@@ -7,12 +7,12 @@ import (
 	"github.com/spf13/cobra"
 )
 
-func statusCommand() *cobra.Command {
+func statusCommand(t *core.Timetrace) *cobra.Command {
 	status := &cobra.Command{
 		Use:   "status",
 		Short: "Display the current tracking status",
 		Run: func(cmd *cobra.Command, args []string) {
-			report, err := core.Status()
+			report, err := t.Status()
 			if err != nil {
 				out.Err("Failed to obtain status: %s", err.Error())
 				return

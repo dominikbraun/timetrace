@@ -7,7 +7,7 @@ import (
 	"github.com/spf13/cobra"
 )
 
-func createCommand() *cobra.Command {
+func createCommand(t *core.Timetrace) *cobra.Command {
 	create := &cobra.Command{
 		Use:   "create",
 		Short: "Create a new resource",
@@ -16,12 +16,12 @@ func createCommand() *cobra.Command {
 		},
 	}
 
-	create.AddCommand(createProjectCommand())
+	create.AddCommand(createProjectCommand(t))
 
 	return create
 }
 
-func createProjectCommand() *cobra.Command {
+func createProjectCommand(t *core.Timetrace) *cobra.Command {
 	createProject := &cobra.Command{
 		Use:   "project <KEY>",
 		Short: "Create a new project",
@@ -33,7 +33,7 @@ func createProjectCommand() *cobra.Command {
 				Key: key,
 			}
 
-			if err := core.SaveProject(project, false); err != nil {
+			if err := t.SaveProject(project, false); err != nil {
 				out.Err("Failed to create project: %s", err.Error())
 				return
 			}

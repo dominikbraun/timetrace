@@ -3,6 +3,8 @@ package core
 import (
 	"errors"
 	"time"
+
+	"github.com/dominikbraun/timetrace/config"
 )
 
 var (
@@ -16,12 +18,35 @@ type Report struct {
 	TrackedTimeToday   time.Duration
 }
 
+// Filesystem represents a filesystem used for storing and loading resources.
+type Filesystem interface {
+	ProjectFilepath(key string) string
+	RecordFilepath(start time.Time) string
+	RecordFilepaths(dir string, less func(a, b string) bool) ([]string, error)
+	RecordDirs(less func(a, b string) bool) ([]string, error)
+	RecordDirFromDate(date time.Time) string
+	EnsureDirectories() error
+	EnsureRecordDir(date time.Time) error
+}
+
+type Timetrace struct {
+	config *config.Config
+	fs     Filesystem
+}
+
+func New(config *config.Config, fs Filesystem) *Timetrace {
+	return &Timetrace{
+		config: config,
+		fs:     fs,
+	}
+}
+
 // Start starts tracking time for the given project key. This will create a new
 // record with the current time as start time.
 //
 // Since parallel work isn't supported, the previous work must be stopped first.
-func Start(projectKey string, isBillable bool) error {
-	latestRecord, err := loadLatestRecord()
+func (t *Timetrace) Start(projectKey string, isBillable bool) error {
+	latestRecord, err := t.loadLatestRecord()
 	if err != nil {
 		return err
 	}
@@ -34,7 +59,7 @@ func Start(projectKey string, isBillable bool) error {
 	var project *Project
 
 	if projectKey != "" {
-		if project, err = LoadProject(projectKey); err != nil {
+		if project, err = t.LoadProject(projectKey); err != nil {
 			return err
 		}
 	}
@@ -45,13 +70,13 @@ func Start(projectKey string, isBillable bool) error {
 		IsBillable: isBillable,
 	}
 
-	return SaveRecord(record, false)
+	return t.SaveRecord(record, false)
 }
 
 // Status creates and returns a report including the time worked since the last
 // start and the overall time worked today.
-func Status() (*Report, error) {
-	latestRecord, err := loadLatestRecord()
+func (t *Timetrace) Status() (*Report, error) {
+	latestRecord, err := t.loadLatestRecord()
 	if err != nil {
 		return nil, err
 	}
@@ -62,7 +87,7 @@ func Status() (*Report, error) {
 
 	now := time.Now()
 
-	firstRecord, err := loadOldestRecord(now)
+	firstRecord, err := t.loadOldestRecord(now)
 	if err != nil {
 		return nil, err
 	}
@@ -78,8 +103,8 @@ func Status() (*Report, error) {
 }
 
 // Stop stops the time tracking and marks the current record as ended.
-func Stop() error {
-	latestRecord, err := loadLatestRecord()
+func (t *Timetrace) Stop() error {
+	latestRecord, err := t.loadLatestRecord()
 	if err != nil {
 		return err
 	}
@@ -91,5 +116,9 @@ func Stop() error {
 	end := time.Now()
 	latestRecord.End = &end
 
-	return SaveRecord(*latestRecord, false)
+	return t.SaveRecord(*latestRecord, false)
+}
+
+func (t *Timetrace) EnsureDirectories() error {
+	return t.fs.EnsureDirectories()
 }

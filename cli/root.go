@@ -1,7 +1,7 @@
 package cli
 
 import (
-	"github.com/dominikbraun/timetrace/fs"
+	"github.com/dominikbraun/timetrace/core"
 
 	"github.com/spf13/cobra"
 )
@@ -11,7 +11,7 @@ const (
 	defaultBool   = "no"
 )
 
-func RootCommand(version string) *cobra.Command {
+func RootCommand(t *core.Timetrace, version string) *cobra.Command {
 	root := &cobra.Command{
 		Use:           "timetrace",
 		Short:         "timetrace is a simple CLI for tracking your working time.",
@@ -19,20 +19,20 @@ func RootCommand(version string) *cobra.Command {
 		SilenceUsage:  true,
 		SilenceErrors: true,
 		PersistentPreRunE: func(cmd *cobra.Command, args []string) error {
-			return fs.EnsureDirectories()
+			return t.EnsureDirectories()
 		},
 		Run: func(cmd *cobra.Command, args []string) {
 			_ = cmd.Help()
 		},
 	}
 
-	root.AddCommand(createCommand())
-	root.AddCommand(getCommand())
-	root.AddCommand(editCommand())
-	root.AddCommand(deleteCommand())
-	root.AddCommand(startCommand())
-	root.AddCommand(statusCommand())
-	root.AddCommand(stopCommand())
+	root.AddCommand(createCommand(t))
+	root.AddCommand(getCommand(t))
+	root.AddCommand(editCommand(t))
+	root.AddCommand(deleteCommand(t))
+	root.AddCommand(startCommand(t))
+	root.AddCommand(statusCommand(t))
+	root.AddCommand(stopCommand(t))
 	root.AddCommand(versionCommand(version))
 
 	return root
