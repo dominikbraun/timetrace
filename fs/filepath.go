@@ -6,6 +6,12 @@ import (
 	"path/filepath"
 	"sort"
 	"time"
+
+	"github.com/dominikbraun/timetrace/config"
+)
+
+const (
+	defaultRecordFilepathLayout = "15-04.json"
 )
 
 // RecordFilepaths returns all record filepaths within the given directory
@@ -59,7 +65,16 @@ func ProjectFilepath(key string) string {
 }
 
 // RecordFilepath returns the filepath of the record with the given name.
+//
+// By default, a record started at 3:00 PM will be stored in a file called
+// 15-00.json. If use12hours is set in the config, it will be 03-00PM.json.
 func RecordFilepath(start time.Time) string {
-	name := start.Format("15-04.json")
+	layout := defaultRecordFilepathLayout
+
+	if config.Get().Use12Hours {
+		layout = "03-04PM.json"
+	}
+
+	name := start.Format(layout)
 	return filepath.Join(RecordDirFromDate(start), name)
 }

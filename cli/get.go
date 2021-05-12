@@ -3,10 +3,15 @@ package cli
 import (
 	"time"
 
+	"github.com/dominikbraun/timetrace/config"
 	"github.com/dominikbraun/timetrace/core"
 	"github.com/dominikbraun/timetrace/out"
 
 	"github.com/spf13/cobra"
+)
+
+const (
+	defaultRecordArgLayout = "2006-01-02-15-04"
 )
 
 func getCommand() *cobra.Command {
@@ -51,7 +56,13 @@ func getRecordCommand() *cobra.Command {
 		Short: "Display a record",
 		Args:  cobra.ExactArgs(1),
 		Run: func(cmd *cobra.Command, args []string) {
-			start, err := time.Parse("2006-01-02-15-04", args[0])
+			layout := defaultRecordArgLayout
+
+			if config.Get().Use12Hours {
+				layout = "2006-01-02-03-04PM"
+			}
+
+			start, err := time.Parse(layout, args[0])
 			if err != nil {
 				out.Err("Failed to parse date argument: %s", err.Error())
 				return

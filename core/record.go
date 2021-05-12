@@ -7,7 +7,12 @@ import (
 	"os"
 	"time"
 
+	"github.com/dominikbraun/timetrace/config"
 	"github.com/dominikbraun/timetrace/fs"
+)
+
+const (
+	defaultRecordLayout = "15-04"
 )
 
 var (
@@ -88,8 +93,8 @@ func loadLatestRecord() (*Record, error) {
 	dir := latestDirs[0]
 
 	latestRecords, err := fs.RecordFilepaths(dir, func(a, b string) bool {
-		timeA, _ := time.Parse("15-04", a)
-		timeB, _ := time.Parse("15-04", b)
+		timeA, _ := time.Parse(recordLayout(), a)
+		timeB, _ := time.Parse(recordLayout(), b)
 		return timeA.Before(timeB)
 	})
 	if err != nil {
@@ -111,8 +116,8 @@ func loadOldestRecord(date time.Time) (*Record, error) {
 	dir := fs.RecordDirFromDate(date)
 
 	oldestRecords, err := fs.RecordFilepaths(dir, func(a, b string) bool {
-		timeA, _ := time.Parse("15-04", a)
-		timeB, _ := time.Parse("15-04", b)
+		timeA, _ := time.Parse(recordLayout(), a)
+		timeB, _ := time.Parse(recordLayout(), b)
 		return timeA.After(timeB)
 	})
 	if err != nil {
@@ -144,4 +149,11 @@ func loadRecord(path string) (*Record, error) {
 	}
 
 	return &record, nil
+}
+
+func recordLayout() string {
+	if config.Get().Use12Hours {
+		return "03-04PM"
+	}
+	return defaultRecordLayout
 }

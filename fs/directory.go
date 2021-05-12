@@ -6,6 +6,8 @@ import (
 	"path/filepath"
 	"sort"
 	"time"
+
+	"github.com/dominikbraun/timetrace/config"
 )
 
 const (
@@ -96,6 +98,13 @@ func recordsDir() string {
 }
 
 func rootDir() string {
+	configuredRoot := config.Get().Root
+
+	if configuredRoot != "" {
+		return os.ExpandEnv(configuredRoot)
+	}
+
 	homeDir, _ := os.UserHomeDir()
+
 	return filepath.Join(homeDir, rootDirectory)
 }

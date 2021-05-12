@@ -7,6 +7,7 @@ import (
 	"os"
 	"os/exec"
 
+	"github.com/dominikbraun/timetrace/config"
 	"github.com/dominikbraun/timetrace/fs"
 )
 
@@ -99,6 +100,10 @@ func DeleteProject(project Project) error {
 }
 
 func editorFromEnvironment() string {
+	if config.Get().Editor != "" {
+		return config.Get().Editor
+	}
+
 	if editor := os.Getenv("EDITOR"); editor != "" {
 		return editor
 	}
