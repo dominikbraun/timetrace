@@ -6,8 +6,8 @@ import (
 )
 
 type Config struct {
-	Root       string `json:"root"`
-	Use12Hours bool   `json:"use_12_hours"`
+	Store      string `json:"store"`
+	Use12Hours bool   `json:"use12hours"`
 	Editor     string `json:"editor"`
 }
 
