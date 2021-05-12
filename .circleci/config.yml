@@ -52,7 +52,7 @@ jobs:
       - checkout
       - run:
           name: Check release in CHANGELOG.md
-          command: python jobs.py check-changelog --tag=${CIRCLE_TAG}
+          command: python release.py check-changelog --tag=${CIRCLE_TAG}
 
   # Build timetrace binaries for multiple platforms.
   build:
@@ -123,7 +123,7 @@ jobs:
                 -u "${CIRCLE_PROJECT_USERNAME}" \
                 -r "${CIRCLE_PROJECT_REPONAME}" \
                 -c "${CIRCLE_SHA1}" \
-                -b "$(python jobs.py print-changelog --tag=${CIRCLE_TAG})" \
+                -b "$(python release.py print-changelog --tag=${CIRCLE_TAG})" \
                 -delete "${CIRCLE_TAG}" \
                 /tmp/artifacts
 
