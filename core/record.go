@@ -7,7 +7,11 @@ import (
 	"os"
 	"time"
 
-	"github.com/dominikbraun/timetrace/fs"
+	"github.com/dominikbraun/timetrace/config"
+)
+
+const (
+	defaultRecordLayout = "15-04"
 )
 
 var (
@@ -24,21 +28,21 @@ type Record struct {
 
 // LoadRecord loads the record with the given start time. Returns
 // ErrRecordNotFound if the record cannot be found.
-func LoadRecord(start time.Time) (*Record, error) {
-	path := fs.RecordFilepath(start)
-	return loadRecord(path)
+func (t *Timetrace) LoadRecord(start time.Time) (*Record, error) {
+	path := t.fs.RecordFilepath(start)
+	return t.loadRecord(path)
 }
 
 // SaveRecord persists the given record. Returns ErrRecordAlreadyExists if the
 // record already exists and saving isn't forced.
-func SaveRecord(record Record, force bool) error {
-	path := fs.RecordFilepath(record.Start)
+func (t *Timetrace) SaveRecord(record Record, force bool) error {
+	path := t.fs.RecordFilepath(record.Start)
 
 	if _, err := os.Stat(path); os.IsExist(err) && !force {
 		return ErrRecordAlreadyExists
 	}
 
-	if err := fs.EnsureRecordDir(record.Start); err != nil {
+	if err := t.fs.EnsureRecordDir(record.Start); err != nil {
 		return err
 	}
 
@@ -59,8 +63,8 @@ func SaveRecord(record Record, force bool) error {
 
 // DeleteRecord removes the given record. Returns ErrRecordNotFound if the
 // project doesn't exist.
-func DeleteRecord(record Record) error {
-	path := fs.RecordFilepath(record.Start)
+func (t *Timetrace) DeleteRecord(record Record) error {
+	path := t.fs.RecordFilepath(record.Start)
 
 	if _, err := os.Stat(path); os.IsNotExist(err) {
 		return ErrRecordNotFound
@@ -71,8 +75,8 @@ func DeleteRecord(record Record) error {
 
 // loadLatestRecord loads the youngest record. This may also be a record from
 // another day. If there is no latest record, nil and no error will be returned.
-func loadLatestRecord() (*Record, error) {
-	latestDirs, err := fs.RecordDirs(func(a, b string) bool {
+func (t *Timetrace) loadLatestRecord() (*Record, error) {
+	latestDirs, err := t.fs.RecordDirs(func(a, b string) bool {
 		dateA, _ := time.Parse("2006-01-02", a)
 		dateB, _ := time.Parse("2006-01-02", a)
 		return dateA.Before(dateB)
@@ -87,9 +91,9 @@ func loadLatestRecord() (*Record, error) {
 
 	dir := latestDirs[0]
 
-	latestRecords, err := fs.RecordFilepaths(dir, func(a, b string) bool {
-		timeA, _ := time.Parse("15-04", a)
-		timeB, _ := time.Parse("15-04", b)
+	latestRecords, err := t.fs.RecordFilepaths(dir, func(a, b string) bool {
+		timeA, _ := time.Parse(t.recordLayout(), a)
+		timeB, _ := time.Parse(t.recordLayout(), b)
 		return timeA.Before(timeB)
 	})
 	if err != nil {
@@ -102,17 +106,17 @@ func loadLatestRecord() (*Record, error) {
 
 	path := latestRecords[0]
 
-	return loadRecord(path)
+	return t.loadRecord(path)
 }
 
 // loadOldestRecord returns the oldest record of the given date. If there is no
 // oldest record, nil and no error will be returned.
-func loadOldestRecord(date time.Time) (*Record, error) {
-	dir := fs.RecordDirFromDate(date)
+func (t *Timetrace) loadOldestRecord(date time.Time) (*Record, error) {
+	dir := t.fs.RecordDirFromDate(date)
 
-	oldestRecords, err := fs.RecordFilepaths(dir, func(a, b string) bool {
-		timeA, _ := time.Parse("15-04", a)
-		timeB, _ := time.Parse("15-04", b)
+	oldestRecords, err := t.fs.RecordFilepaths(dir, func(a, b string) bool {
+		timeA, _ := time.Parse(t.recordLayout(), a)
+		timeB, _ := time.Parse(t.recordLayout(), b)
 		return timeA.After(timeB)
 	})
 	if err != nil {
@@ -125,10 +129,10 @@ func loadOldestRecord(date time.Time) (*Record, error) {
 
 	path := oldestRecords[0]
 
-	return loadRecord(path)
+	return t.loadRecord(path)
 }
 
-func loadRecord(path string) (*Record, error) {
+func (t *Timetrace) loadRecord(path string) (*Record, error) {
 	file, err := ioutil.ReadFile(path)
 	if err != nil {
 		if os.IsNotExist(err) {
@@ -144,4 +148,11 @@ func loadRecord(path string) (*Record, error) {
 	}
 
 	return &record, nil
+}
+
+func (t *Timetrace) recordLayout() string {
+	if config.Get().Use12Hours {
+		return "03-04PM"
+	}
+	return defaultRecordLayout
 }

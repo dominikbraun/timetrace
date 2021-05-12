@@ -7,7 +7,7 @@ import (
 	"os"
 	"os/exec"
 
-	"github.com/dominikbraun/timetrace/fs"
+	"github.com/dominikbraun/timetrace/config"
 )
 
 const (
@@ -25,8 +25,8 @@ type Project struct {
 
 // LoadProject loads the project with the given key. Returns ErrProjectNotFound
 // if the project cannot be found.
-func LoadProject(key string) (*Project, error) {
-	path := fs.ProjectFilepath(key)
+func (t *Timetrace) LoadProject(key string) (*Project, error) {
+	path := t.fs.ProjectFilepath(key)
 
 	file, err := ioutil.ReadFile(path)
 	if err != nil {
@@ -47,8 +47,8 @@ func LoadProject(key string) (*Project, error) {
 
 // SaveProject persists the given project. Returns ErrProjectAlreadyExists if
 // the project already exists and saving isn't forced.
-func SaveProject(project Project, force bool) error {
-	path := fs.ProjectFilepath(project.Key)
+func (t *Timetrace) SaveProject(project Project, force bool) error {
+	path := t.fs.ProjectFilepath(project.Key)
 
 	if _, err := os.Stat(path); os.IsExist(err) && !force {
 		return ErrProjectAlreadyExists
@@ -70,13 +70,13 @@ func SaveProject(project Project, force bool) error {
 }
 
 // EditProject opens the project file in the preferred or default editor.
-func EditProject(projectKey string) error {
-	if _, err := LoadProject(projectKey); err != nil {
+func (t *Timetrace) EditProject(projectKey string) error {
+	if _, err := t.LoadProject(projectKey); err != nil {
 		return err
 	}
 
 	editor := editorFromEnvironment()
-	path := fs.ProjectFilepath(projectKey)
+	path := t.fs.ProjectFilepath(projectKey)
 
 	cmd := exec.Command(editor, path)
 	cmd.Stdin = os.Stdin
@@ -88,8 +88,8 @@ func EditProject(projectKey string) error {
 
 // DeleteProject removes the given project. Returns ErrProjectNotFound if the
 // project doesn't exist.
-func DeleteProject(project Project) error {
-	path := fs.ProjectFilepath(project.Key)
+func (t *Timetrace) DeleteProject(project Project) error {
+	path := t.fs.ProjectFilepath(project.Key)
 
 	if _, err := os.Stat(path); os.IsNotExist(err) {
 		return ErrProjectNotFound
@@ -99,6 +99,10 @@ func DeleteProject(project Project) error {
 }
 
 func editorFromEnvironment() string {
+	if config.Get().Editor != "" {
+		return config.Get().Editor
+	}
+
 	if editor := os.Getenv("EDITOR"); editor != "" {
 		return editor
 	}

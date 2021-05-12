@@ -7,7 +7,7 @@ import (
 	"github.com/spf13/cobra"
 )
 
-func deleteCommand() *cobra.Command {
+func deleteCommand(t *core.Timetrace) *cobra.Command {
 	delete := &cobra.Command{
 		Use:   "delete",
 		Short: "Delete a resource",
@@ -16,12 +16,12 @@ func deleteCommand() *cobra.Command {
 		},
 	}
 
-	delete.AddCommand(deleteProjectCommand())
+	delete.AddCommand(deleteProjectCommand(t))
 
 	return delete
 }
 
-func deleteProjectCommand() *cobra.Command {
+func deleteProjectCommand(t *core.Timetrace) *cobra.Command {
 	deleteProject := &cobra.Command{
 		Use:   "project <KEY>",
 		Short: "Delete a project",
@@ -33,7 +33,7 @@ func deleteProjectCommand() *cobra.Command {
 				Key: key,
 			}
 
-			if err := core.DeleteProject(project); err != nil {
+			if err := t.DeleteProject(project); err != nil {
 				out.Err("Failed to delete %s", err.Error())
 				return
 			}

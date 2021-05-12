@@ -11,7 +11,7 @@ type startOptions struct {
 	isBillable bool
 }
 
-func startCommand() *cobra.Command {
+func startCommand(t *core.Timetrace) *cobra.Command {
 	var options startOptions
 
 	start := &cobra.Command{
@@ -21,7 +21,7 @@ func startCommand() *cobra.Command {
 		Run: func(cmd *cobra.Command, args []string) {
 			projectKey := args[0]
 
-			if err := core.Start(projectKey, options.isBillable); err != nil {
+			if err := t.Start(projectKey, options.isBillable); err != nil {
 				out.Err("Failed to start tracking: %s", err.Error())
 				return
 			}
