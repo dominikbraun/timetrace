@@ -110,12 +110,14 @@ timetrace get record <YYYY-MM-DD-HH-MM>
 
 **Example:**
 
-At the moment, the start time has to be in 24h format, meaning 3PM = 15. Display
-the record created on May 1st 2021, 3:00 PM:
+By default, records can be accessed using the 24-hour format, meaning 3:00 PM is
+15. Display a record created on May 1st 2021, 3:00 PM:
 
 ```
 timetrace get record 2021-05-01-15-00
 ```
+
+This behavior [can be changed](#prefer-12-hour-clock-for-storing-records).
 
 ### Edit a project
 
@@ -240,6 +242,36 @@ Print your installed timetrace version:
 
 ```
 timetrace version
+```
+
+## Configuration
+
+You may provide your own configuration in a file called `config.yaml` within
+`$HOME/.timetrace`.
+
+### Prefer 12-hour clock for storing records
+
+If you prefer to use the 12-hour clock instead of the default 24-hour format,
+add this to your `config.yaml` file:
+
+```yaml
+use12hours: true
+```
+
+This will allow you to [view a record](#get-a-record) created at 3:00 PM as
+follows:
+
+```
+timetrace get record 2021-05-14-03-00PM
+```
+
+### Set your preferred editor
+
+By default, timetrace will open the editor specified in `$EDITOR` or fall back
+to `vi`. You may set your provide your preferred editor like so:
+
+```yaml
+editor: nano
 ```
 
 ## Credits
