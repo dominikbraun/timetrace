@@ -20,6 +20,11 @@ func Info(format string, a ...interface{}) {
 	p(color.FgCyan, emoji.LightBulb, format, a...)
 }
 
+// Warn prints a colored, formatted warning message prefixed with an emoji.
+func Warn(format string, a ...interface{}) {
+	p(color.FgHiYellow, emoji.Warning, format, a...)
+}
+
 // Err prints a colored, formatted error message prefixed with an emoji.
 func Err(format string, a ...interface{}) {
 	p(color.FgHiRed, emoji.ExclamationMark, format, a...)
