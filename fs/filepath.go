@@ -31,20 +31,18 @@ import (
 //
 // This can be used to determine the latest record in a given record directory.
 func RecordFilepaths(dir string, less func(a, b string) bool) ([]string, error) {
-	path := filepath.Join(RecordDir(dir))
-
-	items, err := ioutil.ReadDir(path)
+	items, err := ioutil.ReadDir(dir)
 	if err != nil {
 		return nil, err
 	}
 
-	var filepaths []string
+	filepaths := make([]string, 0)
 
 	for _, item := range items {
 		if item.IsDir() {
 			continue
 		}
-		filepaths = append(filepaths, filepath.Join())
+		filepaths = append(filepaths, filepath.Join(dir, item.Name()))
 	}
 
 	sort.Slice(filepaths, func(i, j int) bool {
