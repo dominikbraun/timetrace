@@ -27,6 +27,10 @@ COPY --from=downloader ["/bin/timetrace", "/bin/timetrace"]
 
 # Create a symlink for musl, see https://stackoverflow.com/a/35613430.
 RUN mkdir /lib64 && ln -s /lib/libc.musl-x86_64.so.1 /lib64/ld-linux-x86-64.so.2
+
+RUN mkdir /etc/timetrace && \
+    echo "store: '/data'" >> /etc/timetrace/config.yml
+
 RUN mkdir /data
 
 ENTRYPOINT ["/bin/timetrace"]
