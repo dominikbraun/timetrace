@@ -20,8 +20,11 @@ brew install timetrace
 
 ### Docker
 
+The timetrace Docker image stores all data in the `/data` directory. To persist
+this data on disk, you should create a bind mount or named volume like so:
+
 ```
-docker container run -v ${HOME}:/data dominikbraun/timetrace
+docker container run -v my-volume:/data dominikbraun/timetrace version
 ```
 
 ### Binary
