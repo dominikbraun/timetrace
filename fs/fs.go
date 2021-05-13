@@ -59,10 +59,10 @@ func (fs *Fs) ProjectFilepaths() ([]string, error) {
 	return filepaths, nil
 }
 
-// RecordFilepath returns the filepath of the record with the given name.
+// RecordFilepath returns the filepath of the record with the given start time.
 //
-// By default, a record started at 3:00 PM will be stored in a file called
-// 15-00.json. If use12hours is set in the config, it will be 03-00PM.json.
+// Note that the start time also has to contain the date as this determines the
+// directory the project is stored in.
 func (fs *Fs) RecordFilepath(start time.Time) string {
 	name := start.Format(recordFilepathLayout)
 	return filepath.Join(fs.RecordDirFromDate(start), name)
