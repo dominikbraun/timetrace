@@ -25,22 +25,28 @@ type Project struct {
 // if the project cannot be found.
 func (t *Timetrace) LoadProject(key string) (*Project, error) {
 	path := t.fs.ProjectFilepath(key)
+	return t.loadProject(path)
+}
 
-	file, err := ioutil.ReadFile(path)
+// ListProjects loads and returns all stored projects sorted by their filenames.
+// If no projects are found, an empty slice and no error will be returned.
+func (t *Timetrace) ListProjects() ([]*Project, error) {
+	paths, err := t.fs.ProjectFilepaths()
 	if err != nil {
-		if os.IsNotExist(err) {
-			return nil, ErrProjectNotFound
+		return nil, err
+	}
+
+	projects := make([]*Project, 0)
+
+	for _, path := range paths {
+		project, err := t.loadProject(path)
+		if err != nil {
+			return nil, err
 		}
-		return nil, err
+		projects = append(projects, project)
 	}
 
-	var project Project
-
-	if err := json.Unmarshal(file, &project); err != nil {
-		return nil, err
-	}
-
-	return &project, nil
+	return projects, nil
 }
 
 // SaveProject persists the given project. Returns ErrProjectAlreadyExists if
@@ -94,6 +100,24 @@ func (t *Timetrace) DeleteProject(project Project) error {
 	}
 
 	return os.Remove(path)
+}
+
+func (t *Timetrace) loadProject(path string) (*Project, error) {
+	file, err := ioutil.ReadFile(path)
+	if err != nil {
+		if os.IsNotExist(err) {
+			return nil, ErrProjectNotFound
+		}
+		return nil, err
+	}
+
+	var project Project
+
+	if err := json.Unmarshal(file, &project); err != nil {
+		return nil, err
+	}
+
+	return &project, nil
 }
 
 func (t *Timetrace) editorFromEnvironment() string {

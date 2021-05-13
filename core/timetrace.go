@@ -21,6 +21,7 @@ type Report struct {
 // Filesystem represents a filesystem used for storing and loading resources.
 type Filesystem interface {
 	ProjectFilepath(key string) string
+	ProjectFilepaths() ([]string, error)
 	RecordFilepath(start time.Time) string
 	RecordFilepaths(dir string, less func(a, b string) bool) ([]string, error)
 	RecordDirs(less func(a, b string) bool) ([]string, error)

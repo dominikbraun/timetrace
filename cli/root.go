@@ -28,6 +28,7 @@ func RootCommand(t *core.Timetrace, version string) *cobra.Command {
 
 	root.AddCommand(createCommand(t))
 	root.AddCommand(getCommand(t))
+	root.AddCommand(listCommand(t))
 	root.AddCommand(editCommand(t))
 	root.AddCommand(deleteCommand(t))
 	root.AddCommand(startCommand(t))
