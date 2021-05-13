@@ -1,4 +1,9 @@
-# :alarm_clock: timetrace
+<h1>:alarm_clock: timetrace
+<a href="https://circleci.com/gh/dominikbraun/timetrace"><img src="https://circleci.com/gh/dominikbraun/timetrace.svg?style=shield"></a>
+<a href="https://www.codefactor.io/repository/github/dominikbraun/timetrace"><img src="https://www.codefactor.io/repository/github/dominikbraun/timetrace/badge" /></a>
+<a href="https://github.com/dominikbraun/timetrace/releases"><img src="https://img.shields.io/github/v/release/dominikbraun/timetrace?sort=semver"></a>
+<a href="LICENSE"><img src="https://img.shields.io/badge/license-Apache--2.0-brightgreen"></a>
+</h1>
 
 > timetrace is a simple CLI for tracking your working time.
 
@@ -133,7 +138,7 @@ List all projects stored within the timetrace filesystem:
 
 ```
 timetrace list projects
----+-------------+
++---+-------------+
 | # |     KEY     |
 +---+-------------+
 | 1 | make-coffee |
