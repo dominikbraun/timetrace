@@ -14,7 +14,7 @@ var (
 
 type Report struct {
 	Current            *Record
-	TrackedTimeCurrent time.Duration
+	TrackedTimeCurrent *time.Duration
 	TrackedTimeToday   time.Duration
 }
 
@@ -76,31 +76,40 @@ func (t *Timetrace) Start(projectKey string, isBillable bool) error {
 
 // Status creates and returns a report including the time worked since the last
 // start and the overall time worked today.
+//
+// If the user isn't tracking time at the moment of calling this function, the
+// Report.Current and Report.TrackedTimeCurrent fields will be nil. If the user
+// hasn't tracked time today, ErrTrackingNotStarted will be returned.
 func (t *Timetrace) Status() (*Report, error) {
+	now := time.Now()
+
+	firstRecord, err := t.loadOldestRecord(time.Now())
+	if err != nil {
+		return nil, err
+	}
+
+	if firstRecord == nil {
+		return nil, ErrTrackingNotStarted
+	}
+
 	latestRecord, err := t.loadLatestRecord()
 	if err != nil {
 		return nil, err
 	}
 
-	if latestRecord == nil {
-		return nil, ErrTrackingNotStarted
+	report := &Report{
+		TrackedTimeToday: now.Sub(firstRecord.Start),
 	}
 
-	now := time.Now()
-
-	firstRecord, err := t.loadOldestRecord(now)
-	if err != nil {
-		return nil, err
+	// If the latest record hasn't ended yet, it is the current record.
+	// Set information related to the current record.
+	if latestRecord.End == nil {
+		report.Current = latestRecord
+		trackedTimeCurrent := now.Sub(*latestRecord.End)
+		report.TrackedTimeCurrent = &trackedTimeCurrent
 	}
 
-	trackedTimeCurrent := now.Sub(latestRecord.Start)
-	trackedTimeToday := now.Sub(firstRecord.Start)
-
-	return &Report{
-		Current:            latestRecord,
-		TrackedTimeCurrent: trackedTimeCurrent,
-		TrackedTimeToday:   trackedTimeToday,
-	}, nil
+	return report, nil
 }
 
 // Stop stops the time tracking and marks the current record as ended.
