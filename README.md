@@ -119,6 +119,29 @@ timetrace get record 2021-05-01-15-00
 
 This behavior [can be changed](#prefer-12-hour-clock-for-storing-records).
 
+### List all projects
+
+**Syntax:**
+
+```
+timetrace list projects
+```
+
+**Example:**
+
+List all projects stored within the timetrace filesystem:
+
+```
+timetrace list projects
+---+-------------+
+| # |     KEY     |
++---+-------------+
+| 1 | make-coffee |
+| 2 | my-website  |
+| 3 | web-shop    |
++---+-------------+
+```
+
 ### Edit a project
 
 **Syntax:**
