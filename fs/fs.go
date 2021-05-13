@@ -36,6 +36,29 @@ func (fs *Fs) ProjectFilepath(key string) string {
 	return filepath.Join(fs.projectsDir(), name)
 }
 
+// ProjectFilepaths returns all project filepaths sorted alphabetically.
+func (fs *Fs) ProjectFilepaths() ([]string, error) {
+	dir := fs.projectsDir()
+
+	items, err := ioutil.ReadDir(dir)
+	if err != nil {
+		return nil, err
+	}
+
+	var filepaths []string
+
+	for _, item := range items {
+		if item.IsDir() {
+			continue
+		}
+		filepaths = append(filepaths, filepath.Join(dir, item.Name()))
+	}
+
+	sort.Strings(filepaths)
+
+	return filepaths, nil
+}
+
 // RecordFilepath returns the filepath of the record with the given name.
 //
 // By default, a record started at 3:00 PM will be stored in a file called
