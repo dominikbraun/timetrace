@@ -25,14 +25,20 @@ func statusCommand(t *core.Timetrace) *cobra.Command {
 
 			project := defaultString
 
-			if report.Current.Project != nil {
+			if report.Current != nil {
 				project = report.Current.Project.Key
+			}
+
+			trackedTimeCurrent := defaultString
+
+			if report.TrackedTimeCurrent != nil {
+				trackedTimeCurrent = report.TrackedTimeCurrent.String()
 			}
 
 			rows := [][]string{
 				{
 					project,
-					report.TrackedTimeCurrent.String(),
+					trackedTimeCurrent,
 					report.TrackedTimeToday.String(),
 				},
 			}

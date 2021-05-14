@@ -14,7 +14,7 @@ var (
 
 type Report struct {
 	Current            *Record
-	TrackedTimeCurrent time.Duration
+	TrackedTimeCurrent *time.Duration
 	TrackedTimeToday   time.Duration
 }
 
@@ -24,7 +24,7 @@ type Filesystem interface {
 	ProjectFilepaths() ([]string, error)
 	RecordFilepath(start time.Time) string
 	RecordFilepaths(dir string, less func(a, b string) bool) ([]string, error)
-	RecordDirs(less func(a, b string) bool) ([]string, error)
+	RecordDirs() ([]string, error)
 	RecordDirFromDate(date time.Time) string
 	EnsureDirectories() error
 	EnsureRecordDir(date time.Time) error
@@ -74,33 +74,47 @@ func (t *Timetrace) Start(projectKey string, isBillable bool) error {
 	return t.SaveRecord(record, false)
 }
 
-// Status creates and returns a report including the time worked since the last
-// start and the overall time worked today.
+// Status calculates and returns a status report.
+//
+// If the user isn't tracking time at the moment of calling this function, the
+// Report.Current and Report.TrackedTimeCurrent fields will be nil. If the user
+// hasn't tracked time today, ErrTrackingNotStarted will be returned.
 func (t *Timetrace) Status() (*Report, error) {
+	now := time.Now()
+
+	firstRecord, err := t.loadOldestRecord(time.Now())
+	if err != nil {
+		return nil, err
+	}
+
+	if firstRecord == nil {
+		return nil, ErrTrackingNotStarted
+	}
+
 	latestRecord, err := t.loadLatestRecord()
 	if err != nil {
 		return nil, err
 	}
 
-	if latestRecord == nil {
-		return nil, ErrTrackingNotStarted
+	var report Report
+
+	// If the latest record has been stopped, there is no active time tracking.
+	// Therefore, just calculate the tracked time of today and return.
+	if latestRecord.End != nil {
+		return &Report{
+			TrackedTimeToday: latestRecord.End.Sub(firstRecord.Start),
+		}, nil
 	}
 
-	now := time.Now()
+	report.Current = latestRecord
 
-	firstRecord, err := t.loadOldestRecord(now)
-	if err != nil {
-		return nil, err
-	}
-
+	// If the latest record has not been stopped yet, time tracking is active.
+	// Calculate the time tracked for the current record and for today.
 	trackedTimeCurrent := now.Sub(latestRecord.Start)
-	trackedTimeToday := now.Sub(firstRecord.Start)
+	report.TrackedTimeCurrent = &trackedTimeCurrent
+	report.TrackedTimeToday = now.Sub(firstRecord.Start)
 
-	return &Report{
-		Current:            latestRecord,
-		TrackedTimeCurrent: trackedTimeCurrent,
-		TrackedTimeToday:   trackedTimeToday,
-	}, nil
+	return &report, nil
 }
 
 // Stop stops the time tracking and marks the current record as ended.
