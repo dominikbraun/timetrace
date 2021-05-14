@@ -112,28 +112,12 @@ func (fs *Fs) RecordFilepaths(dir string, less func(a, b string) bool) ([]string
 	return filepaths, nil
 }
 
-// RecordDirs returns all record directories sorted by the given function.
-//
-// For example, assume three directories containing record files:
-//
-//	- timetrace/records/2021-05-01
-//	- timetrace/records/2021-05-02
-//	- timetrace/records/2021-05-03
-//
-// The following call to RecordDirs will return those directories sorted from
-// newest to oldest:
-//
-//	latestRecordDirs, err := RecordDirs(func (a, b string) bool {
-//		dateA, _ := time.Parse("2006-01-02", a)
-//		dateB, _ := time.Parse("2006-01-02", b)
-//		return dateA.Before(dateB)
-//	})
-//
-// This can be used to determine the latest record directory and obtain the
-// latest record within that directory using RecordFilepaths.
+// RecordDirs returns all record directories sorted alphabetically. This can be
+// used to determine the latest record directory and obtain the latest record
+// within that directory using RecordFilepaths.
 //
 // Note that all timetrace directories have to exist for RecordDirs to work.
-func (fs *Fs) RecordDirs(less func(a, b string) bool) ([]string, error) {
+func (fs *Fs) RecordDirs() ([]string, error) {
 	items, err := ioutil.ReadDir(fs.recordsDir())
 	if err != nil {
 		return nil, err
@@ -148,9 +132,7 @@ func (fs *Fs) RecordDirs(less func(a, b string) bool) ([]string, error) {
 		dirs = append(dirs, filepath.Join(fs.recordsDir(), item.Name()))
 	}
 
-	sort.Slice(dirs, func(i, j int) bool {
-		return less(dirs[i], dirs[j])
-	})
+	sort.Strings(dirs)
 
 	return dirs, nil
 }

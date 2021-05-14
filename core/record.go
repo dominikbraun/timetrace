@@ -74,11 +74,7 @@ func (t *Timetrace) DeleteRecord(record Record) error {
 // loadLatestRecord loads the youngest record. This may also be a record from
 // another day. If there is no latest record, nil and no error will be returned.
 func (t *Timetrace) loadLatestRecord() (*Record, error) {
-	latestDirs, err := t.fs.RecordDirs(func(a, b string) bool {
-		dateA, _ := time.Parse("2006-01-02", a)
-		dateB, _ := time.Parse("2006-01-02", a)
-		return dateA.Before(dateB)
-	})
+	latestDirs, err := t.fs.RecordDirs()
 	if err != nil {
 		return nil, err
 	}
@@ -87,7 +83,7 @@ func (t *Timetrace) loadLatestRecord() (*Record, error) {
 		return nil, nil
 	}
 
-	dir := latestDirs[0]
+	dir := latestDirs[len(latestDirs)-1]
 
 	latestRecords, err := t.fs.RecordFilepaths(dir, func(a, b string) bool {
 		timeA, _ := time.Parse(recordLayout, a)
