@@ -6,6 +6,7 @@ import (
 	"os"
 	"path/filepath"
 	"sort"
+	"strings"
 	"time"
 
 	"github.com/dominikbraun/timetrace/config"
@@ -23,15 +24,20 @@ const (
 )
 
 type Fs struct {
-	config *config.Config
+	config    *config.Config
+	sanitizer *strings.Replacer
 }
 
 func New(config *config.Config) *Fs {
-	return &Fs{config: config}
+	return &Fs{
+		config:    config,
+		sanitizer: strings.NewReplacer("/", "-", "\\", "-"),
+	}
 }
 
 // ProjectFilepath returns the filepath of the project with the given key.
 func (fs *Fs) ProjectFilepath(key string) string {
+	key = fs.sanitizer.Replace(key)
 	name := fmt.Sprintf("%s.json", key)
 	return filepath.Join(fs.projectsDir(), name)
 }
