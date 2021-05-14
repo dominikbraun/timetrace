@@ -97,19 +97,23 @@ func (t *Timetrace) Status() (*Report, error) {
 		return nil, err
 	}
 
-	report := &Report{
-		TrackedTimeToday: now.Sub(firstRecord.Start),
+	var report Report
+
+	// If the latest record has been stopped, there is no "current record".
+	// Therefore, just calculate the tracked time of today and return.
+	if latestRecord.End != nil {
+		return &Report{
+			TrackedTimeToday: latestRecord.End.Sub(firstRecord.Start),
+		}, nil
 	}
 
-	// If the latest record hasn't ended yet, it is the current record.
-	// Set information related to the current record.
-	if latestRecord.End == nil {
-		report.Current = latestRecord
-		trackedTimeCurrent := now.Sub(*latestRecord.End)
-		report.TrackedTimeCurrent = &trackedTimeCurrent
-	}
+	report.Current = latestRecord
 
-	return report, nil
+	// If the latest record has not been stopped, time is still being tracked.
+	trackedTimeCurrent := now.Sub(*latestRecord.End)
+	report.TrackedTimeCurrent = &trackedTimeCurrent
+
+	return &report, nil
 }
 
 // Stop stops the time tracking and marks the current record as ended.
