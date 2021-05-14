@@ -96,14 +96,19 @@ func (t *Timetrace) Status() (*Report, error) {
 		return nil, err
 	}
 
-	var report Report
+	trackedTimeToday, err := t.trackedTime(now)
+	if err != nil {
+		return nil, err
+	}
+
+	report := &Report{
+		TrackedTimeToday: trackedTimeToday,
+	}
 
 	// If the latest record has been stopped, there is no active time tracking.
 	// Therefore, just calculate the tracked time of today and return.
 	if latestRecord.End != nil {
-		return &Report{
-			TrackedTimeToday: latestRecord.End.Sub(firstRecord.Start),
-		}, nil
+		return report, nil
 	}
 
 	report.Current = latestRecord
@@ -112,9 +117,8 @@ func (t *Timetrace) Status() (*Report, error) {
 	// Calculate the time tracked for the current record and for today.
 	trackedTimeCurrent := now.Sub(latestRecord.Start)
 	report.TrackedTimeCurrent = &trackedTimeCurrent
-	report.TrackedTimeToday = now.Sub(firstRecord.Start)
 
-	return &report, nil
+	return report, nil
 }
 
 // Stop stops the time tracking and marks the current record as ended.
@@ -140,4 +144,26 @@ func (t *Timetrace) EnsureDirectories() error {
 
 func (t *Timetrace) Config() *config.Config {
 	return t.config
+}
+
+func (t *Timetrace) trackedTime(date time.Time) (time.Duration, error) {
+	records, err := t.loadAllRecords(date)
+	if err != nil {
+		return 0, err
+	}
+
+	var trackedTime time.Duration
+
+	for _, record := range records {
+		// If the record doesn't have an end time, it is expected that this is
+		// the current record and time is still being tracked.
+		if record.End == nil {
+			trackedTime += time.Now().Sub(record.Start)
+			continue
+		}
+
+		trackedTime += record.End.Sub(record.Start)
+	}
+
+	return trackedTime, nil
 }
