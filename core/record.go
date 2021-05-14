@@ -98,7 +98,7 @@ func (t *Timetrace) loadLatestRecord() (*Record, error) {
 		return nil, nil
 	}
 
-	path := latestRecords[0]
+	path := latestRecords[len(latestRecords)-1]
 
 	return t.loadRecord(path)
 }
