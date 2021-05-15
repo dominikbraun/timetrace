@@ -154,6 +154,7 @@ func (fs *Fs) EnsureDirectories() error {
 	dirs := []string{
 		fs.projectsDir(),
 		fs.recordsDir(),
+		fs.recordsInitSubDir(),
 	}
 
 	for _, dir := range dirs {
@@ -179,6 +180,11 @@ func (fs *Fs) projectsDir() string {
 
 func (fs *Fs) recordsDir() string {
 	return filepath.Join(fs.rootDir(), recordsDirName)
+}
+
+func (fs *Fs) recordsInitSubDir() string {
+	currentDate := fs.RecordDirFromDate(time.Now())
+	return filepath.Join(fs.rootDir(), recordsDirName, currentDate)
 }
 
 func (fs *Fs) rootDir() string {
