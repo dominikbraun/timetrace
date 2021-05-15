@@ -183,8 +183,7 @@ func (fs *Fs) recordsDir() string {
 }
 
 func (fs *Fs) recordsInitSubDir() string {
-	currentDate := fs.RecordDirFromDate(time.Now())
-	return filepath.Join(fs.rootDir(), recordsDirName, currentDate)
+	return fs.RecordDirFromDate(time.Now())
 }
 
 func (fs *Fs) rootDir() string {
