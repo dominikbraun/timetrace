@@ -150,7 +150,7 @@ timetrace list projects
 +---+-------------+
 ```
 
-### List all projects from a date
+### List all records from a date
 
 **Syntax:**
 
