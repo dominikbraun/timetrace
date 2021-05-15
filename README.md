@@ -150,6 +150,28 @@ timetrace list projects
 +---+-------------+
 ```
 
+### List all projects from a date
+
+**Syntax:**
+
+```
+timetrace list records <YYYY-MM-DD>
+```
+
+**Arguments:**
+
+|Argument|Description|
+|-|-|
+|`YYYY-MM-DD`|The date of the records to list.|
+
+**Example:**
+
+Display all records created on May 1st 2021:
+
+```
+timetrace list records 2021-05-01
+```
+
 ### Edit a project
 
 **Syntax:**
