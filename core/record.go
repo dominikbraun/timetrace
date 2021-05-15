@@ -31,6 +31,30 @@ func (t *Timetrace) LoadRecord(start time.Time) (*Record, error) {
 	return t.loadRecord(path)
 }
 
+// ListRecords loads and returns all records from the given date. If no records
+// are found, an empty slice and no error will be returned.
+func (t *Timetrace) ListRecords(date time.Time) ([]*Record, error) {
+	dir := t.fs.RecordDirFromDate(date)
+	paths, err := t.fs.RecordFilepaths(dir, func(_, _ string) bool {
+		return true
+	})
+	if err != nil {
+		return nil, err
+	}
+
+	records := make([]*Record, 0)
+
+	for _, path := range paths {
+		record, err := t.loadRecord(path)
+		if err != nil {
+			return nil, err
+		}
+		records = append(records, record)
+	}
+
+	return records, nil
+}
+
 // SaveRecord persists the given record. Returns ErrRecordAlreadyExists if the
 // record already exists and saving isn't forced.
 func (t *Timetrace) SaveRecord(record Record, force bool) error {
@@ -74,7 +98,7 @@ func (t *Timetrace) DeleteRecord(record Record) error {
 func (t *Timetrace) loadAllRecords(date time.Time) ([]*Record, error) {
 	dir := t.fs.RecordDirFromDate(date)
 
-	recordFilepaths, err := t.fs.RecordFilepaths(dir, func(a, b string) bool {
+	recordFilepaths, err := t.fs.RecordFilepaths(dir, func(_, _ string) bool {
 		return true
 	})
 	if err != nil {
