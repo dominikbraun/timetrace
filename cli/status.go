@@ -32,17 +32,16 @@ func statusCommand(t *core.Timetrace) *cobra.Command {
 			trackedTimeCurrent := defaultString
 
 			if report.TrackedTimeCurrent != nil {
-				trackedTimeCurrent = report.TrackedTimeCurrent.String()
+				trackedTimeCurrent = report.FormatCurrentTime()
 			}
 
 			rows := [][]string{
 				{
 					project,
 					trackedTimeCurrent,
-					report.TrackedTimeToday.String(),
+					report.FormatTodayTime(),
 				},
 			}
-
 			out.Table([]string{"Current project", "Worked since start", "Worked today"}, rows)
 		},
 	}
