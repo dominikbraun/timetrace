@@ -7,6 +7,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.2.1] - 2021-05-16
+
+### Changed
+* Beautified output of time durations (#20)
+
+### Fixed
+* Fix `timetrace status` if there was no time tracking yet (#18)
+
 ## [0.2.0] - 2021-05-16
 
 ### Added
