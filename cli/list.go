@@ -94,14 +94,15 @@ func listRecordsCommand(t *core.Timetrace) *cobra.Command {
 					billable = "yes"
 				}
 
-				rows[i] = make([]string, 4)
+				rows[i] = make([]string, 5)
 				rows[i][0] = strconv.Itoa(i + 1)
-				rows[i][1] = record.Start.Format(dateLayout)
-				rows[i][2] = end
-				rows[i][3] = billable
+				rows[i][1] = record.Project.Key
+				rows[i][2] = record.Start.Format(dateLayout)
+				rows[i][3] = end
+				rows[i][4] = billable
 			}
 
-			out.Table([]string{"#", "Start", "End", "Billable"}, rows)
+			out.Table([]string{"#", "Project", "Start", "End", "Billable"}, rows)
 		},
 	}
 
