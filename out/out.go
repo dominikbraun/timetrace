@@ -10,6 +10,16 @@ import (
 	"github.com/olekukonko/tablewriter"
 )
 
+var (
+	// used for the headers on the tables
+	backgroundColor = []int{
+		tablewriter.BgGreenColor,
+		tablewriter.BgBlackColor,
+		tablewriter.BgRedColor,
+		tablewriter.BgCyanColor,
+	}
+)
+
 // Success prints a colored, formatted success message prefixed with an emoji.
 func Success(format string, a ...interface{}) {
 	p(color.FgGreen, emoji.CheckMark, format, a...)
@@ -34,8 +44,19 @@ func Err(format string, a ...interface{}) {
 func Table(header []string, rows [][]string) {
 	table := tablewriter.NewWriter(os.Stdout)
 	table.SetHeader(header)
+	setHeaderColor(table, header)
 	table.AppendBulk(rows)
 	table.Render()
+}
+
+// setHeaderColor set colors for the headers on the table
+func setHeaderColor(table *tablewriter.Table, header []string) {
+	colors := []tablewriter.Colors{}
+	for i := range header {
+		color := tablewriter.Colors{tablewriter.Bold, backgroundColor[i%len(backgroundColor)]}
+		colors = append(colors, color)
+	}
+	table.SetHeaderColor(colors...)
 }
 
 func p(attribute color.Attribute, emoji emoji.Emoji, format string, a ...interface{}) {
