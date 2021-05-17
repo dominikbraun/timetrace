@@ -216,6 +216,28 @@ Delete a project called `make-coffee`:
 timetrace delete project make-coffee
 ```
 
+### Delete a record
+
+**Syntax:**
+
+```
+timetrace delete record <YYYY-MM-DD-HH-MM>
+```
+
+**Arguments:**
+
+|Argument|Description|
+|-|-|
+|`YYYY-MM-DD-HH-MM`|The start time of the desired record.|
+
+**Example:**
+
+Delete a record created on May 1st 2021, 3:00 PM:
+
+```
+timetrace delete record 2021-05-01-15-00
+```
+
 ### Start tracking
 
 **Syntax:**

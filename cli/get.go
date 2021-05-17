@@ -9,10 +9,6 @@ import (
 	"github.com/spf13/cobra"
 )
 
-const (
-	defaultRecordArgLayout = "2006-01-02-15-04"
-)
-
 func getCommand(t *core.Timetrace) *cobra.Command {
 	get := &cobra.Command{
 		Use:   "get",
