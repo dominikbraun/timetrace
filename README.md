@@ -18,6 +18,12 @@ brew tap dominikbraun/timetrace
 brew install timetrace
 ```
 
+### Snap
+
+```
+sudo snap install timetrace --edge
+```
+
 ### Docker
 
 The timetrace Docker image stores all data in the `/data` directory. To persist
