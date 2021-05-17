@@ -79,6 +79,10 @@ func listRecordsCommand(t *core.Timetrace) *cobra.Command {
 				return
 			}
 
+			if options.isOnlyDisplayingBillable {
+				records = filterBillableRecords(records)
+			}
+
 			dateLayout := defaultTimeLayout
 
 			if t.Config().Use12Hours {
@@ -116,4 +120,14 @@ func listRecordsCommand(t *core.Timetrace) *cobra.Command {
 		false, `only display billable records`)
 
 	return listRecords
+}
+
+func filterBillableRecords(records []*core.Record) []*core.Record {
+	billableRecords := []*core.Record{}
+	for _, record := range records {
+		if record.IsBillable == true {
+			billableRecords = append(billableRecords, record)
+		}
+	}
+	return billableRecords
 }
