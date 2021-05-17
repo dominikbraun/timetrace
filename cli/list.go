@@ -55,7 +55,13 @@ func listProjectsCommand(t *core.Timetrace) *cobra.Command {
 	return listProjects
 }
 
+type listRecordsOptions struct {
+	isOnlyDisplayingBillable bool
+}
+
 func listRecordsCommand(t *core.Timetrace) *cobra.Command {
+	var options listRecordsOptions
+
 	listRecords := &cobra.Command{
 		Use:   "records <YYYY-MM-DD>",
 		Short: "List all records from a date",
@@ -105,6 +111,9 @@ func listRecordsCommand(t *core.Timetrace) *cobra.Command {
 			out.Table([]string{"#", "Project", "Start", "End", "Billable"}, rows)
 		},
 	}
+
+	listRecords.Flags().BoolVarP(&options.isOnlyDisplayingBillable, "billable", "b",
+		false, `only display billable records`)
 
 	return listRecords
 }
