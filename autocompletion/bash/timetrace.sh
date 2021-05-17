@@ -52,8 +52,6 @@ _complete_timetrace () {
                 fi
                 ;;
             esac
-        else
-            echo "$(_get_argc)"
         fi
         ;;
 
