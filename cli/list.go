@@ -2,6 +2,7 @@ package cli
 
 import (
 	"strconv"
+	"strings"
 	"time"
 
 	"github.com/dominikbraun/timetrace/core"
@@ -57,14 +58,24 @@ func listProjectsCommand(t *core.Timetrace) *cobra.Command {
 
 func listRecordsCommand(t *core.Timetrace) *cobra.Command {
 	listRecords := &cobra.Command{
-		Use:   "records <YYYY-MM-DD>",
+		Use:   "records {<YYYY-MM-DD>|today|yesterday}",
 		Short: "List all records from a date",
 		Args:  cobra.ExactArgs(1),
 		Run: func(cmd *cobra.Command, args []string) {
-			date, err := time.Parse("2006-01-02", args[0])
-			if err != nil {
-				out.Err("failed to parse date: %s", err.Error())
-				return
+			var date time.Time
+			var err error
+
+			switch strings.ToLower(args[0]) {
+			case "today":
+				date = time.Now()
+			case "yesterday":
+				date = time.Now().AddDate(0, 0, -1)
+			default:
+				date, err = time.Parse("2006-01-02", args[0])
+				if err != nil {
+					out.Err("failed to parse date: %s", err.Error())
+					return
+				}
 			}
 
 			records, err := t.ListRecords(date)
