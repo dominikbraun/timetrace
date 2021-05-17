@@ -1,0 +1,16 @@
+name: timetrace
+version: git
+summary: Simple time tracking CLI
+description: |
+  timetrace is a simple CLI for tracking your working time.
+confinement: devmode
+base: core18
+parts:
+  timetrace:
+    plugin: go
+    go-importpath: github.com/dominikbraun/timetrace
+    source: .
+    source-type: git
+apps:
+  timetrace:
+    command: bin/timetrace
