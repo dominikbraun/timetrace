@@ -11,10 +11,6 @@ import (
 	"github.com/spf13/cobra"
 )
 
-const (
-	defaultTimeLayout = "15:04"
-)
-
 func listCommand(t *core.Timetrace) *cobra.Command {
 	list := &cobra.Command{
 		Use:   "list",
@@ -94,10 +90,10 @@ func listRecordsCommand(t *core.Timetrace) *cobra.Command {
 				records = filterBillableRecords(records)
 			}
 
-			dateLayout := defaultTimeLayout
+			dateLayout := default24HourTimeFormat
 
 			if t.Config().Use12Hours {
-				dateLayout = "03:04PM"
+				dateLayout = default12HourTimeFormat
 			}
 
 			rows := make([][]string, len(records))
