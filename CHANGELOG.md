@@ -7,6 +7,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.3.1] - 2021-05-18
+
+### Changed
+* Introduce the `today` and `yesterday` aliases for `timetrace list records` (#32)
+* Preview the target record and ask for confirmation when deleting a record (#37)
+
 ## [0.3.0] - 2021-05-17
 
 ### Added
