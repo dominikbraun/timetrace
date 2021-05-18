@@ -74,9 +74,11 @@ func listRecordsCommand(t *core.Timetrace) *cobra.Command {
 			}
 
 			timeLayout := defaultTimeLayout
+			keyLayout := defaultRecordArgLayout
 
 			if t.Config().Use12Hours {
 				timeLayout = "03:04PM"
+				keyLayout = "2006-01-02-03-04PM"
 			}
 
 			rows := make([][]string, len(records))
@@ -94,15 +96,16 @@ func listRecordsCommand(t *core.Timetrace) *cobra.Command {
 					billable = "yes"
 				}
 
-				rows[i] = make([]string, 5)
+				rows[i] = make([]string, 6)
 				rows[i][0] = strconv.Itoa(i + 1)
-				rows[i][1] = record.Project.Key
-				rows[i][2] = record.Start.Format(timeLayout)
-				rows[i][3] = end
-				rows[i][4] = billable
+				rows[i][1] = record.Start.Format(keyLayout)
+				rows[i][2] = record.Project.Key
+				rows[i][3] = record.Start.Format(timeLayout)
+				rows[i][4] = end
+				rows[i][5] = billable
 			}
 
-			out.Table([]string{"#", "Project", "Start", "End", "Billable"}, rows)
+			out.Table([]string{"#", "Key", "Project", "Start", "End", "Billable"}, rows)
 		},
 	}
 
