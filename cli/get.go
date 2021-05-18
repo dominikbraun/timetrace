@@ -56,7 +56,6 @@ func getRecordCommand(t *core.Timetrace) *cobra.Command {
 			if t.Config().Use12Hours {
 				layout = "2006-01-02-03-04PM"
 			}
-
 			start, err := time.Parse(layout, args[0])
 			if err != nil {
 				out.Err("Failed to parse date argument: %s", err.Error())
@@ -69,36 +68,40 @@ func getRecordCommand(t *core.Timetrace) *cobra.Command {
 				return
 			}
 
-			isBillable := defaultBool
-
-			if record.IsBillable {
-				isBillable = "yes"
-			}
-
-			end := defaultString
-
-			if record.End != nil {
-				end = record.End.Format("15:04")
-			}
-
-			project := defaultString
-
-			if record.Project != nil {
-				project = record.Project.Key
-			}
-
-			rows := [][]string{
-				{
-					record.Start.Format("15:04"),
-					end,
-					project,
-					isBillable,
-				},
-			}
-
-			out.Table([]string{"Start", "End", "Project", "Billable"}, rows)
+			showRecord(record)
 		},
 	}
 
 	return getRecord
+}
+
+func showRecord(record *core.Record) {
+	isBillable := defaultBool
+
+	if record.IsBillable {
+		isBillable = "yes"
+	}
+
+	end := defaultString
+
+	if record.End != nil {
+		end = record.End.Format("15:04")
+	}
+
+	project := defaultString
+
+	if record.Project != nil {
+		project = record.Project.Key
+	}
+
+	rows := [][]string{
+		{
+			record.Start.Format("15:04"),
+			end,
+			project,
+			isBillable,
+		},
+	}
+
+	out.Table([]string{"Start", "End", "Project", "Billable"}, rows)
 }

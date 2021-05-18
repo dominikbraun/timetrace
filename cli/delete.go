@@ -79,6 +79,7 @@ func deleteRecordCommand(t *core.Timetrace) *cobra.Command {
 				return
 			}
 
+			showRecord(record)
 			if !confirmed {
 				if !askForConfirmation() {
 					out.Err("Record NOT deleted")
