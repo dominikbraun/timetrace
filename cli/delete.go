@@ -1,6 +1,10 @@
 package cli
 
 import (
+	"bufio"
+	"fmt"
+	"os"
+	"strings"
 	"time"
 
 	"github.com/dominikbraun/timetrace/core"
@@ -8,6 +12,8 @@ import (
 
 	"github.com/spf13/cobra"
 )
+
+var confirmed bool
 
 func deleteCommand(t *core.Timetrace) *cobra.Command {
 	delete := &cobra.Command{
@@ -20,6 +26,7 @@ func deleteCommand(t *core.Timetrace) *cobra.Command {
 
 	delete.AddCommand(deleteProjectCommand(t))
 	delete.AddCommand(deleteRecordCommand(t))
+	delete.PersistentFlags().BoolVar(&confirmed, "yes", false, "Do not ask for confirmation")
 
 	return delete
 }
@@ -72,6 +79,13 @@ func deleteRecordCommand(t *core.Timetrace) *cobra.Command {
 				return
 			}
 
+			if !confirmed {
+				if !askForConfirmation() {
+					out.Err("Record NOT deleted")
+					return
+				}
+			}
+
 			if err := t.DeleteRecord(*record); err != nil {
 				out.Err("Failed to delete %s", err.Error())
 				return
@@ -82,4 +96,25 @@ func deleteRecordCommand(t *core.Timetrace) *cobra.Command {
 	}
 
 	return deleteRecord
+}
+
+func askForConfirmation() bool {
+	reader := bufio.NewReader(os.Stdin)
+	for {
+		fmt.Fprint(os.Stderr, "Please confirm (Y/N): ")
+		s, _ := reader.ReadString('\n')
+		s = strings.TrimSuffix(s, "\n")
+		s = strings.ToLower(s)
+		if len(s) > 1 {
+			continue
+		}
+		if strings.Compare(s, "n") == 0 {
+			return false
+		} else if strings.Compare(s, "y") == 0 {
+			break
+		} else {
+			continue
+		}
+	}
+	return true
 }
