@@ -161,7 +161,7 @@ timetrace list projects
 **Syntax:**
 
 ```
-timetrace list records <YYYY-MM-DD>
+timetrace list records {<YYYY-MM-DD>|today|yesterday}
 ```
 
 **Arguments:**
@@ -169,6 +169,8 @@ timetrace list records <YYYY-MM-DD>
 |Argument|Description|
 |-|-|
 |`YYYY-MM-DD`|The date of the records to list.|
+|today|List today's records.|
+|yesterday|List yesterday's records.|
 
 **Example:**
 
