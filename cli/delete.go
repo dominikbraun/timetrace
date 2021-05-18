@@ -112,8 +112,6 @@ func askForConfirmation() bool {
 			return false
 		} else if strings.Compare(s, "y") == 0 {
 			break
-		} else {
-			continue
 		}
 	}
 	return true
