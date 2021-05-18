@@ -3,7 +3,6 @@ package cli
 import (
 	"time"
 
-	"github.com/dominikbraun/timetrace/config"
 	"github.com/dominikbraun/timetrace/core"
 	"github.com/dominikbraun/timetrace/out"
 
@@ -69,26 +68,23 @@ func getRecordCommand(t *core.Timetrace) *cobra.Command {
 				return
 			}
 
-			showRecord(record, t.Config())
+			showRecord(record, t.Formatter())
 		},
 	}
 
 	return getRecord
 }
 
-func showRecord(record *core.Record, _config *config.Config) {
+func showRecord(record *core.Record, formatter *core.Formatter) {
 	isBillable := defaultBool
 
 	if record.IsBillable {
 		isBillable = "yes"
 	}
 
-	timeLayout := _config.TimeLayout()
-
 	end := defaultString
-
 	if record.End != nil {
-		end = record.End.Format(timeLayout)
+		end = formatter.TimeString(*record.End)
 	}
 
 	project := defaultString
@@ -99,7 +95,7 @@ func showRecord(record *core.Record, _config *config.Config) {
 
 	rows := [][]string{
 		{
-			record.Start.Format(timeLayout),
+			formatter.TimeString(record.Start),
 			end,
 			project,
 			isBillable,
