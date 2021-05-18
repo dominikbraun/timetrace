@@ -238,6 +238,10 @@ timetrace delete record <YYYY-MM-DD-HH-MM>
 |-|-|
 |`YYYY-MM-DD-HH-MM`|The start time of the desired record.|
 
+|Flat|Description|
+|-|-|
+|--yes|Do not ask for confirmation|
+
 **Example:**
 
 Delete a record created on May 1st 2021, 3:00 PM:
