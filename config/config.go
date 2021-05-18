@@ -65,3 +65,15 @@ func Get() *Config {
 
 	return config
 }
+
+const (
+	defaultTimeLayout        = "15:04"
+	default12HoursTimeLayout = "03:04PM"
+)
+
+func (c *Config) TimeLayout() string {
+	if c.Use12Hours {
+		return default12HoursTimeLayout
+	}
+	return defaultTimeLayout
+}

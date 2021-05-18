@@ -90,11 +90,7 @@ func listRecordsCommand(t *core.Timetrace) *cobra.Command {
 				records = filterBillableRecords(records)
 			}
 
-			dateLayout := default24HourTimeFormat
-
-			if t.Config().Use12Hours {
-				dateLayout = default12HourTimeFormat
-			}
+			dateLayout := t.Config().TimeLayout()
 
 			rows := make([][]string, len(records))
 
