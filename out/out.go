@@ -14,9 +14,9 @@ var (
 	// used for the headers on the tables
 	backgroundColor = []int{
 		tablewriter.BgGreenColor,
-		tablewriter.BgBlackColor,
 		tablewriter.BgRedColor,
 		tablewriter.BgCyanColor,
+		tablewriter.BgYellowColor,
 	}
 )
 
