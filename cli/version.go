@@ -11,7 +11,7 @@ func versionCommand(value string) *cobra.Command {
 		Use:   "version",
 		Short: "Display version information",
 		Run: func(cmd *cobra.Command, args []string) {
-			out.Err("timetrace version %s", value)
+			out.Info("timetrace version %s", value)
 		},
 	}
 
