@@ -32,14 +32,18 @@ type Filesystem interface {
 }
 
 type Timetrace struct {
-	config *config.Config
-	fs     Filesystem
+	config    *config.Config
+	fs        Filesystem
+	formatter *Formatter
 }
 
 func New(config *config.Config, fs Filesystem) *Timetrace {
 	return &Timetrace{
 		config: config,
 		fs:     fs,
+		formatter: &Formatter{
+			use12Hours: config.Use12Hours,
+		},
 	}
 }
 
@@ -145,6 +149,10 @@ func (t *Timetrace) EnsureDirectories() error {
 
 func (t *Timetrace) Config() *config.Config {
 	return t.config
+}
+
+func (t *Timetrace) Formatter() *Formatter {
+	return t.formatter
 }
 
 func (t *Timetrace) trackedTime(date time.Time) (time.Duration, error) {

@@ -68,14 +68,14 @@ func getRecordCommand(t *core.Timetrace) *cobra.Command {
 				return
 			}
 
-			showRecord(record)
+			showRecord(record, t.Formatter())
 		},
 	}
 
 	return getRecord
 }
 
-func showRecord(record *core.Record) {
+func showRecord(record *core.Record, formatter *core.Formatter) {
 	isBillable := defaultBool
 
 	if record.IsBillable {
@@ -83,9 +83,8 @@ func showRecord(record *core.Record) {
 	}
 
 	end := defaultString
-
 	if record.End != nil {
-		end = record.End.Format("15:04")
+		end = formatter.TimeString(*record.End)
 	}
 
 	project := defaultString
@@ -96,7 +95,7 @@ func showRecord(record *core.Record) {
 
 	rows := [][]string{
 		{
-			record.Start.Format("15:04"),
+			formatter.TimeString(record.Start),
 			end,
 			project,
 			isBillable,

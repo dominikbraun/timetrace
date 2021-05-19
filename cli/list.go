@@ -11,10 +11,6 @@ import (
 	"github.com/spf13/cobra"
 )
 
-const (
-	defaultTimeLayout = "15:04"
-)
-
 func listCommand(t *core.Timetrace) *cobra.Command {
 	list := &cobra.Command{
 		Use:   "list",
@@ -94,19 +90,12 @@ func listRecordsCommand(t *core.Timetrace) *cobra.Command {
 				records = filterBillableRecords(records)
 			}
 
-			dateLayout := defaultTimeLayout
-
-			if t.Config().Use12Hours {
-				dateLayout = "03:04PM"
-			}
-
 			rows := make([][]string, len(records))
 
 			for i, record := range records {
 				end := defaultString
-
 				if record.End != nil {
-					end = record.End.Format(dateLayout)
+					end = t.Formatter().TimeString(*record.End)
 				}
 
 				billable := defaultBool
@@ -118,7 +107,7 @@ func listRecordsCommand(t *core.Timetrace) *cobra.Command {
 				rows[i] = make([]string, 5)
 				rows[i][0] = strconv.Itoa(i + 1)
 				rows[i][1] = record.Project.Key
-				rows[i][2] = record.Start.Format(dateLayout)
+				rows[i][2] = t.Formatter().TimeString(record.Start)
 				rows[i][3] = end
 				rows[i][4] = billable
 			}
