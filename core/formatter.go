@@ -24,14 +24,14 @@ func (f *Formatter) TimeString(input time.Time) string {
 
 const (
 	defaultRecordKeyLayout        = "2006-01-02-15-04"
-	default12HoursRecordKeyLayout = "03:04PM"
+	default12HoursRecordKeyLayout = "2006-01-02-03-04PM"
 )
 
 func (f *Formatter) recordKeyLayout() string {
 	if f.use12Hours {
-		return defaultRecordKeyLayout
+		return default12HoursRecordKeyLayout
 	}
-	return default12HoursRecordKeyLayout
+	return defaultRecordKeyLayout
 }
 
 func (f *Formatter) ParseRecordKeyString(recordKey string) (time.Time, error) {
