@@ -21,3 +21,19 @@ func (f *Formatter) timeLayout() string {
 func (f *Formatter) TimeString(input time.Time) string {
 	return input.Format(f.timeLayout())
 }
+
+const (
+	defaultRecordKeyLayout        = "2006-01-02-15-04"
+	default12HoursRecordKeyLayout = "03:04PM"
+)
+
+func (f *Formatter) recordKeyLayout() string {
+	if f.use12Hours {
+		return defaultRecordKeyLayout
+	}
+	return default12HoursRecordKeyLayout
+}
+
+func (f *Formatter) ParseRecordKeyString(recordKey string) (time.Time, error) {
+	return time.Parse(f.recordKeyLayout(), recordKey)
+}
