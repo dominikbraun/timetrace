@@ -56,7 +56,13 @@ func listProjectsCommand(t *core.Timetrace) *cobra.Command {
 	return listProjects
 }
 
+type listRecordsOptions struct {
+	isOnlyDisplayingBillable bool
+}
+
 func listRecordsCommand(t *core.Timetrace) *cobra.Command {
+	var options listRecordsOptions
+
 	listRecords := &cobra.Command{
 		Use:   "records {<YYYY-MM-DD>|today|yesterday}",
 		Short: "List all records from a date",
@@ -82,6 +88,10 @@ func listRecordsCommand(t *core.Timetrace) *cobra.Command {
 			if err != nil {
 				out.Err("failed to list records: %s", err.Error())
 				return
+			}
+
+			if options.isOnlyDisplayingBillable {
+				records = filterBillableRecords(records)
 			}
 
 			dateLayout := defaultTimeLayout
@@ -117,5 +127,18 @@ func listRecordsCommand(t *core.Timetrace) *cobra.Command {
 		},
 	}
 
+	listRecords.Flags().BoolVarP(&options.isOnlyDisplayingBillable, "billable", "b",
+		false, `only display billable records`)
+
 	return listRecords
+}
+
+func filterBillableRecords(records []*core.Record) []*core.Record {
+	billableRecords := []*core.Record{}
+	for _, record := range records {
+		if record.IsBillable == true {
+			billableRecords = append(billableRecords, record)
+		}
+	}
+	return billableRecords
 }
