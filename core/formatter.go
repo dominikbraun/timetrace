@@ -37,3 +37,7 @@ func (f *Formatter) recordKeyLayout() string {
 func (f *Formatter) ParseRecordKeyString(recordKey string) (time.Time, error) {
 	return time.Parse(f.recordKeyLayout(), recordKey)
 }
+
+func (f *Formatter) RecordKeyString(record Record) string {
+	return record.Start.Format(f.recordKeyLayout())
+}
