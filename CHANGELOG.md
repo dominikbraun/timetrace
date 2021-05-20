@@ -7,6 +7,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.4.0] - 2021-05-20
+
+### Added
+* Add support for Bash autocompletion (#25)
+* Add support for Snap (#31)
+* Add filter for billable records (#33)
+
+### Changed
+* Use non-error output for `timetrace version` (#45)
+* Colorize and stylize tables (#26, #48, #49)
+
 ## [0.3.1] - 2021-05-18
 
 ### Changed
