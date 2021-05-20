@@ -33,7 +33,7 @@ func Err(format string, a ...interface{}) {
 // Table renders a table with the given rows to the standard output.
 func Table(header []string, rows [][]string) {
 	table := tablewriter.NewWriter(os.Stdout)
-	table.SetHeader(header)
+	table.SetHeader(headersWithPadding(header))
 	table.AppendBulk(rows)
 	table.Render()
 }
@@ -41,4 +41,12 @@ func Table(header []string, rows [][]string) {
 func p(attribute color.Attribute, emoji emoji.Emoji, format string, a ...interface{}) {
 	formatWithEmoji := fmt.Sprintf("%v %s\n", emoji, format)
 	_, _ = color.New(attribute).Printf(formatWithEmoji, a...)
+}
+
+func headersWithPadding(headers []string) []string {
+	for i, header := range headers {
+		// Add leading and trailing padding to the header
+		headers[i] = fmt.Sprintf(" %s ", header)
+	}
+	return headers
 }
