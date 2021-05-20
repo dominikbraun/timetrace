@@ -42,9 +42,10 @@ func Err(format string, a ...interface{}) {
 
 // Table renders a table with the given rows to the standard output.
 func Table(header []string, rows [][]string) {
+	paddedHeaders := headersWithPadding(header)
 	table := tablewriter.NewWriter(os.Stdout)
-	table.SetHeader(header)
-	setHeaderColor(table, header)
+	table.SetHeader(paddedHeaders)
+	setHeaderColor(table, paddedHeaders)
 	table.AppendBulk(rows)
 	table.Render()
 }
@@ -57,6 +58,15 @@ func setHeaderColor(table *tablewriter.Table, header []string) {
 		colors = append(colors, color)
 	}
 	table.SetHeaderColor(colors...)
+}
+
+// headersWithPadding prepends and appends a space to each header
+func headersWithPadding(headers []string) []string {
+	newHeaders := make([]string, len(headers))
+	for idx, val := range headers {
+		newHeaders[idx] = " " + val + " "
+	}
+	return newHeaders
 }
 
 func p(attribute color.Attribute, emoji emoji.Emoji, format string, a ...interface{}) {
