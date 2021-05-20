@@ -13,9 +13,10 @@ import (
 var (
 	// used for the headers on the tables
 	backgroundColor = []int{
+		tablewriter.BgCyanColor,
+		tablewriter.BgMagentaColor,
 		tablewriter.BgGreenColor,
 		tablewriter.BgRedColor,
-		tablewriter.BgCyanColor,
 		tablewriter.BgYellowColor,
 	}
 )
