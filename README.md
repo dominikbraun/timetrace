@@ -24,6 +24,12 @@ brew install timetrace
 sudo snap install timetrace --edge
 ```
 
+### AUR
+
+```
+yay -S timetrace-bin
+```
+
 ### Docker
 
 The timetrace Docker image stores all data in the `/data` directory. To persist
