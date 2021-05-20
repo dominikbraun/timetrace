@@ -5,6 +5,7 @@ import (
 	"errors"
 	"io/ioutil"
 	"os"
+	"os/exec"
 	"time"
 )
 
@@ -93,6 +94,56 @@ func (t *Timetrace) DeleteRecord(record Record) error {
 	}
 
 	return os.Remove(path)
+}
+
+// EditRecordManual opens the record file in the preferred or default editor.
+func (t *Timetrace) EditRecordManual(recordTime time.Time) error {
+	path := t.fs.RecordFilepath(recordTime)
+
+	if _, err := t.loadRecord(path); err != nil {
+		return err
+	}
+
+	editor := t.editorFromEnvironment()
+	cmd := exec.Command(editor, path)
+	cmd.Stdin = os.Stdin
+	cmd.Stdout = os.Stdout
+	cmd.Stderr = os.Stderr
+
+	return cmd.Run()
+}
+
+// EditRecord loads the record internally, applies the option values and saves the record
+func (t *Timetrace) EditRecord(recordTime time.Time, plus string, minus string) error {
+	path := t.fs.RecordFilepath(recordTime)
+
+	record, err := t.loadRecord(path)
+	if err != nil {
+		return err
+	}
+
+	if plus != "" {
+		dur, err := time.ParseDuration(plus)
+		if err != nil {
+			return err
+		}
+		newEnd := record.End.Add(dur)
+		record.End = &newEnd
+	} else {
+		dur, err := time.ParseDuration(minus)
+		if err != nil {
+			return err
+		}
+		newEnd := record.End.Add(-dur)
+		if newEnd.Before(record.Start) {
+			return errors.New("new ending time is before start time of record")
+		}
+		record.End = &newEnd
+	}
+
+	t.SaveRecord(*record, true)
+
+	return nil
 }
 
 func (t *Timetrace) loadAllRecords(date time.Time) ([]*Record, error) {
