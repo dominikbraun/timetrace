@@ -21,7 +21,7 @@ brew install timetrace
 ### Snap
 
 ```
-sudo snap install timetrace --edge
+sudo snap install timetrace --edge --devmode
 ```
 
 ### Docker
