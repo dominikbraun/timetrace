@@ -18,7 +18,7 @@ FROM alpine:3.11.5 AS final
 
 LABEL org.label-schema.schema-version="1.0"
 LABEL org.label-schema.name="timetrace"
-LABEL org.label-schema.description="An easy-to-use CLI client for RabbitMQ."
+LABEL org.label-schema.description="A simple CLI for tracking your working time."
 LABEL org.label-schema.url="https://github.com/dominikbraun/timetrace"
 LABEL org.label-schema.vcs-url="https://github.com/dominikbraun/timetrace"
 LABEL org.label-schema.version=${VERSION}
