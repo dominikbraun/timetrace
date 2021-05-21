@@ -46,14 +46,19 @@ func getProjectCommand(t *core.Timetrace) *cobra.Command {
 }
 
 func getRecordCommand(t *core.Timetrace) *cobra.Command {
+	use12Hours := t.Config().Use12Hours
+	useTimeFormat := "record YYYY-MM-DD-HH-MM"
+	if use12Hours {
+		useTimeFormat = "record YYYY-MM-DD-HH-MMPM"
+	}
 	getRecord := &cobra.Command{
-		Use:   "record YYYY-MM-DD-HH-MM",
+		Use:   useTimeFormat,
 		Short: "Display a record",
 		Args:  cobra.ExactArgs(1),
 		Run: func(cmd *cobra.Command, args []string) {
 			layout := defaultRecordArgLayout
 
-			if t.Config().Use12Hours {
+			if use12Hours {
 				layout = "2006-01-02-03-04PM"
 			}
 			start, err := time.Parse(layout, args[0])
