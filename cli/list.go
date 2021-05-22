@@ -124,7 +124,7 @@ func listRecordsCommand(t *core.Timetrace) *cobra.Command {
 	listRecords.Flags().BoolVarP(&options.isOnlyDisplayingBillable, "billable", "b",
 		false, `only display billable records`)
 
-	listRecords.Flags().StringVarP(&options.projectKeyFilter, "project key", "p",
+	listRecords.Flags().StringVarP(&options.projectKeyFilter, "project", "p",
 		"", "filter by project key")
 
 	return listRecords
