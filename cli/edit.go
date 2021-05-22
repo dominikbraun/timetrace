@@ -59,6 +59,11 @@ func editRecordCommand(t *core.Timetrace) *cobra.Command {
 		Short: "Edit a record",
 		Args:  cobra.ExactArgs(1),
 		Run: func(cmd *cobra.Command, args []string) {
+			if options.Plus != "" && options.Minus != "" {
+				out.Err("Plus and minus flag can not be combined: %s", errors.New("edit not possible"))
+				return
+			}
+
 			layout := defaultRecordArgLayout
 
 			if t.Config().Use12Hours {
@@ -77,8 +82,6 @@ func editRecordCommand(t *core.Timetrace) *cobra.Command {
 					out.Err("Failed to edit project: %s", err.Error())
 					return
 				}
-			} else if options.Plus != "" && options.Minus != "" {
-				out.Err("Plus and minus flag can not be combined: %s", errors.New("edit not possible"))
 			} else {
 				if err := t.EditRecord(recordTime, options.Plus, options.Minus); err != nil {
 					out.Err("Failed to edit project: %s", err.Error())
