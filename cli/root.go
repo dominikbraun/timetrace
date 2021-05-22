@@ -7,9 +7,8 @@ import (
 )
 
 const (
-	defaultString          = "---"
-	defaultBool            = "no"
-	defaultRecordArgLayout = "2006-01-02-15-04"
+	defaultString = "---"
+	defaultBool   = "no"
 )
 
 func RootCommand(t *core.Timetrace, version string) *cobra.Command {

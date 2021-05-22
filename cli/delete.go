@@ -5,7 +5,6 @@ import (
 	"fmt"
 	"os"
 	"strings"
-	"time"
 
 	"github.com/dominikbraun/timetrace/core"
 	"github.com/dominikbraun/timetrace/out"
@@ -66,13 +65,7 @@ func deleteRecordCommand(t *core.Timetrace) *cobra.Command {
 		Short: "Delete a record",
 		Args:  cobra.ExactArgs(1),
 		Run: func(cmd *cobra.Command, args []string) {
-			layout := defaultRecordArgLayout
-
-			if use12Hours {
-				layout = "2006-01-02-03-04PM"
-			}
-
-			start, err := time.Parse(layout, args[0])
+			start, err := t.Formatter().ParseRecordKeyString(args[0])
 			if err != nil {
 				out.Err("Failed to parse date argument: %s", err.Error())
 				return
