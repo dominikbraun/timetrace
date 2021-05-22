@@ -6,6 +6,7 @@ import (
 	"io/ioutil"
 	"os"
 	"os/exec"
+	"strings"
 )
 
 const (
@@ -19,6 +20,22 @@ var (
 
 type Project struct {
 	Key string `json:"key"`
+}
+
+// Parent returns the parent project of the current project or an empty string
+// if there is no parent. If it has a parent, the current project is a module.
+func (p *Project) Parent() string {
+	tokens := strings.Split(p.Key, "@")
+
+	if len(tokens) < 2 {
+		return ""
+	}
+
+	return tokens[1]
+}
+
+func (p *Project) IsModule() bool {
+	return p.Parent() != ""
 }
 
 // LoadProject loads the project with the given key. Returns ErrProjectNotFound
@@ -118,6 +135,27 @@ func (t *Timetrace) loadProject(path string) (*Project, error) {
 	}
 
 	return &project, nil
+}
+
+// loadProjectModules loads all modules of the given project.
+//
+// Since project modules are projects with the name <module>@<project>, this
+// function simply loads all "projects" suffixed with @<key>.
+func (t *Timetrace) loadProjectModules(project *Project) ([]*Project, error) {
+	projects, err := t.ListProjects()
+	if err != nil {
+		return nil, err
+	}
+
+	var modules []*Project
+
+	for _, p := range projects {
+		if p.Parent() == project.Key {
+			modules = append(modules, project)
+		}
+	}
+
+	return modules, nil
 }
 
 func (t *Timetrace) editorFromEnvironment() string {
