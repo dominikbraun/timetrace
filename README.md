@@ -172,6 +172,13 @@ timetrace list records {<YYYY-MM-DD>|today|yesterday}
 |today|List today's records.|
 |yesterday|List yesterday's records.|
 
+**Flags:**
+
+|Flag|Short|Description|
+|-|-|-|
+|`--billable`|`-b`|only display billable records.|
+|`--project`|`-p`|filter records by project key.|
+
 **Example:**
 
 Display all records created on May 1st 2021:

@@ -55,3 +55,52 @@ func TestFilterBillableRecords(t *testing.T) {
 		}
 	}
 }
+
+func TestFilterProjectRecords(t *testing.T) {
+
+	tt := []struct {
+		title    string
+		filter   string
+		records  []*core.Record
+		expected []*core.Record
+	}{
+		{
+			title:  "filter by project a",
+			filter: "a",
+			records: []*core.Record{
+				{Project: &core.Project{Key: "a"}, IsBillable: false},
+				{Project: &core.Project{Key: "b"}, IsBillable: true},
+			},
+			expected: []*core.Record{
+				{Project: &core.Project{Key: "a"}, IsBillable: false},
+			},
+		},
+		{
+			title:  "filter by project b",
+			filter: "b",
+			records: []*core.Record{
+				{Project: &core.Project{Key: "a"}, IsBillable: false},
+				{Project: &core.Project{Key: "b"}, IsBillable: true},
+			},
+			expected: []*core.Record{
+				{Project: &core.Project{Key: "b"}, IsBillable: true},
+			},
+		},
+		{
+			title:  "no records found",
+			filter: "",
+			records: []*core.Record{
+				{Project: &core.Project{Key: "c"}, IsBillable: false},
+				{Project: &core.Project{Key: "d"}, IsBillable: false},
+			},
+			expected: []*core.Record{},
+		},
+	}
+
+	for _, test := range tt {
+		projectRecords := filterProjectRecords(test.records, test.filter)
+		if !reflect.DeepEqual(projectRecords, test.expected) {
+			t.Fatalf("error when %s: %v != %v", test.title, projectRecords, test.expected)
+		}
+	}
+}

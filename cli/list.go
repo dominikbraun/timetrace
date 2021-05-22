@@ -54,6 +54,7 @@ func listProjectsCommand(t *core.Timetrace) *cobra.Command {
 
 type listRecordsOptions struct {
 	isOnlyDisplayingBillable bool
+	projectKeyFilter         string
 }
 
 func listRecordsCommand(t *core.Timetrace) *cobra.Command {
@@ -84,6 +85,10 @@ func listRecordsCommand(t *core.Timetrace) *cobra.Command {
 			if err != nil {
 				out.Err("failed to list records: %s", err.Error())
 				return
+			}
+
+			if len(options.projectKeyFilter) > 0 {
+				records = filterProjectRecords(records, options.projectKeyFilter)
 			}
 
 			if options.isOnlyDisplayingBillable {
@@ -119,6 +124,9 @@ func listRecordsCommand(t *core.Timetrace) *cobra.Command {
 	listRecords.Flags().BoolVarP(&options.isOnlyDisplayingBillable, "billable", "b",
 		false, `only display billable records`)
 
+	listRecords.Flags().StringVarP(&options.projectKeyFilter, "project", "p",
+		"", "filter by project key")
+
 	return listRecords
 }
 
@@ -130,4 +138,14 @@ func filterBillableRecords(records []*core.Record) []*core.Record {
 		}
 	}
 	return billableRecords
+}
+
+func filterProjectRecords(records []*core.Record, projectKey string) []*core.Record {
+	projectRecords := []*core.Record{}
+	for _, record := range records {
+		if strings.Compare(record.Project.Key, projectKey) == 0 {
+			projectRecords = append(projectRecords, record)
+		}
+	}
+	return projectRecords
 }
