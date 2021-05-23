@@ -2,7 +2,6 @@ package cli
 
 import (
 	"errors"
-	"time"
 
 	"github.com/dominikbraun/timetrace/core"
 	"github.com/dominikbraun/timetrace/out"
@@ -64,13 +63,7 @@ func editRecordCommand(t *core.Timetrace) *cobra.Command {
 				return
 			}
 
-			layout := defaultRecordArgLayout
-
-			if t.Config().Use12Hours {
-				layout = "2006-01-02-03-04PM"
-			}
-
-			recordTime, err := time.Parse(layout, args[0])
+			recordTime, err := t.Formatter().ParseRecordKey(args[0])
 			if err != nil {
 				out.Err("Failed to parse date argument: %s", err.Error())
 				return
