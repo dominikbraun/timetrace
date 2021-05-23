@@ -232,6 +232,11 @@ func (t *Timetrace) loadRecord(path string) (*Record, error) {
 }
 
 func (t *Timetrace) editRecord(record *Record, plus string, minus string) error {
+
+	if record.End == nil {
+		return errors.New("record is still in progress")
+	}
+
 	var dur time.Duration
 	var err error
 	if plus != "" {
@@ -243,9 +248,7 @@ func (t *Timetrace) editRecord(record *Record, plus string, minus string) error 
 	if err != nil {
 		return err
 	}
-	if record.End == nil {
-		return errors.New("record is still in progress")
-	}
+
 	newEnd := record.End.Add(dur)
 	if newEnd.Before(record.Start) {
 		return errors.New("new ending time is before start time of record")
