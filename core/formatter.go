@@ -27,7 +27,7 @@ const (
 	default12HoursRecordKeyLayout = "2006-01-02-03-04PM"
 )
 
-func (f *Formatter) recordKeyLayout() string {
+func (f *Formatter) RecordKeyLayout() string {
 	if f.use12Hours {
 		return default12HoursRecordKeyLayout
 	}
@@ -35,9 +35,9 @@ func (f *Formatter) recordKeyLayout() string {
 }
 
 func (f *Formatter) ParseRecordKeyString(recordKey string) (time.Time, error) {
-	return time.Parse(f.recordKeyLayout(), recordKey)
+	return time.Parse(f.RecordKeyLayout(), recordKey)
 }
 
 func (f *Formatter) RecordKeyString(record Record) string {
-	return record.Start.Format(f.recordKeyLayout())
+	return record.Start.Format(f.RecordKeyLayout())
 }

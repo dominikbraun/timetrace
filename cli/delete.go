@@ -55,13 +55,13 @@ func deleteProjectCommand(t *core.Timetrace) *cobra.Command {
 }
 
 func deleteRecordCommand(t *core.Timetrace) *cobra.Command {
-	use12Hours := t.Config().Use12Hours
-	useTimeFormat := "record YYYY-MM-DD-HH-MM"
-	if use12Hours {
-		useTimeFormat = "record YYYY-MM-DD-HH-MMPM"
-	}
+
+	// Depending on the use12hours setting, the command syntax either is
+	// `delete YYYY-MM-DD-HH-MM` or `delete YYYY-MM-DD-HH-MMPM`.
+	use := fmt.Sprintf("delete %s", t.Formatter().RecordKeyLayout())
+
 	deleteRecord := &cobra.Command{
-		Use:   useTimeFormat,
+		Use:   use,
 		Short: "Delete a record",
 		Args:  cobra.ExactArgs(1),
 		Run: func(cmd *cobra.Command, args []string) {
