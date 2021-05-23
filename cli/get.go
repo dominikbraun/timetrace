@@ -56,7 +56,7 @@ func getRecordCommand(t *core.Timetrace) *cobra.Command {
 		Short: "Display a record",
 		Args:  cobra.ExactArgs(1),
 		Run: func(cmd *cobra.Command, args []string) {
-			start, err := t.Formatter().ParseRecordKeyString(args[0])
+			start, err := t.Formatter().ParseRecordKey(args[0])
 			if err != nil {
 				out.Err("Failed to parse date argument: %s", err.Error())
 				return

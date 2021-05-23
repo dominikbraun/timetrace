@@ -63,7 +63,7 @@ func editRecordCommand(t *core.Timetrace) *cobra.Command {
 				return
 			}
 
-			recordTime, err := t.Formatter().ParseRecordKeyString(args[0])
+			recordTime, err := t.Formatter().ParseRecordKey(args[0])
 			if err != nil {
 				out.Err("Failed to parse date argument: %s", err.Error())
 				return
