@@ -127,12 +127,18 @@ func (t *Timetrace) EditRecord(recordTime time.Time, plus string, minus string) 
 		if err != nil {
 			return err
 		}
+		if record.End == nil {
+			return errors.New("record is still in progress")
+		}
 		newEnd := record.End.Add(dur)
 		record.End = &newEnd
 	} else {
 		dur, err := time.ParseDuration(minus)
 		if err != nil {
 			return err
+		}
+		if record.End == nil {
+			return errors.New("record is still in progress")
 		}
 		newEnd := record.End.Add(-dur)
 		if newEnd.Before(record.Start) {
