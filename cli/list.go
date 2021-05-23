@@ -30,21 +30,30 @@ func listProjectsCommand(t *core.Timetrace) *cobra.Command {
 		Use:   "projects",
 		Short: "List all projects",
 		Run: func(cmd *cobra.Command, args []string) {
-			projects, err := t.ListProjects()
+			allProjects, err := t.ListProjects()
 			if err != nil {
 				out.Err("Failed to list projects: %s", err.Error())
 				return
 			}
+			
+			// remove all modules from the project list 
+			parentProjects := removeModules(allProjects)
 
-			rows := make([][]string, len(projects))
+			rows := make([][]string, len(parentProjects))
 
-			for i, project := range projects {
-				rows[i] = make([]string, 2)
+			for i, project := range parentProjects {
+				allModules, err := t.ListAllModules(project)
+				if err != nil {
+					out.Err("Failed to load project modules: %s", err.Error())
+					return
+				}
+				rows[i] = make([]string, 3)
 				rows[i][0] = strconv.Itoa(i + 1)
 				rows[i][1] = project.Key
+				rows[i][2] = allModules
 			}
 
-			out.Table([]string{"#", "Key"}, rows)
+			out.Table([]string{"#", "Key", "Modules"}, rows)
 		},
 	}
 
@@ -138,4 +147,15 @@ func filterProjectRecords(records []*core.Record, projectKey string) []*core.Rec
 		}
 	}
 	return projectRecords
+}
+
+func removeModules(allProjects []*core.Project) []*core.Project {
+	var parentProjects []*core.Project
+	for _, p := range allProjects {
+		if !p.IsModule() {
+			parentProjects = append(parentProjects, p)
+		}
+	}
+
+	return parentProjects
 }
