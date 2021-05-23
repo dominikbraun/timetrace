@@ -42,7 +42,7 @@ func listProjectsCommand(t *core.Timetrace) *cobra.Command {
 			rows := make([][]string, len(parentProjects))
 
 			for i, project := range parentProjects {
-				allModules, err := t.ListAllModules(project)
+				allModules, err := t.ListProjectModules(project)
 				if err != nil {
 					out.Err("Failed to load project modules: %s", err.Error())
 					return

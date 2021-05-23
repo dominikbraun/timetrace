@@ -45,8 +45,8 @@ func (t *Timetrace) LoadProject(key string) (*Project, error) {
 	return t.loadProject(path)
 }
 
-// ListAllModules loads all modules for a project and returns their keys as a concatenated string
-func (t *Timetrace) ListAllModules(project *Project) (string, error) {
+// ListProjectModules loads all modules for a project and returns their keys as a concatenated string
+func (t *Timetrace) ListProjectModules(project *Project) (string, error) {
 	allModules, err := t.loadProjectModules(project)
 	if err != nil {
 		return "", err
