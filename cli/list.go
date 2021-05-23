@@ -35,8 +35,8 @@ func listProjectsCommand(t *core.Timetrace) *cobra.Command {
 				out.Err("Failed to list projects: %s", err.Error())
 				return
 			}
-			
-			// remove all modules from the project list 
+
+			// remove all modules from the project list
 			parentProjects := removeModules(allProjects)
 
 			rows := make([][]string, len(parentProjects))
