@@ -42,11 +42,16 @@ func Err(format string, a ...interface{}) {
 }
 
 // Table renders a table with the given rows to the standard output.
-func Table(header []string, rows [][]string) {
+func Table(header []string, rows [][]string, footer []string) {
 	paddedHeaders := headersWithPadding(header)
 	table := tablewriter.NewWriter(os.Stdout)
 	table.SetHeader(paddedHeaders)
 	setHeaderColor(table, paddedHeaders)
+	// If footer array is not empty, then render footer in table.
+	if len(footer) > 0 {
+		paddedFooters := headersWithPadding(footer)
+		table.SetFooter(paddedFooters)
+	}
 	table.AppendBulk(rows)
 	table.Render()
 }
