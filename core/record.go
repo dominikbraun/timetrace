@@ -57,7 +57,7 @@ func (t *Timetrace) ListRecords(date time.Time) ([]*Record, error) {
 }
 
 // GetLatestRecord loads and returns the latest record made. If no records
-// are found, an empty slice and no error will be returned.
+// are found, an error will be returned.
 func (t *Timetrace) GetLatestRecord() (*Record, error) {
 	dirs, err := t.fs.RecordDirs()
 	if err != nil {
