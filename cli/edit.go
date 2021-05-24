@@ -69,7 +69,7 @@ func editRecordCommand(t *core.Timetrace) *cobra.Command {
 			var err error
 			// if more aliases are needed, this should be expanded to a switch
 			if strings.ToLower(args[0]) == "latest" {
-				rec, err := t.GetLatestRecord()
+				rec, err := t.LoadLatestRecord()
 				if err != nil {
 					out.Err("Error on loading last record: %s", err.Error())
 					return

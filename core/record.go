@@ -56,43 +56,6 @@ func (t *Timetrace) ListRecords(date time.Time) ([]*Record, error) {
 	return records, nil
 }
 
-// GetLatestRecord loads and returns the latest record made. If no records
-// are found, an error will be returned.
-func (t *Timetrace) GetLatestRecord() (*Record, error) {
-	dirs, err := t.fs.RecordDirs()
-	if err != nil {
-		return nil, err
-	}
-
-	if len(dirs) == 0 {
-		return nil, errors.New("There are currently no records")
-	}
-
-	latestDir := dirs[len(dirs)-1]
-
-	latestRecs, err := t.fs.RecordFilepaths(latestDir, func(a, b string) bool {
-		timeA, _ := time.Parse("15-04.json", a)
-		timeB, _ := time.Parse("15-04.json", b)
-		return timeA.Before(timeB)
-	})
-
-	if err != nil {
-		return nil, err
-	}
-
-	if len(latestRecs) == 0 {
-		return nil, errors.New("Something went wrong on loading the latest records")
-	}
-
-	record, err := t.loadRecord(latestRecs[len(latestRecs)-1])
-
-	if err != nil {
-		return nil, err
-	}
-
-	return record, nil
-}
-
 // SaveRecord persists the given record. Returns ErrRecordAlreadyExists if the
 // record already exists and saving isn't forced.
 func (t *Timetrace) SaveRecord(record Record, force bool) error {
@@ -206,9 +169,9 @@ func (t *Timetrace) loadAllRecords(date time.Time) ([]*Record, error) {
 	return records, nil
 }
 
-// loadLatestRecord loads the youngest record. This may also be a record from
+// LoadLatestRecord loads the youngest record. This may also be a record from
 // another day. If there is no latest record, nil and no error will be returned.
-func (t *Timetrace) loadLatestRecord() (*Record, error) {
+func (t *Timetrace) LoadLatestRecord() (*Record, error) {
 	latestDirs, err := t.fs.RecordDirs()
 	if err != nil {
 		return nil, err
