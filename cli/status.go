@@ -42,7 +42,7 @@ func statusCommand(t *core.Timetrace) *cobra.Command {
 					report.FormatTodayTime(),
 				},
 			}
-			out.Table([]string{"Current project", "Worked since start", "Worked today"}, rows)
+			out.Table([]string{"Current project", "Worked since start", "Worked today"}, rows, nil)
 		},
 	}
 

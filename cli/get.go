@@ -38,7 +38,7 @@ func getProjectCommand(t *core.Timetrace) *cobra.Command {
 				return
 			}
 
-			out.Table([]string{"Key"}, [][]string{{project.Key}})
+			out.Table([]string{"Key"}, [][]string{{project.Key}}, nil)
 		},
 	}
 
@@ -107,5 +107,5 @@ func showRecord(record *core.Record, formatter *core.Formatter) {
 		},
 	}
 
-	out.Table([]string{"Start", "End", "Project", "Billable"}, rows)
+	out.Table([]string{"Start", "End", "Project", "Billable"}, rows, nil)
 }

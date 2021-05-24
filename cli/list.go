@@ -45,7 +45,7 @@ func listProjectsCommand(t *core.Timetrace) *cobra.Command {
 				rows[i][1] = project.Key
 			}
 
-			out.Table([]string{"#", "Key"}, rows)
+			out.Table([]string{"#", "Key"}, rows, nil)
 		},
 	}
 
@@ -112,7 +112,7 @@ func listRecordsCommand(t *core.Timetrace) *cobra.Command {
 				rows[i][4] = billable
 			}
 
-			out.Table([]string{"#", "Project", "Start", "End", "Billable"}, rows)
+			out.Table([]string{"#", "Project", "Start", "End", "Billable"}, rows, nil)
 		},
 	}
 
