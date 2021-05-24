@@ -2,6 +2,8 @@ package cli
 
 import (
 	"errors"
+	"strings"
+	"time"
 
 	"github.com/dominikbraun/timetrace/core"
 	"github.com/dominikbraun/timetrace/out"
@@ -54,7 +56,7 @@ func editRecordCommand(t *core.Timetrace) *cobra.Command {
 	var options editOptions
 
 	editRecord := &cobra.Command{
-		Use:   "record <KEY>",
+		Use:   "record {<KEY>|latest}",
 		Short: "Edit a record",
 		Args:  cobra.ExactArgs(1),
 		Run: func(cmd *cobra.Command, args []string) {
@@ -63,10 +65,22 @@ func editRecordCommand(t *core.Timetrace) *cobra.Command {
 				return
 			}
 
-			recordTime, err := t.Formatter().ParseRecordKey(args[0])
-			if err != nil {
-				out.Err("Failed to parse date argument: %s", err.Error())
-				return
+			var recordTime time.Time
+			var err error
+			// if more aliases are needed, this should be expanded to a switch
+			if strings.ToLower(args[0]) == "latest" {
+				recs, err := t.ListRecords(time.Now())
+				if err != nil {
+					out.Err("Latest works only if the latest record is of today")
+					return
+				}
+				recordTime = recs[0].Start
+			} else {
+				recordTime, err = t.Formatter().ParseRecordKey(args[0])
+				if err != nil {
+					out.Err("Failed to parse date argument: %s", err.Error())
+					return
+				}
 			}
 
 			if options.Minus == "" && options.Plus == "" {
