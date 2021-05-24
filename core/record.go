@@ -64,6 +64,10 @@ func (t *Timetrace) GetLatestRecord() (*Record, error) {
 		return nil, err
 	}
 
+	if len(dirs) == 0 {
+		return nil, errors.New("There are currently no records")
+	}
+
 	latestDir := dirs[len(dirs)-1]
 
 	latestRecs, err := t.fs.RecordFilepaths(latestDir, func(a, b string) bool {
@@ -74,6 +78,10 @@ func (t *Timetrace) GetLatestRecord() (*Record, error) {
 
 	if err != nil {
 		return nil, err
+	}
+
+	if len(latestRecs) == 0 {
+		return nil, errors.New("Something went wrong on loading the latest records")
 	}
 
 	record, err := t.loadRecord(latestRecs[len(latestRecs)-1])
