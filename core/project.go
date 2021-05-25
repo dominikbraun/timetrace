@@ -70,9 +70,11 @@ func (t *Timetrace) ListProjects() ([]*Project, error) {
 // SaveProject persists the given project. Returns ErrProjectAlreadyExists if
 // the project already exists and saving isn't forced.
 func (t *Timetrace) SaveProject(project Project, force bool) error {
-	err := t.parentExists(project)
-	if err != nil {
-		return err
+	if project.IsModule() {
+		err := t.parentExists(project)
+		if err != nil {
+			return err
+		}
 	}
 
 	path := t.fs.ProjectFilepath(project.Key)
@@ -177,22 +179,20 @@ func (t *Timetrace) editorFromEnvironment() string {
 }
 
 func (t *Timetrace) parentExists(project Project) error {
-	if project.IsModule() {
-		allP, err := t.ListProjects()
-		if err != nil {
-			return err
-		}
+	allP, err := t.ListProjects()
+	if err != nil {
+		return err
+	}
 
-		found := false
-		for _, p := range allP {
-			if p.Key == project.Parent() {
-				found = true
-				break
-			}
+	found := false
+	for _, p := range allP {
+		if p.Key == project.Parent() {
+			found = true
+			break
 		}
-		if !found {
-			return ErrParentlessModule
-		}
+	}
+	if !found {
+		return ErrParentlessModule
 	}
 	return nil
 }
