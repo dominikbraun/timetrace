@@ -122,26 +122,15 @@ func (t *Timetrace) EditRecord(recordTime time.Time, plus string, minus string) 
 		return err
 	}
 
-	if plus != "" {
-		dur, err := time.ParseDuration(plus)
-		if err != nil {
-			return err
-		}
-		newEnd := record.End.Add(dur)
-		record.End = &newEnd
-	} else {
-		dur, err := time.ParseDuration(minus)
-		if err != nil {
-			return err
-		}
-		newEnd := record.End.Add(-dur)
-		if newEnd.Before(record.Start) {
-			return errors.New("new ending time is before start time of record")
-		}
-		record.End = &newEnd
+	err = t.editRecord(record, plus, minus)
+	if err != nil {
+		return err
 	}
 
-	t.SaveRecord(*record, true)
+	err = t.SaveRecord(*record, true)
+	if err != nil {
+		return err
+	}
 
 	return nil
 }
@@ -240,4 +229,31 @@ func (t *Timetrace) loadRecord(path string) (*Record, error) {
 	}
 
 	return &record, nil
+}
+
+func (t *Timetrace) editRecord(record *Record, plus string, minus string) error {
+
+	if record.End == nil {
+		return errors.New("record is still in progress")
+	}
+
+	var dur time.Duration
+	var err error
+	if plus != "" {
+		dur, err = time.ParseDuration(plus)
+	} else {
+		dur, err = time.ParseDuration(minus)
+		dur = -dur
+	}
+	if err != nil {
+		return err
+	}
+
+	newEnd := record.End.Add(dur)
+	if newEnd.Before(record.Start) {
+		return errors.New("new ending time is before start time of record")
+	}
+	record.End = &newEnd
+
+	return nil
 }
