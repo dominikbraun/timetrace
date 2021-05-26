@@ -215,6 +215,43 @@ Edit a project called `make-coffee`:
 timetrace edit project make-coffee
 ```
 
+### Edit a record
+
+**Syntax:**
+
+```
+timetrace edit record {<KEY>|latest}
+```
+
+**Arguments:**
+
+|Argument|Description|
+|-|-|
+|`KEY`|The project key. `YYYY-MM-DD-HH-MM` by default or `YYYY-MM-DD-HH-MMPM` if [`use12hours` is set](#prefer-12-hour-clock-for-storing-records).|
+
+**Flags:**
+
+|Flat|Description|
+|-|-|
+|--plus|Add the given duration to the record's end time, e.g. `--plus 1h 10m`|
+|--minus|Subtract the given duration from the record's end time, e.g. `--minus 1h 10m`|
+
+**Example:**
+
+Edit the latest record. Specifying no flag will open the record in your editor:
+
+```
+timetrace edit record latest
+```
+
+Add 15 minutes to the end of the record created on May 1st, 3PM:
+
+```
+timetrace edit record 2021-05-01-15-00 --plus 15m
+```
+
+Tip: You can get the record key 2021-05-01-15-00 using [`timetrace list records`](#list-all-records-from-a-date).
+
 ### Delete a project
 
 **Syntax:**
