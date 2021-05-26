@@ -31,6 +31,11 @@ func editProjectCommand(t *core.Timetrace) *cobra.Command {
 		Args:  cobra.ExactArgs(1),
 		Run: func(cmd *cobra.Command, args []string) {
 			key := args[0]
+
+			if err := t.BackupProject(key); err != nil {
+				out.Err("Failed to backup project before edit: %s", err.Error())
+				return
+			}
 			out.Info("Opening %s in default editor", key)
 
 			if err := t.EditProject(key); err != nil {

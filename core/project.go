@@ -7,6 +7,8 @@ import (
 	"os"
 	"os/exec"
 	"strings"
+
+	"github.com/dominikbraun/timetrace/out"
 )
 
 const (
@@ -56,6 +58,7 @@ func (t *Timetrace) ListProjects() ([]*Project, error) {
 	projects := make([]*Project, 0)
 
 	for _, path := range paths {
+		out.Info(path)
 		project, err := t.loadProject(path)
 		if err != nil {
 			return nil, err
@@ -90,7 +93,32 @@ func (t *Timetrace) SaveProject(project Project, force bool) error {
 	return err
 }
 
-// EditProject opens the project file in the preferred or default editor.
+// BackupProject creates a backup of the project file.
+func (t *Timetrace) BackupProject(projectKey string) error {
+	project, err := t.LoadProject(projectKey)
+	if err != nil {
+		return err
+	}
+
+	path := t.fs.ProjectBackupFilepath(project.Key)
+
+	file, err := os.OpenFile(path, os.O_WRONLY|os.O_CREATE|os.O_TRUNC, 0600)
+	if err != nil {
+		return err
+	}
+
+	bytes, err := json.MarshalIndent(&project, "", "\t")
+	if err != nil {
+		return err
+	}
+
+	_, err = file.Write(bytes)
+
+	return err
+}
+
+// EditProject opens the project file in the preferred or default editor,
+// and renames the old project with it's new key.
 func (t *Timetrace) EditProject(projectKey string) error {
 	if _, err := t.LoadProject(projectKey); err != nil {
 		return err
@@ -104,7 +132,19 @@ func (t *Timetrace) EditProject(projectKey string) error {
 	cmd.Stdout = os.Stdout
 	cmd.Stderr = os.Stderr
 
-	return cmd.Run()
+	if err := cmd.Run(); err != nil {
+		return err
+	}
+
+	project, err := t.LoadProject(projectKey)
+	if err != nil {
+		return err
+	}
+
+	newKey := project.Key
+	newPath := t.fs.ProjectFilepath(newKey)
+
+	return os.Rename(path, newPath)
 }
 
 // DeleteProject removes the given project. Returns ErrProjectNotFound if the

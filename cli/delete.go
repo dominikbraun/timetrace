@@ -42,6 +42,11 @@ func deleteProjectCommand(t *core.Timetrace) *cobra.Command {
 				Key: key,
 			}
 
+			if err := t.BackupProject(key); err != nil {
+				out.Err("Failed to backup project before deletion: %s", err.Error())
+				return
+			}
+
 			if err := t.DeleteProject(project); err != nil {
 				out.Err("Failed to delete %s", err.Error())
 				return

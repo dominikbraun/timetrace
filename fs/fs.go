@@ -42,6 +42,14 @@ func (fs *Fs) ProjectFilepath(key string) string {
 	return filepath.Join(fs.projectsDir(), name)
 }
 
+// ProjectBackupFilepath return the filepath of the backup project with the
+// given key.
+func (fs *Fs) ProjectBackupFilepath(key string) string {
+	key = fs.sanitizer.Replace(key)
+	name := fmt.Sprintf("%s.bak", key)
+	return filepath.Join(fs.projectsDir(), name)
+}
+
 // ProjectFilepaths returns all project filepaths sorted alphabetically.
 func (fs *Fs) ProjectFilepaths() ([]string, error) {
 	dir := fs.projectsDir()
