@@ -7,7 +7,7 @@
 
 > timetrace is a simple CLI for tracking your working time.
 
-![CLI screenshot](timetrace.png)
+![CLI screenshot 64x16](timetrace.png)
 
 :fire: **New:** [Editing records is now possible](#edit-a-record)
 
