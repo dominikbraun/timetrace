@@ -140,7 +140,7 @@ func (t *Timetrace) Stop() error {
 	end := time.Now()
 	latestRecord.End = &end
 
-	return t.SaveRecord(*latestRecord, false)
+	return t.SaveRecord(*latestRecord, true)
 }
 
 func (t *Timetrace) EnsureDirectories() error {
