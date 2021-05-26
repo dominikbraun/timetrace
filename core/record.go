@@ -158,9 +158,9 @@ func (t *Timetrace) loadAllRecords(date time.Time) ([]*Record, error) {
 	return records, nil
 }
 
-// loadLatestRecord loads the youngest record. This may also be a record from
+// LoadLatestRecord loads the youngest record. This may also be a record from
 // another day. If there is no latest record, nil and no error will be returned.
-func (t *Timetrace) loadLatestRecord() (*Record, error) {
+func (t *Timetrace) LoadLatestRecord() (*Record, error) {
 	latestDirs, err := t.fs.RecordDirs()
 	if err != nil {
 		return nil, err
