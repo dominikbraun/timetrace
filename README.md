@@ -9,6 +9,8 @@
 
 ![CLI screenshot](timetrace.png)
 
+:fire: **New:** [Editing records is now possible](#edit-a-record)
+
 ## Installation
 
 ### Homebrew
@@ -174,7 +176,7 @@ timetrace list records {<YYYY-MM-DD>|today|yesterday}
 
 |Argument|Description|
 |-|-|
-|`YYYY-MM-DD`|The date of the records to list.|
+|`YYYY-MM-DD`|The date of the records to list, or `today` or `yesterday`.|
 |today|List today's records.|
 |yesterday|List yesterday's records.|
 
@@ -191,6 +193,13 @@ Display all records created on May 1st 2021:
 
 ```
 timetrace list records 2021-05-01
++-----+-------------+---------+-------+------------+
+|  #  |   PROJECT   |  START  |  END  |  BILLABLE  |
++-----+-------------+---------+-------+------------+
+|   1 | my-website  | 17:30   | 21:00 | yes        |
+|   2 | my-website  | 08:31   | 17:00 | no         |
+|   3 | make-coffee | 08:25   | 08:30 | no         |
++-----+-------------+---------+-------+------------+
 ```
 
 ### Edit a project
@@ -231,10 +240,10 @@ timetrace edit record {<KEY>|latest}
 
 **Flags:**
 
-|Flat|Description|
+|Flag|Description|
 |-|-|
-|--plus|Add the given duration to the record's end time, e.g. `--plus 1h 10m`|
-|--minus|Subtract the given duration from the record's end time, e.g. `--minus 1h 10m`|
+|`--plus`|Add the given duration to the record's end time, e.g. `--plus 1h 10m`|
+|`--minus`|Subtract the given duration from the record's end time, e.g. `--minus 1h 10m`|
 
 **Example:**
 
@@ -250,7 +259,7 @@ Add 15 minutes to the end of the record created on May 1st, 3PM:
 timetrace edit record 2021-05-01-15-00 --plus 15m
 ```
 
-Tip: You can get the record key 2021-05-01-15-00 using [`timetrace list records`](#list-all-records-from-a-date).
+Tip: You can get the record key `2021-05-01-15-00` using [`timetrace list records`](#list-all-records-from-a-date).
 
 ### Delete a project
 
@@ -342,11 +351,11 @@ Print the current tracking status:
 
 ```
 timetrace status
-+-------------+--------------------+---------------+
-|   PROJECT   | WORKED SINCE START | WORKED TODAY  |
-+-------------+--------------------+---------------+
-| make-coffee | 3h25m29.037343s    | 7h22m49.5749s |
-+-------------+--------------------+---------------+
++-------------------+----------------------+----------------+
+|  CURRENT PROJECT  |  WORKED SINCE START  |  WORKED TODAY  |
++-------------------+----------------------+----------------+
+| make-coffee       | 1h 15min             | 4h 30min       |
++-------------------+----------------------+----------------+
 ```
 
 ### Stop tracking
