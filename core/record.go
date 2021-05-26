@@ -61,7 +61,7 @@ func (t *Timetrace) ListRecords(date time.Time) ([]*Record, error) {
 func (t *Timetrace) SaveRecord(record Record, force bool) error {
 	path := t.fs.RecordFilepath(record.Start)
 
-	if _, err := os.Stat(path); os.IsExist(err) && !force {
+	if _, err := os.Stat(path); err == nil && !force {
 		return ErrRecordAlreadyExists
 	}
 
