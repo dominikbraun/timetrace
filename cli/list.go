@@ -2,7 +2,6 @@ package cli
 
 import (
 	"strconv"
-	"strings"
 
 	"github.com/dominikbraun/timetrace/core"
 	"github.com/dominikbraun/timetrace/out"
