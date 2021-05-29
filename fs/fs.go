@@ -19,8 +19,9 @@ const (
 )
 
 const (
-	recordDirLayout      = "2006-01-02"
-	recordFilepathLayout = "15-04.json"
+	recordDirLayout            = "2006-01-02"
+	recordFilepathLayout       = "15-04.json"
+	recordBackupFilepathLayout = "15-04.json.bak"
 )
 
 type Fs struct {
@@ -46,7 +47,7 @@ func (fs *Fs) ProjectFilepath(key string) string {
 // given key.
 func (fs *Fs) ProjectBackupFilepath(key string) string {
 	key = fs.sanitizer.Replace(key)
-	name := fmt.Sprintf("%s.bak", key)
+	name := fmt.Sprintf("%s.json.bak", key)
 	return filepath.Join(fs.projectsDir(), name)
 }
 
@@ -79,6 +80,11 @@ func (fs *Fs) ProjectFilepaths() ([]string, error) {
 // directory the project is stored in.
 func (fs *Fs) RecordFilepath(start time.Time) string {
 	name := start.Format(recordFilepathLayout)
+	return filepath.Join(fs.RecordDirFromDate(start), name)
+}
+
+func (fs *Fs) RecordBackupFilePath(start time.Time) string {
+	name := start.Format(recordBackupFilepathLayout)
 	return filepath.Join(fs.RecordDirFromDate(start), name)
 }
 

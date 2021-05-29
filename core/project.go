@@ -7,8 +7,6 @@ import (
 	"os"
 	"os/exec"
 	"strings"
-
-	"github.com/dominikbraun/timetrace/out"
 )
 
 const (
@@ -58,7 +56,6 @@ func (t *Timetrace) ListProjects() ([]*Project, error) {
 	projects := make([]*Project, 0)
 
 	for _, path := range paths {
-		out.Info(path)
 		project, err := t.loadProject(path)
 		if err != nil {
 			return nil, err
@@ -116,8 +113,7 @@ func (t *Timetrace) BackupProject(projectKey string) error {
 	return err
 }
 
-// EditProject opens the project file in the preferred or default editor,
-// and renames the old project with it's new key.
+// EditProject opens the project file in the preferred or default editor .
 func (t *Timetrace) EditProject(projectKey string) error {
 	if _, err := t.LoadProject(projectKey); err != nil {
 		return err
