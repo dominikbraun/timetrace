@@ -131,19 +131,7 @@ func (t *Timetrace) EditProject(projectKey string) error {
 	cmd.Stdout = os.Stdout
 	cmd.Stderr = os.Stderr
 
-	if err := cmd.Run(); err != nil {
-		return err
-	}
-
-	project, err := t.LoadProject(projectKey)
-	if err != nil {
-		return err
-	}
-
-	newKey := project.Key
-	newPath := t.fs.ProjectFilepath(newKey)
-
-	return os.Rename(path, newPath)
+	return cmd.Run()
 }
 
 // DeleteProject removes the given project. Returns ErrProjectNotFound if the
