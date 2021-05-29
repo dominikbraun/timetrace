@@ -39,7 +39,7 @@ func editProjectCommand(t *core.Timetrace) *cobra.Command {
 					out.Err("Failed to revert project: %s", err.Error())
 					return
 				} else {
-					out.Info("Project reverted successfuly")
+					out.Info("Project backup restored successfuly")
 					return
 				}
 			}
@@ -97,6 +97,16 @@ func editRecordCommand(t *core.Timetrace) *cobra.Command {
 				recordTime, err = t.Formatter().ParseRecordKey(args[0])
 				if err != nil {
 					out.Err("Failed to parse date argument: %s", err.Error())
+					return
+				}
+			}
+
+			if options.Revert {
+				if err := t.RevertRecord(recordTime); err != nil {
+					out.Err("Failred to revert record: %s", err.Error())
+					return
+				} else {
+					out.Info("Record backup restored successfully")
 					return
 				}
 			}

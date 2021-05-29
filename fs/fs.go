@@ -83,7 +83,7 @@ func (fs *Fs) RecordFilepath(start time.Time) string {
 	return filepath.Join(fs.RecordDirFromDate(start), name)
 }
 
-func (fs *Fs) RecordBackupFilePath(start time.Time) string {
+func (fs *Fs) RecordBackupFilepath(start time.Time) string {
 	name := start.Format(recordBackupFilepathLayout)
 	return filepath.Join(fs.RecordDirFromDate(start), name)
 }

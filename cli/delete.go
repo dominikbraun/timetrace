@@ -47,7 +47,7 @@ func deleteProjectCommand(t *core.Timetrace) *cobra.Command {
 					out.Err("Failed to revert project: %s", err.Error())
 					return
 				} else {
-					out.Info("Project reverted successfuly")
+					out.Info("Project backup restored successfully")
 					return
 				}
 			}
@@ -90,6 +90,16 @@ func deleteRecordCommand(t *core.Timetrace) *cobra.Command {
 			if err != nil {
 				out.Err("Failed to parse date argument: %s", err.Error())
 				return
+			}
+
+			if options.Revert {
+				if err := t.RevertRecord(start); err != nil {
+					out.Err("Failred to revert record: %s", err.Error())
+					return
+				} else {
+					out.Info("Record backup restored successfully")
+					return
+				}
 			}
 
 			record, err := t.LoadRecord(start)
