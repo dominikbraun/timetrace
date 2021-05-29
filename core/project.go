@@ -73,8 +73,7 @@ func (t *Timetrace) ListProjects() ([]*Project, error) {
 // the project already exists and saving isn't forced.
 func (t *Timetrace) SaveProject(project Project, force bool) error {
 	path := t.fs.ProjectFilepath(project.Key)
-
-	if _, err := os.Stat(path); os.IsExist(err) && !force {
+	if _, err := os.Stat(path); err == nil && !force {
 		return ErrProjectAlreadyExists
 	}
 

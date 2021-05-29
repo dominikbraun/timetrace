@@ -2,7 +2,6 @@ package cli
 
 import (
 	"strconv"
-	"strings"
 
 	"github.com/dominikbraun/timetrace/core"
 	"github.com/dominikbraun/timetrace/out"
@@ -130,10 +129,10 @@ func filterBillableRecords(records []*core.Record) []*core.Record {
 	return billableRecords
 }
 
-func filterProjectRecords(records []*core.Record, projectKey string) []*core.Record {
+func filterProjectRecords(records []*core.Record, key string) []*core.Record {
 	projectRecords := []*core.Record{}
 	for _, record := range records {
-		if strings.Compare(record.Project.Key, projectKey) == 0 {
+		if record.Project.Key == key || record.Project.Parent() == key {
 			projectRecords = append(projectRecords, record)
 		}
 	}

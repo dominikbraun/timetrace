@@ -87,8 +87,18 @@ func TestFilterProjectRecords(t *testing.T) {
 			},
 		},
 		{
+			title:  "filter by project module@b",
+			filter: "b",
+			records: []*core.Record{
+				{Project: &core.Project{Key: "module@b"}, IsBillable: false},
+			},
+			expected: []*core.Record{
+				{Project: &core.Project{Key: "module@b"}, IsBillable: false},
+			},
+		},
+		{
 			title:  "no records found",
-			filter: "",
+			filter: "a",
 			records: []*core.Record{
 				{Project: &core.Project{Key: "c"}, IsBillable: false},
 				{Project: &core.Project{Key: "d"}, IsBillable: false},
