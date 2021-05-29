@@ -14,8 +14,9 @@ const (
 )
 
 var (
-	ErrProjectNotFound      = errors.New("project not found")
-	ErrProjectAlreadyExists = errors.New("project already exists")
+	ErrProjectNotFound       = errors.New("project not found")
+	ErrBackupProjectNotFound = errors.New("backup project not found")
+	ErrProjectAlreadyExists  = errors.New("project already exists")
 )
 
 type Project struct {
@@ -42,6 +43,11 @@ func (p *Project) IsModule() bool {
 // if the project cannot be found.
 func (t *Timetrace) LoadProject(key string) (*Project, error) {
 	path := t.fs.ProjectFilepath(key)
+	return t.loadProject(path)
+}
+
+func (t *Timetrace) LoadBackupProject(key string) (*Project, error) {
+	path := t.fs.ProjectBackupFilepath(key)
 	return t.loadProject(path)
 }
 
@@ -113,6 +119,29 @@ func (t *Timetrace) BackupProject(projectKey string) error {
 	return err
 }
 
+func (t *Timetrace) RevertProject(projectKey string) error {
+	project, err := t.LoadBackupProject(projectKey)
+	if err != nil {
+		return err
+	}
+	// get filepath of reverted file
+	path := t.fs.ProjectFilepath(projectKey)
+
+	file, err := os.OpenFile(path, os.O_WRONLY|os.O_CREATE|os.O_TRUNC, 0600)
+	if err != nil {
+		return err
+	}
+
+	bytes, err := json.MarshalIndent(&project, "", "\t")
+	if err != nil {
+		return err
+	}
+
+	_, err = file.Write(bytes)
+
+	return err
+}
+
 // EditProject opens the project file in the preferred or default editor .
 func (t *Timetrace) EditProject(projectKey string) error {
 	if _, err := t.LoadProject(projectKey); err != nil {
@@ -146,6 +175,9 @@ func (t *Timetrace) loadProject(path string) (*Project, error) {
 	file, err := ioutil.ReadFile(path)
 	if err != nil {
 		if os.IsNotExist(err) {
+			if strings.HasSuffix(path, ".bak") {
+				return nil, ErrBackupProjectNotFound
+			}
 			return nil, ErrProjectNotFound
 		}
 		return nil, err

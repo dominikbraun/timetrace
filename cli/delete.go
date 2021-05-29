@@ -14,6 +14,10 @@ import (
 
 var confirmed bool
 
+type deleteOptions struct {
+	Revert bool
+}
+
 func deleteCommand(t *core.Timetrace) *cobra.Command {
 	delete := &cobra.Command{
 		Use:   "delete",
@@ -31,12 +35,22 @@ func deleteCommand(t *core.Timetrace) *cobra.Command {
 }
 
 func deleteProjectCommand(t *core.Timetrace) *cobra.Command {
+	var options deleteOptions
 	deleteProject := &cobra.Command{
 		Use:   "project <KEY>",
 		Short: "Delete a project",
 		Args:  cobra.ExactArgs(1),
 		Run: func(cmd *cobra.Command, args []string) {
 			key := args[0]
+			if options.Revert {
+				if err := t.RevertProject(key); err != nil {
+					out.Err("Failed to revert project: %s", err.Error())
+					return
+				} else {
+					out.Info("Project reverted successfuly")
+					return
+				}
+			}
 
 			project := core.Project{
 				Key: key,
@@ -56,11 +70,13 @@ func deleteProjectCommand(t *core.Timetrace) *cobra.Command {
 		},
 	}
 
+	deleteProject.PersistentFlags().BoolVarP(&options.Revert, "revert", "r", false, "Restores the record to it's state prior to the last 'delete' command.")
+
 	return deleteProject
 }
 
 func deleteRecordCommand(t *core.Timetrace) *cobra.Command {
-
+	var options deleteOptions
 	// Depending on the use12hours setting, the command syntax either is
 	// `record YYYY-MM-DD-HH-MM` or `record YYYY-MM-DD-HH-MMPM`.
 	use := fmt.Sprintf("record %s", t.Formatter().RecordKeyLayout())
@@ -103,6 +119,8 @@ func deleteRecordCommand(t *core.Timetrace) *cobra.Command {
 			out.Success("Deleted record %s", args[0])
 		},
 	}
+
+	deleteRecord.PersistentFlags().BoolVarP(&options.Revert, "revert", "r", false, "Restores the record to it's state prior to the last 'delete' command.")
 
 	return deleteRecord
 }
