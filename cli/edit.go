@@ -103,7 +103,7 @@ func editRecordCommand(t *core.Timetrace) *cobra.Command {
 
 			if options.Revert {
 				if err := t.RevertRecord(recordTime); err != nil {
-					out.Err("Failred to revert record: %s", err.Error())
+					out.Err("Failed to revert record: %s", err.Error())
 					return
 				} else {
 					out.Info("Record backup restored successfully")
