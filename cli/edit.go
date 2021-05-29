@@ -88,15 +88,20 @@ func editRecordCommand(t *core.Timetrace) *cobra.Command {
 				}
 			}
 
+			if err := t.BackupRecord(recordTime); err != nil {
+				out.Err("Failed to backup record before edit: %s", err.Error())
+				return
+			}
+
 			if options.Minus == "" && options.Plus == "" {
 				out.Info("Opening %s in default editor", recordTime)
 				if err := t.EditRecordManual(recordTime); err != nil {
-					out.Err("Failed to edit project: %s", err.Error())
+					out.Err("Failed to edit record: %s", err.Error())
 					return
 				}
 			} else {
 				if err := t.EditRecord(recordTime, options.Plus, options.Minus); err != nil {
-					out.Err("Failed to edit project: %s", err.Error())
+					out.Err("Failed to edit record: %s", err.Error())
 					return
 				}
 			}
