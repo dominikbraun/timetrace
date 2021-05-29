@@ -90,6 +90,11 @@ func deleteRecordCommand(t *core.Timetrace) *cobra.Command {
 				}
 			}
 
+			if err := t.BackupRecord(start); err != nil {
+				out.Err("Failed to backup record before deletion: %s", err.Error())
+				return
+			}
+
 			if err := t.DeleteRecord(*record); err != nil {
 				out.Err("Failed to delete %s", err.Error())
 				return

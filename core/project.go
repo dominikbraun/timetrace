@@ -89,7 +89,7 @@ func (t *Timetrace) SaveProject(project Project, force bool) error {
 	return err
 }
 
-// BackupProject creates a backup of the project file.
+// BackupProject creates a backup of the given project file.
 func (t *Timetrace) BackupProject(projectKey string) error {
 	project, err := t.LoadProject(projectKey)
 	if err != nil {

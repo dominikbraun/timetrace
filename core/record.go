@@ -3,13 +3,10 @@ package core
 import (
 	"encoding/json"
 	"errors"
-	"fmt"
 	"io/ioutil"
 	"os"
 	"os/exec"
 	"time"
-
-	"github.com/dominikbraun/timetrace/out"
 )
 
 const (
@@ -87,17 +84,29 @@ func (t *Timetrace) SaveRecord(record Record, force bool) error {
 	return err
 }
 
+// BackupRecord creates a backup of the given record file
 func (t *Timetrace) BackupRecord(recordKey time.Time) error {
-	out.Info(recordKey.String())
 	path := t.fs.RecordFilepath(recordKey)
-	out.Info(path)
 	record, err := t.loadRecord(path)
 	if err != nil {
 		return err
 	}
+	// create a new .bak filepath from the record struct
+	backupPath := t.fs.RecordBackupFilePath(recordKey)
 
-	fmt.Println(record)
-	return nil
+	backupFile, err := os.OpenFile(backupPath, os.O_WRONLY|os.O_CREATE|os.O_TRUNC, 0600)
+	if err != nil {
+		return err
+	}
+
+	bytes, err := json.MarshalIndent(&record, "", "\t")
+	if err != nil {
+		return err
+	}
+
+	_, err = backupFile.Write(bytes)
+
+	return err
 }
 
 // DeleteRecord removes the given record. Returns ErrRecordNotFound if the
