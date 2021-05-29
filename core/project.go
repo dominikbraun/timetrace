@@ -71,7 +71,7 @@ func (t *Timetrace) ListProjects() ([]*Project, error) {
 // the project already exists and saving isn't forced.
 func (t *Timetrace) SaveProject(project Project, force bool) error {
 	if project.IsModule() {
-		err := t.parentExists(project)
+		err := t.assertParent(project)
 		if err != nil {
 			return err
 		}
@@ -178,21 +178,17 @@ func (t *Timetrace) editorFromEnvironment() string {
 	return defaultEditor
 }
 
-func (t *Timetrace) parentExists(project Project) error {
+func (t *Timetrace) assertParent(project Project) error {
 	allP, err := t.ListProjects()
 	if err != nil {
 		return err
 	}
 
-	found := false
 	for _, p := range allP {
 		if p.Key == project.Parent() {
-			found = true
-			break
+			return nil
 		}
 	}
-	if !found {
-		return ErrParentlessModule
-	}
-	return nil
+
+	return ErrParentlessModule
 }
