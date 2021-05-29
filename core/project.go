@@ -96,7 +96,7 @@ func (t *Timetrace) BackupProject(projectKey string) error {
 		return err
 	}
 
-	path := t.fs.ProjectBackupFilepath(project.Key)
+	path := t.fs.ProjectBackupFilepath(projectKey)
 
 	file, err := os.OpenFile(path, os.O_WRONLY|os.O_CREATE|os.O_TRUNC, 0600)
 	if err != nil {
