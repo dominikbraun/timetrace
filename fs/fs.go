@@ -66,16 +66,13 @@ func (fs *Fs) ProjectFilepaths() ([]string, error) {
 		if item.IsDir() {
 			continue
 		}
-		itemName := item.Name()
-		if strings.HasSuffix(itemName, ".bak") {
-			continue
-		}
-		filepaths = append(filepaths, filepath.Join(dir, itemName))
+
+		filepaths = append(filepaths, filepath.Join(dir, item.Name()))
 	}
+	filteredFilepaths := fs.filterBackupFiles(filepaths)
+	sort.Strings(filteredFilepaths)
 
-	sort.Strings(filepaths)
-
-	return filepaths, nil
+	return filteredFilepaths, nil
 }
 
 // RecordFilepath returns the filepath of the record with the given start time.
@@ -127,18 +124,16 @@ func (fs *Fs) RecordFilepaths(dir string, less func(a, b string) bool) ([]string
 			continue
 		}
 
-		itemName := item.Name()
-		if strings.HasSuffix(itemName, ".bak") {
-			continue
-		}
-		filepaths = append(filepaths, filepath.Join(dir, itemName))
+		filepaths = append(filepaths, filepath.Join(dir, item.Name()))
 	}
 
-	sort.Slice(filepaths, func(i, j int) bool {
-		return less(filepaths[i], filepaths[j])
+	filteredFilepaths := fs.filterBackupFiles(filepaths)
+
+	sort.Slice(filteredFilepaths, func(i, j int) bool {
+		return less(filteredFilepaths[i], filteredFilepaths[j])
 	})
 
-	return filepaths, nil
+	return filteredFilepaths, nil
 }
 
 // RecordDirs returns all record directories sorted alphabetically. This can be
@@ -217,4 +212,17 @@ func (fs *Fs) rootDir() string {
 	homeDir, _ := os.UserHomeDir()
 
 	return filepath.Join(homeDir, rootDirName)
+}
+
+func (fs *Fs) filterBackupFiles(filepaths []string) []string {
+	var filteredFilepaths []string
+
+	for _, filepath := range filepaths {
+		if strings.HasSuffix(filepath, ".bak") {
+			continue
+		}
+		filteredFilepaths = append(filteredFilepaths, filepath)
+	}
+
+	return filteredFilepaths
 }
