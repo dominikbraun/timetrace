@@ -45,6 +45,30 @@ func (t *Timetrace) LoadProject(key string) (*Project, error) {
 	return t.loadProject(path)
 }
 
+// ListProjectModules loads all modules for a project and returns their keys as a concatenated string
+func (t *Timetrace) ListProjectModules(project *Project) (string, error) {
+	allModules, err := t.loadProjectModules(project)
+	if err != nil {
+		return "", err
+	}
+
+	if len(allModules) == 0 {
+		return "-", nil
+	}
+
+	var mList string
+	for i, p := range allModules {
+		// get the name of the module without the prefix
+		mList += strings.Split(p.Key, "@")[0]
+		// append comma if it is not the last element
+		if i+1 != len(allModules) {
+			mList += ","
+		}
+	}
+
+	return mList, nil
+}
+
 // ListProjects loads and returns all stored projects sorted by their filenames.
 // If no projects are found, an empty slice and no error will be returned.
 func (t *Timetrace) ListProjects() ([]*Project, error) {
@@ -150,7 +174,7 @@ func (t *Timetrace) loadProjectModules(project *Project) ([]*Project, error) {
 
 	for _, p := range projects {
 		if p.Parent() == project.Key {
-			modules = append(modules, project)
+			modules = append(modules, p)
 		}
 	}
 
