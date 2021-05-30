@@ -68,7 +68,31 @@ finished your work, stop tracking:
 timetrace stop
 ```
 
-You're also able to delete and edit projects and records (see below).
+### Project modules
+
+To refine what part of a project you're working on, timetrace supports _project modules_. These are the exact same thing
+as normal projects, except that they have a key in the form `<module>@<project>`.
+
+Creating a `grind-beans` module for the `make-coffee` project is simple:
+
+```
+timetrace create project grind-beans@make-coffee
+```
+
+The new module will be listed as part of the `make-coffee` project:
+
+```
+timetrace list projects
++-----+-------------+-------------+
+|  #  |     KEY     |   MODULES   |
++-----+-------------+-------------+
+|   1 | make-coffee | grind-beans |
++-----+-------------+-------------+
+
+```
+
+When filtering by projects, for example with `timetrace list records -p make-coffee today`, the modules of that project
+will be included.
 
 ## Command reference
 
@@ -201,6 +225,18 @@ timetrace list records 2021-05-01
 |   3 | make-coffee | 08:25   | 08:30 | no         |
 +-----+-------------+---------+-------+------------+
 ```
+
+Filter records by the `make-coffee` project:
+```
+timetrace list records 2021-05-01
++-----+-------------+---------+-------+------------+
+|  #  |   PROJECT   |  START  |  END  |  BILLABLE  |
++-----+-------------+---------+-------+------------+
+|   1 | make-coffee | 08:25   | 08:30 | no         |
++-----+-------------+---------+-------+------------+
+```
+
+This will include records for [project modules](#project-modules) like `grind-beans@make-coffee`.
 
 ### Edit a project
 
