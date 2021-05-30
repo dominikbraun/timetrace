@@ -16,6 +16,7 @@ const (
 var (
 	ErrProjectNotFound      = errors.New("project not found")
 	ErrProjectAlreadyExists = errors.New("project already exists")
+	ErrParentlessModule     = errors.New("no parent project for module exists, please create parent first")
 )
 
 type Project struct {
@@ -93,6 +94,13 @@ func (t *Timetrace) ListProjects() ([]*Project, error) {
 // SaveProject persists the given project. Returns ErrProjectAlreadyExists if
 // the project already exists and saving isn't forced.
 func (t *Timetrace) SaveProject(project Project, force bool) error {
+	if project.IsModule() {
+		err := t.assertParent(project)
+		if err != nil {
+			return err
+		}
+	}
+
 	path := t.fs.ProjectFilepath(project.Key)
 	if _, err := os.Stat(path); err == nil && !force {
 		return ErrProjectAlreadyExists
@@ -191,4 +199,19 @@ func (t *Timetrace) editorFromEnvironment() string {
 	}
 
 	return defaultEditor
+}
+
+func (t *Timetrace) assertParent(project Project) error {
+	allP, err := t.ListProjects()
+	if err != nil {
+		return err
+	}
+
+	for _, p := range allP {
+		if p.Key == project.Parent() {
+			return nil
+		}
+	}
+
+	return ErrParentlessModule
 }
