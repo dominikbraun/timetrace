@@ -232,6 +232,7 @@ func (t *Timetrace) loadFromRecordDir(recordDir string, filter ...func(*Record) 
 		for _, f := range filter {
 			if !f(record) {
 				useRecord = false
+				break
 			}
 		}
 		// check if eighter filter negates useRecord

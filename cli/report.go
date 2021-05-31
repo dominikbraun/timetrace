@@ -53,7 +53,7 @@ func generateReportCommand(t *core.Timetrace) *cobra.Command {
 			var filter = []func(*core.Record) bool{
 				// this will ignore records which end time to not set
 				// so current tracked times for example
-				core.FilterNonNilEndTime,
+				core.FilterNoneNilEndTime,
 				core.FilterByTimeRange(fromDate, toDate),
 			}
 			// TODO: find better way to check if flag is default
@@ -98,7 +98,7 @@ func generateReportCommand(t *core.Timetrace) *cobra.Command {
 	}
 
 	report.Flags().BoolVarP(&options.isBillable, "billable", "b",
-		false, "report only billable records")
+		false, "filter for only billable records")
 
 	report.Flags().StringVarP(&options.fromTime, "start", "s",
 		"from oldest", "filter records from a given start date <YYYY-MM-DD>")
@@ -110,7 +110,7 @@ func generateReportCommand(t *core.Timetrace) *cobra.Command {
 		"include all projects", "filter records by a specific project")
 
 	report.Flags().StringVarP(&options.outputFormat, "format", "f",
-		"table output", "choose output format for report")
+		"print table", "output format for report (json/csv)")
 
 	report.Flags().StringVarP(&options.outputPath, "out", "o",
 		"", "choose output path for report")

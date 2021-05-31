@@ -10,7 +10,7 @@ const (
 	defaultTotalSymbol = "∑"
 )
 
-func FilterNonNilEndTime(r *Record) bool {
+func FilterNoneNilEndTime(r *Record) bool {
 	return r.End != nil
 }
 
@@ -28,6 +28,7 @@ func FilterByProject(key string) func(*Record) bool {
 
 // FilterByTimeRange allows to determine whether a given records is in-between a time-range.
 // If "to" is nil the upper boundary is ignored and vice versa with "from". If both are nil returns true
+// start and end time are both inclusive
 func FilterByTimeRange(from, to *time.Time) func(*Record) bool {
 	return func(r *Record) bool {
 		if from == nil && to == nil {

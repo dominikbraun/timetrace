@@ -54,7 +54,6 @@ func Table(header []string, rows [][]string, footer []string, opts ...TableOptio
 		table.SetFooterAlignment(tablewriter.ALIGN_LEFT)
 	}
 
-	// table.Rich()
 	// if provided apply table options to table
 	// var table must be a pointer else options wont be apply
 	for _, opt := range opts {
