@@ -7,6 +7,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.7.0] - 2021-05-30
+
+### Added
+* Add support for project modules
+
+### Changed
+* Consider project modules when filtering projects (#63)
+* Display project modules when listing projects (#70)
+* Require parent projects to exist when creating a module (#80)
+
 ## [0.6.1] - 2021-05-26
 
 ### Fixed
