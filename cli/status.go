@@ -1,6 +1,8 @@
 package cli
 
 import (
+	"errors"
+
 	"github.com/dominikbraun/timetrace/core"
 	"github.com/dominikbraun/timetrace/out"
 
@@ -13,7 +15,10 @@ func statusCommand(t *core.Timetrace) *cobra.Command {
 		Short: "Display the current tracking status",
 		Run: func(cmd *cobra.Command, args []string) {
 			report, err := t.Status()
-			if err != nil {
+			if errors.Is(err, core.ErrTrackingNotStarted) {
+				out.Info("You haven't started tracking time today")
+				return
+			} else if err != nil {
 				out.Err("Failed to obtain status: %s", err.Error())
 				return
 			}

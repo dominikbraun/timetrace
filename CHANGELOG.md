@@ -7,6 +7,35 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.7.0] - 2021-05-30
+
+### Added
+* Add support for project modules
+
+### Changed
+* Consider project modules when filtering projects (#63)
+* Display project modules when listing projects (#70)
+* Require parent projects to exist when creating a module (#80)
+
+## [0.6.1] - 2021-05-26
+
+### Fixed
+* Fix `timetrace stop` command (#86)
+
+## [0.6.0] - 2021-05-26
+
+### Added
+* Add `timetrace edit record` command (#51)
+* Add `latest` alias for `timetrace edit record` (#73)
+
+### Changed
+* Use an info output for `timetrace status` when there's no active tracking (#65)
+* Always adhere to the `use12hours` setting for date- and time input and output (#67)
+
+### Fixed
+* Don't allow edting of incomplete records (#69)
+* Don't allow re-creation of existing projects (#79)
+
 ## [0.5.0] - 2021-05-22
 
 ### Added

@@ -52,7 +52,7 @@ func New(config *config.Config, fs Filesystem) *Timetrace {
 //
 // Since parallel work isn't supported, the previous work must be stopped first.
 func (t *Timetrace) Start(projectKey string, isBillable bool) error {
-	latestRecord, err := t.loadLatestRecord()
+	latestRecord, err := t.LoadLatestRecord()
 	if err != nil {
 		return err
 	}
@@ -96,7 +96,7 @@ func (t *Timetrace) Status() (*Report, error) {
 		return nil, ErrTrackingNotStarted
 	}
 
-	latestRecord, err := t.loadLatestRecord()
+	latestRecord, err := t.LoadLatestRecord()
 	if err != nil {
 		return nil, err
 	}
@@ -128,7 +128,7 @@ func (t *Timetrace) Status() (*Report, error) {
 
 // Stop stops the time tracking and marks the current record as ended.
 func (t *Timetrace) Stop() error {
-	latestRecord, err := t.loadLatestRecord()
+	latestRecord, err := t.LoadLatestRecord()
 	if err != nil {
 		return err
 	}
@@ -140,7 +140,7 @@ func (t *Timetrace) Stop() error {
 	end := time.Now()
 	latestRecord.End = &end
 
-	return t.SaveRecord(*latestRecord, false)
+	return t.SaveRecord(*latestRecord, true)
 }
 
 func (t *Timetrace) EnsureDirectories() error {

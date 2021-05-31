@@ -7,7 +7,9 @@
 
 > timetrace is a simple CLI for tracking your working time.
 
-![CLI screenshot](timetrace.png)
+![CLI screenshot 64x16](timetrace.png)
+
+:fire: **New:** [Editing records is now possible](#edit-a-record)
 
 ## Installation
 
@@ -66,7 +68,31 @@ finished your work, stop tracking:
 timetrace stop
 ```
 
-You're also able to delete and edit projects and records (see below).
+### Project modules
+
+To refine what part of a project you're working on, timetrace supports _project modules_. These are the exact same thing
+as normal projects, except that they have a key in the form `<module>@<project>`.
+
+Creating a `grind-beans` module for the `make-coffee` project is simple:
+
+```
+timetrace create project grind-beans@make-coffee
+```
+
+The new module will be listed as part of the `make-coffee` project:
+
+```
+timetrace list projects
++-----+-------------+-------------+
+|  #  |     KEY     |   MODULES   |
++-----+-------------+-------------+
+|   1 | make-coffee | grind-beans |
++-----+-------------+-------------+
+
+```
+
+When filtering by projects, for example with `timetrace list records -p make-coffee today`, the modules of that project
+will be included.
 
 ## Command reference
 
@@ -174,7 +200,7 @@ timetrace list records {<YYYY-MM-DD>|today|yesterday}
 
 |Argument|Description|
 |-|-|
-|`YYYY-MM-DD`|The date of the records to list.|
+|`YYYY-MM-DD`|The date of the records to list, or `today` or `yesterday`.|
 |today|List today's records.|
 |yesterday|List yesterday's records.|
 
@@ -191,7 +217,26 @@ Display all records created on May 1st 2021:
 
 ```
 timetrace list records 2021-05-01
++-----+-------------+---------+-------+------------+
+|  #  |   PROJECT   |  START  |  END  |  BILLABLE  |
++-----+-------------+---------+-------+------------+
+|   1 | my-website  | 17:30   | 21:00 | yes        |
+|   2 | my-website  | 08:31   | 17:00 | no         |
+|   3 | make-coffee | 08:25   | 08:30 | no         |
++-----+-------------+---------+-------+------------+
 ```
+
+Filter records by the `make-coffee` project:
+```
+timetrace list records 2021-05-01
++-----+-------------+---------+-------+------------+
+|  #  |   PROJECT   |  START  |  END  |  BILLABLE  |
++-----+-------------+---------+-------+------------+
+|   1 | make-coffee | 08:25   | 08:30 | no         |
++-----+-------------+---------+-------+------------+
+```
+
+This will include records for [project modules](#project-modules) like `grind-beans@make-coffee`.
 
 ### Edit a project
 
@@ -214,6 +259,43 @@ Edit a project called `make-coffee`:
 ```
 timetrace edit project make-coffee
 ```
+
+### Edit a record
+
+**Syntax:**
+
+```
+timetrace edit record {<KEY>|latest}
+```
+
+**Arguments:**
+
+|Argument|Description|
+|-|-|
+|`KEY`|The project key. `YYYY-MM-DD-HH-MM` by default or `YYYY-MM-DD-HH-MMPM` if [`use12hours` is set](#prefer-12-hour-clock-for-storing-records).|
+
+**Flags:**
+
+|Flag|Description|
+|-|-|
+|`--plus`|Add the given duration to the record's end time, e.g. `--plus 1h 10m`|
+|`--minus`|Subtract the given duration from the record's end time, e.g. `--minus 1h 10m`|
+
+**Example:**
+
+Edit the latest record. Specifying no flag will open the record in your editor:
+
+```
+timetrace edit record latest
+```
+
+Add 15 minutes to the end of the record created on May 1st, 3PM:
+
+```
+timetrace edit record 2021-05-01-15-00 --plus 15m
+```
+
+Tip: You can get the record key `2021-05-01-15-00` using [`timetrace list records`](#list-all-records-from-a-date).
 
 ### Delete a project
 
@@ -305,11 +387,11 @@ Print the current tracking status:
 
 ```
 timetrace status
-+-------------+--------------------+---------------+
-|   PROJECT   | WORKED SINCE START | WORKED TODAY  |
-+-------------+--------------------+---------------+
-| make-coffee | 3h25m29.037343s    | 7h22m49.5749s |
-+-------------+--------------------+---------------+
++-------------------+----------------------+----------------+
+|  CURRENT PROJECT  |  WORKED SINCE START  |  WORKED TODAY  |
++-------------------+----------------------+----------------+
+| make-coffee       | 1h 15min             | 4h 30min       |
++-------------------+----------------------+----------------+
 ```
 
 ### Stop tracking
