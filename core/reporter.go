@@ -111,7 +111,7 @@ func (r Reporter) Json() ([]byte, error) {
 			"total":   total,
 		}
 	}
-	b, err := json.Marshal(result)
+	b, err := json.MarshalIndent(result, "", "\t")
 	if err != nil {
 		return nil, fmt.Errorf("could not marshal report to json")
 	}
