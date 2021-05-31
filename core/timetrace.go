@@ -143,6 +143,34 @@ func (t *Timetrace) Stop() error {
 	return t.SaveRecord(*latestRecord, true)
 }
 
+// Report generates a report of tracked times
+//
+// The report can be filtered by the given Filter* funcs.
+func (t *Timetrace) Report(filter ...func(*Record) bool) (*Reporter, error) {
+	recordDirs, err := t.fs.RecordDirs()
+	if err != nil {
+		return nil, err
+	}
+
+	// collect records
+	var result = make([]*Record, 0)
+	for _, dir := range recordDirs {
+		records, err := t.loadFromRecordDir(dir, filter...)
+		if err != nil {
+			return nil, err
+		}
+		result = append(result, records...)
+	}
+
+	var reporter = Reporter{
+		report: make(map[string][]*Record),
+		totals: make(map[string]time.Duration),
+	}
+	// prepare slice of records for serialization
+	reporter.sortAndMerge(result)
+	return &reporter, nil
+}
+
 func (t *Timetrace) EnsureDirectories() error {
 	return t.fs.EnsureDirectories()
 }
