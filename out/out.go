@@ -42,7 +42,7 @@ func Err(format string, a ...interface{}) {
 }
 
 // Table renders a table with the given rows to the standard output.
-func Table(header []string, rows [][]string, footer []string) {
+func Table(header []string, rows [][]string, footer []string, opts ...TableOption) {
 	paddedHeaders := headersWithPadding(header)
 	table := tablewriter.NewWriter(os.Stdout)
 	table.SetHeader(paddedHeaders)
@@ -51,6 +51,14 @@ func Table(header []string, rows [][]string, footer []string) {
 	if len(footer) > 0 {
 		paddedFooters := headersWithPadding(footer)
 		table.SetFooter(paddedFooters)
+		table.SetFooterAlignment(tablewriter.ALIGN_LEFT)
+	}
+
+	// table.Rich()
+	// if provided apply table options to table
+	// var table must be a pointer else options wont be apply
+	for _, opt := range opts {
+		opt(table)
 	}
 	table.AppendBulk(rows)
 	table.Render()
@@ -78,4 +86,29 @@ func headersWithPadding(headers []string) []string {
 func p(attribute color.Attribute, emoji emoji.Emoji, format string, a ...interface{}) {
 	formatWithEmoji := fmt.Sprintf("%v %s\n", emoji, format)
 	_, _ = color.New(attribute).Printf(formatWithEmoji, a...)
+}
+
+// TableOptions allows to modify the table instance
+// with different functionalities
+type TableOption func(*tablewriter.Table)
+
+// TableWithCellMerge apply tablewriter.SetAuthMergeCellsByColumnIndex to the
+// table instance and enables tablewriter.SetRowLine.
+// Allows to group rows by a column index
+func TableWithCellMerge(mergeByIndex int) func(*tablewriter.Table) {
+	return func(t *tablewriter.Table) {
+		var index = mergeByIndex
+		if mergeByIndex > t.NumLines() {
+			index = 0
+		}
+		t.SetAutoMergeCellsByColumnIndex([]int{index})
+		t.SetRowLine(true)
+	}
+}
+
+// TableFooterColor adds colors to the tablewriter.Footer
+func TableFooterColor(colors ...tablewriter.Colors) func(*tablewriter.Table) {
+	return func(t *tablewriter.Table) {
+		t.SetFooterColor(colors...)
+	}
 }

@@ -5,6 +5,7 @@ import (
 
 	"github.com/dominikbraun/timetrace/core"
 	"github.com/dominikbraun/timetrace/out"
+	"github.com/olekukonko/tablewriter"
 
 	"github.com/spf13/cobra"
 )
@@ -13,6 +14,7 @@ type reportOptions struct {
 	isBillable   bool
 	projectKey   string
 	outputFormat string
+	outputPath   string
 	fromTime     string
 	toTime       string
 }
@@ -22,13 +24,12 @@ func generateReportCommand(t *core.Timetrace) *cobra.Command {
 
 	report := &cobra.Command{
 		Use:   "report",
-		Short: "Report allows to view or output tracked records",
-		// Args:  cobra.ExactArgs(1),
+		Short: "Report allows to view or output tracked records as defined report",
 		Run: func(cmd *cobra.Command, args []string) {
 			var fromDate, toDate *time.Time
 			var formatErr error
 
-			// TODO: find better way to check if flag is not provided
+			// TODO: find better way to check if flag is default
 			// matching the default string will be buggy
 			if options.fromTime != "from oldest" {
 				*fromDate, formatErr = t.Formatter().ParseDate(options.fromTime)
@@ -38,7 +39,7 @@ func generateReportCommand(t *core.Timetrace) *cobra.Command {
 				}
 			}
 
-			// TODO: find better way to check if flag is not provided
+			// TODO: find better way to check if flag is default
 			// matching the default string will be buggy
 			if options.toTime != "to newest" {
 				*toDate, formatErr = t.Formatter().ParseDate(options.toTime)
@@ -50,9 +51,13 @@ func generateReportCommand(t *core.Timetrace) *cobra.Command {
 
 			// set-up filter options based on cmd flags
 			var filter = []func(*core.Record) bool{
+				// this will ignore records which end time to not set
+				// so current tracked times for example
+				core.FilterNonNilEndTime,
 				core.FilterByTimeRange(fromDate, toDate),
 			}
-			// TODO: find better way to check for string default, this is to unstable
+			// TODO: find better way to check if flag is default
+			// matching the default string will be buggy
 			if options.projectKey != "include all projects" {
 				filter = append(filter, core.FilterByProject(options.projectKey))
 			}
@@ -60,9 +65,34 @@ func generateReportCommand(t *core.Timetrace) *cobra.Command {
 				filter = append(filter, core.FilterBillable)
 			}
 
-			_, err := t.Report(filter...)
+			report, err := t.Report(filter...)
 			if err != nil {
 				out.Err(err.Error())
+			}
+
+			// check what to do with the report
+			// if options.outputFormat is default only table will be
+			// printed to os.Stdout
+			switch options.outputFormat {
+			case "json":
+				data, err := report.Json()
+				if err != nil {
+					out.Err(err.Error())
+				}
+				t.WriteReport(options.outputPath, data)
+			default:
+				projects, total := report.Table()
+				out.Table(
+					[]string{"Project", "Date", "Start", "End", "Billable", "Total"},
+					projects,
+					[]string{"", "", "", "", "TOTAL", total},
+					out.TableWithCellMerge(0), // merge cells over "Project" (index:0) column
+					out.TableFooterColor(
+						tablewriter.Colors{}, tablewriter.Colors{},
+						tablewriter.Colors{}, tablewriter.Colors{},
+						tablewriter.Colors{tablewriter.Bold},          // text "TOTAL"
+						tablewriter.Colors{tablewriter.FgGreenColor}), // digit of "TOTAL"
+				)
 			}
 		},
 	}
@@ -80,7 +110,10 @@ func generateReportCommand(t *core.Timetrace) *cobra.Command {
 		"include all projects", "filter records by a specific project")
 
 	report.Flags().StringVarP(&options.outputFormat, "format", "f",
-		"json", "choose output format for report")
+		"table output", "choose output format for report")
+
+	report.Flags().StringVarP(&options.outputPath, "out", "o",
+		"", "choose output path for report")
 
 	return report
 }

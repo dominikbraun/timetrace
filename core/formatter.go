@@ -1,6 +1,7 @@
 package core
 
 import (
+	"fmt"
 	"time"
 )
 
@@ -44,6 +45,17 @@ func (f *Formatter) timeLayout() string {
 
 func (f *Formatter) TimeString(input time.Time) string {
 	return input.Format(f.timeLayout())
+}
+
+// PrettyDateString returns a nice representation of a given time
+// example: Mon 31. May 2021
+func (f *Formatter) PrettyDateString(input time.Time) string {
+	year := input.Local().Year()
+	day := input.Local().Day()
+	weekday := input.Local().Weekday()
+	month := input.Local().Month()
+
+	return fmt.Sprintf("%v %d. %v %d", weekday, day, month, year)
 }
 
 const (
