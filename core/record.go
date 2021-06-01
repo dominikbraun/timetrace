@@ -172,6 +172,9 @@ func (t *Timetrace) LoadLatestRecord() (*Record, error) {
 
 	dir, err := t.latestNonEmptyDir(latestDirs)
 	if err != nil {
+		if errors.Is(err, ErrAllDirectoriesEmpty) {
+			return nil, ErrTrackingNotStarted
+		}
 		return nil, err
 	}
 
