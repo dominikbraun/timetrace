@@ -220,6 +220,12 @@ func (report *Report) FormatCurrentTime() string {
 	return formatDuration(*report.TrackedTimeCurrent)
 }
 
+// FormatBreakTime returns the formated string of the total time
+// taking breaks today following the format convention
+func (report *Report) FormatBreakTime() string {
+	return formatDuration(report.BreakTimeToday)
+}
+
 // formatDuration formats the passed duration into a string.
 // The format will be "8h 24min". If the duration is less then 60 secods
 // the format will be "0h 0min 12sec".
