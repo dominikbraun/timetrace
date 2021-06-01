@@ -5,7 +5,6 @@ import (
 	"fmt"
 	"io"
 	"os"
-	"sort"
 	"time"
 
 	"github.com/dominikbraun/timetrace/config"
@@ -138,15 +137,10 @@ func (t *Timetrace) Status() (*Report, error) {
 }
 
 func (t *Timetrace) breakTime(date time.Time) (time.Duration, error) {
-	records, err := t.loadAllRecords(date)
+	records, err := t.loadAllRecordsSortedAscending(date)
 	if err != nil {
 		return 0, err
 	}
-
-	// sort the records by start time
-	sort.Slice(records, func(i, j int) bool {
-		return records[i].Start.Before(records[j].Start)
-	})
 
 	// add up the time between records
 	var breakTime time.Duration
