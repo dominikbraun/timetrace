@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"io"
 	"os"
+	"sort"
 	"time"
 
 	"github.com/dominikbraun/timetrace/config"
@@ -20,6 +21,7 @@ type Report struct {
 	Current            *Record
 	TrackedTimeCurrent *time.Duration
 	TrackedTimeToday   time.Duration
+	BreakTimeToday     time.Duration
 }
 
 // Filesystem represents a filesystem used for storing and loading resources.
@@ -109,8 +111,14 @@ func (t *Timetrace) Status() (*Report, error) {
 		return nil, err
 	}
 
+	breakTimeToday, err := t.breakTime(now)
+	if err != nil {
+		return nil, err
+	}
+
 	report := &Report{
 		TrackedTimeToday: trackedTimeToday,
+		BreakTimeToday:   breakTimeToday,
 	}
 
 	// If the latest record has been stopped, there is no active time tracking.
@@ -127,6 +135,26 @@ func (t *Timetrace) Status() (*Report, error) {
 	report.TrackedTimeCurrent = &trackedTimeCurrent
 
 	return report, nil
+}
+
+func (t *Timetrace) breakTime(date time.Time) (time.Duration, error) {
+	records, err := t.loadAllRecords(date)
+	if err != nil {
+		return 0, err
+	}
+
+	// sort the records by start time
+	sort.Slice(records, func(i, j int) bool {
+		return records[i].Start.Before(records[j].Start)
+	})
+
+	// add up the time between records
+	var breakTime time.Duration
+	for i := 0; i < len(records)-1; i++ {
+		breakTime += records[i+1].Start.Sub(*records[i].End)
+	}
+
+	return breakTime, nil
 }
 
 // Stop stops the time tracking and marks the current record as ended.
