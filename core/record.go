@@ -170,7 +170,13 @@ func (t *Timetrace) LoadLatestRecord() (*Record, error) {
 		return nil, nil
 	}
 
-	dir := latestDirs[len(latestDirs)-1]
+	dir, err := t.latestNonEmptyDir(latestDirs)
+	if err != nil {
+		if errors.Is(err, ErrAllDirectoriesEmpty) {
+			return nil, ErrTrackingNotStarted
+		}
+		return nil, err
+	}
 
 	latestRecords, err := t.fs.RecordFilepaths(dir, func(a, b string) bool {
 		timeA, _ := time.Parse(recordLayout, a)

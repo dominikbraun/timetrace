@@ -3,14 +3,17 @@ package core
 import (
 	"errors"
 	"fmt"
+	"io"
+	"os"
 	"time"
 
 	"github.com/dominikbraun/timetrace/config"
 )
 
 var (
-	ErrNoEndTime          = errors.New("no end time for last record")
-	ErrTrackingNotStarted = errors.New("start tracking first")
+	ErrNoEndTime           = errors.New("no end time for last record")
+	ErrTrackingNotStarted  = errors.New("start tracking first")
+	ErrAllDirectoriesEmpty = errors.New("all directories empty")
 )
 
 type Report struct {
@@ -204,4 +207,36 @@ func formatDuration(duration time.Duration) string {
 		return fmt.Sprintf("0h 0min %dsec", secods)
 	}
 	return fmt.Sprintf("%dh %dmin", hours, minutes)
+}
+
+func (t *Timetrace) isDirEmpty(dir string) (bool, error) {
+	openedDir, err := os.Open(dir)
+	if err != nil {
+		return false, err
+	}
+	defer openedDir.Close()
+
+	// Attempt to read 1 file's name, if it fails with
+	// EOF, directory is empty
+	_, err = openedDir.Readdirnames(1)
+	if err == io.EOF {
+		return true, nil
+	}
+
+	return false, err
+}
+
+func (t *Timetrace) latestNonEmptyDir(dirs []string) (string, error) {
+	for i := len(dirs) - 1; i >= 0; i-- {
+		isEmpty, err := t.isDirEmpty(dirs[i])
+		if err != nil {
+			return "", err
+		}
+
+		if !isEmpty {
+			return dirs[i], nil
+		}
+	}
+
+	return "", ErrAllDirectoriesEmpty
 }
