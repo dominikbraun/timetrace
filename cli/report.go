@@ -26,13 +26,13 @@ func generateReportCommand(t *core.Timetrace) *cobra.Command {
 		Use:   "report",
 		Short: "Report allows to view or output tracked records as defined report",
 		Run: func(cmd *cobra.Command, args []string) {
-			var fromDate, toDate *time.Time
+			var fromDate, toDate time.Time
 			var formatErr error
 
 			// TODO: find better way to check if flag is default
 			// matching the default string will be buggy
 			if options.fromTime != "from oldest" {
-				*fromDate, formatErr = t.Formatter().ParseDate(options.fromTime)
+				fromDate, formatErr = t.Formatter().ParseDate(options.fromTime)
 				if formatErr != nil {
 					out.Err("failed to parse date: %s", formatErr.Error())
 					return
@@ -42,7 +42,7 @@ func generateReportCommand(t *core.Timetrace) *cobra.Command {
 			// TODO: find better way to check if flag is default
 			// matching the default string will be buggy
 			if options.toTime != "to newest" {
-				*toDate, formatErr = t.Formatter().ParseDate(options.toTime)
+				toDate, formatErr = t.Formatter().ParseDate(options.toTime)
 				if formatErr != nil {
 					out.Err("failed to parse date: %s", formatErr.Error())
 					return

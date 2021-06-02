@@ -28,19 +28,30 @@ func FilterByProject(key string) func(*Record) bool {
 
 // FilterByTimeRange allows to determine whether a given records is in-between a time-range.
 // If "to" is nil the upper boundary is ignored and vice versa with "from". If both are nil returns true
-// start and end time are both inclusive
-func FilterByTimeRange(from, to *time.Time) func(*Record) bool {
+// start and end time are both inclusive.
+// Explanition for the `to.AddDate(0,0,1)`:
+// the "to" input will be YYYY-MM-DD 00:00:00, hence the actual tracked records of that
+// date will be ignored as they are all bigger since their hh:mm:ss will be grather then 00:00:00
+// of the "to" time. Adding one day to the "to" time will include records tracked on that date thus
+// will make the "to" time inclusive
+func FilterByTimeRange(from, to time.Time) func(*Record) bool {
+
 	return func(r *Record) bool {
-		if from == nil && to == nil {
+		if from.IsZero() && to.IsZero() {
 			return true
 		}
-		if to == nil {
+		if to.IsZero() {
 			return r.Start.Unix() >= from.Unix()
 		}
-		if from == nil {
-			return r.Start.Unix() <= to.Unix()
+		if from.IsZero() {
+			// adding one day to the "to" date is required in or for
+			// the end-time to be inclusive
+			return r.Start.Unix() <= to.AddDate(0, 0, 1).Unix()
 		}
-		return r.Start.Unix() >= from.Unix() && r.Start.Unix() <= to.Unix()
+
+		// adding one day to the "to" date is required in or for
+		// the end-time to be inclusive
+		return r.Start.Unix() >= from.Unix() && r.Start.Unix() <= to.AddDate(0, 0, 1).Unix()
 	}
 }
 
