@@ -2,7 +2,6 @@ package core
 
 import (
 	"errors"
-	"fmt"
 	"io"
 	"os"
 	"time"
@@ -200,41 +199,6 @@ func (t *Timetrace) trackedTime(date time.Time) (time.Duration, error) {
 	}
 
 	return trackedTime, nil
-}
-
-// FormatTodayTime returns the formated string of the total
-// time of today follwoing the format convention
-func (report *Report) FormatTodayTime() string {
-	return formatDuration(report.TrackedTimeToday)
-}
-
-// FormatCurrentTime returns the formated string of the current
-// report time follwoing the format convention
-func (report *Report) FormatCurrentTime() string {
-	return formatDuration(*report.TrackedTimeCurrent)
-}
-
-// FormatBreakTime returns the formated string of the total time
-// taking breaks today following the format convention
-func (report *Report) FormatBreakTime() string {
-	return formatDuration(report.BreakTimeToday)
-}
-
-// formatDuration formats the passed duration into a string.
-// The format will be "8h 24min". If the duration is less then 60 secods
-// the format will be "0h 0min 12sec".
-func formatDuration(duration time.Duration) string {
-
-	hours := int64(duration.Hours()) % 60
-	minutes := int64(duration.Minutes()) % 60
-	secods := int64(duration.Seconds()) % 60
-
-	// as by convention if the duarion is < then 60 secods
-	// return "0h 0min Xsec"
-	if hours == 0 && minutes == 0 {
-		return fmt.Sprintf("0h 0min %dsec", secods)
-	}
-	return fmt.Sprintf("%dh %dmin", hours, minutes)
 }
 
 func (t *Timetrace) isDirEmpty(dir string) (bool, error) {
