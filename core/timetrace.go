@@ -56,7 +56,7 @@ func New(config *config.Config, fs Filesystem) *Timetrace {
 // Since parallel work isn't supported, the previous work must be stopped first.
 func (t *Timetrace) Start(projectKey string, isBillable bool) error {
 	latestRecord, err := t.LoadLatestRecord()
-	if err != nil {
+	if err != nil && !errors.Is(err, ErrAllDirectoriesEmpty) {
 		return err
 	}
 
