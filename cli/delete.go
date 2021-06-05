@@ -94,11 +94,10 @@ func deleteRecordCommand(t *core.Timetrace) *cobra.Command {
 			if options.Revert {
 				if err := t.RevertRecord(start); err != nil {
 					out.Err("Failed to revert record: %s", err.Error())
-					return
 				} else {
 					out.Info("Record backup restored successfully")
-					return
 				}
+				return
 			}
 
 			record, err := t.LoadRecord(start)
