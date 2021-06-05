@@ -45,11 +45,10 @@ func deleteProjectCommand(t *core.Timetrace) *cobra.Command {
 			if options.Revert {
 				if err := t.RevertProject(key); err != nil {
 					out.Err("Failed to revert project: %s", err.Error())
-					return
 				} else {
 					out.Info("Project backup restored successfully")
-					return
 				}
+				return
 			}
 
 			project := core.Project{
