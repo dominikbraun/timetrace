@@ -1,6 +1,8 @@
+//go:generate go build -o ./plugins ./plugins/example/hello
 package main
 
 import (
+	"github.com/dominikbraun/timetrace/plugin"
 	"os"
 
 	"github.com/dominikbraun/timetrace/cli"
@@ -18,10 +20,14 @@ func main() {
 		out.Warn("%s", err.Error())
 	}
 
+	plugins := &plugin.Plugins{}
+	plugins.Init(c)
+	defer plugins.Close()
+
 	filesystem := fs.New(c)
 	timetrace := core.New(c, filesystem)
 
-	if err := cli.RootCommand(timetrace, version).Execute(); err != nil {
+	if err := cli.RootCommand(timetrace, version, plugins).Execute(); err != nil {
 		out.Err("%s", err.Error())
 		os.Exit(1)
 	}

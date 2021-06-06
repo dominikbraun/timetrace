@@ -17,6 +17,12 @@ github.com/BurntSushi/xgb v0.0.0-20160522181843-27f122750802/go.mod h1:IVnqGOEym
 github.com/OneOfOne/xxhash v1.2.2/go.mod h1:HSdplMjZKSmBqAxg5vPj2TmRDmfkzw+cTzAElWljhcU=
 github.com/alecthomas/template v0.0.0-20160405071501-a0175ee3bccc/go.mod h1:LOuyumcjzFXgccqObfd/Ljyb9UuFJ6TxHnclSeseNhc=
 github.com/alecthomas/units v0.0.0-20151022065526-2efee857e7cf/go.mod h1:ybxpYRFXyAe+OPACYpWeL0wqObRcbAqCMya13uyzqw0=
+github.com/aligator/goplug v0.0.1 h1:8KhtKgZmPfFlQmwy2DWp6Pxwtak4YKdEdp6MPx8vjPM=
+github.com/aligator/goplug v0.0.1/go.mod h1:txONK1ojkFOj9A/PhTN/FvCqZJg0T++VOz4V/xiv5yc=
+github.com/aligator/goplug v0.0.2 h1:dZO/vkeyv9FqQ1ch467mSd+hpiy0NKLPs0pIYN4Y27w=
+github.com/aligator/goplug v0.0.2/go.mod h1:txONK1ojkFOj9A/PhTN/FvCqZJg0T++VOz4V/xiv5yc=
+github.com/aligator/goplug v0.0.3 h1:OuIekJOQysEF73LMLPrwycEr38MWm+hfYCVJd/wpjSI=
+github.com/aligator/goplug v0.0.3/go.mod h1:txONK1ojkFOj9A/PhTN/FvCqZJg0T++VOz4V/xiv5yc=
 github.com/armon/circbuf v0.0.0-20150827004946-bbbad097214e/go.mod h1:3U/XgcO3hCbHZ8TKRvWD2dDTCfh9M9ya+I9JpbB7O8o=
 github.com/armon/go-metrics v0.0.0-20180917152333-f0300d1749da/go.mod h1:Q73ZrmVTwzkszR9V5SSuryQ31EELlFMUz1kKyl939pY=
 github.com/armon/go-radix v0.0.0-20180808171621-7fddfc383310/go.mod h1:ufUuZ+zHj4x4TnLV4JWEpy2hxWSpsRywHrMgIH9cCH8=
