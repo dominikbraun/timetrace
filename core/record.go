@@ -213,6 +213,31 @@ func (t *Timetrace) loadAllRecords(date time.Time) ([]*Record, error) {
 	return records, nil
 }
 
+func (t *Timetrace) loadAllRecordsSortedAscending(date time.Time) ([]*Record, error) {
+	dir := t.fs.RecordDirFromDate(date)
+
+	recordFilepaths, err := t.fs.RecordFilepaths(dir, func(a, b string) bool {
+		timeA, _ := time.Parse(recordLayout, a)
+		timeB, _ := time.Parse(recordLayout, b)
+		return timeA.Before(timeB)
+	})
+	if err != nil {
+		return nil, err
+	}
+
+	var records []*Record
+
+	for _, recordFilepath := range recordFilepaths {
+		record, err := t.loadRecord(recordFilepath)
+		if err != nil {
+			return nil, err
+		}
+		records = append(records, record)
+	}
+
+	return records, nil
+}
+
 // LoadLatestRecord loads the youngest record. This may also be a record from
 // another day. If there is no latest record, nil and no error will be returned.
 func (t *Timetrace) LoadLatestRecord() (*Record, error) {
