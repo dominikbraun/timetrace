@@ -27,12 +27,26 @@ func editCommand(t *core.Timetrace) *cobra.Command {
 }
 
 func editProjectCommand(t *core.Timetrace) *cobra.Command {
+	var options editOptions
 	editProject := &cobra.Command{
 		Use:   "project <KEY>",
 		Short: "Edit a project",
 		Args:  cobra.ExactArgs(1),
 		Run: func(cmd *cobra.Command, args []string) {
 			key := args[0]
+			if options.Revert {
+				if err := t.RevertProject(key); err != nil {
+					out.Err("Failed to revert project: %s", err.Error())
+				} else {
+					out.Info("Project backup restored successfuly")
+				}
+				return
+			}
+
+			if err := t.BackupProject(key); err != nil {
+				out.Err("Failed to backup project before edit: %s", err.Error())
+				return
+			}
 			out.Info("Opening %s in default editor", key)
 
 			if err := t.EditProject(key); err != nil {
@@ -44,12 +58,15 @@ func editProjectCommand(t *core.Timetrace) *cobra.Command {
 		},
 	}
 
+	editProject.PersistentFlags().BoolVarP(&options.Revert, "revert", "r", false, "Restores the project to it's state prior to the last 'edit' command.")
+
 	return editProject
 }
 
 type editOptions struct {
-	Plus  string
-	Minus string
+	Plus   string
+	Minus  string
+	Revert bool
 }
 
 func editRecordCommand(t *core.Timetrace) *cobra.Command {
@@ -83,15 +100,29 @@ func editRecordCommand(t *core.Timetrace) *cobra.Command {
 				}
 			}
 
+			if options.Revert {
+				if err := t.RevertRecord(recordTime); err != nil {
+					out.Err("Failed to revert record: %s", err.Error())
+				} else {
+					out.Info("Record backup restored successfully")
+				}
+				return
+			}
+
+			if err := t.BackupRecord(recordTime); err != nil {
+				out.Err("Failed to backup record before edit: %s", err.Error())
+				return
+			}
+
 			if options.Minus == "" && options.Plus == "" {
 				out.Info("Opening %s in default editor", recordTime)
 				if err := t.EditRecordManual(recordTime); err != nil {
-					out.Err("Failed to edit project: %s", err.Error())
+					out.Err("Failed to edit record: %s", err.Error())
 					return
 				}
 			} else {
 				if err := t.EditRecord(recordTime, options.Plus, options.Minus); err != nil {
-					out.Err("Failed to edit project: %s", err.Error())
+					out.Err("Failed to edit record: %s", err.Error())
 					return
 				}
 			}
@@ -102,6 +133,7 @@ func editRecordCommand(t *core.Timetrace) *cobra.Command {
 
 	editRecord.PersistentFlags().StringVarP(&options.Plus, "plus", "p", "", "Adds the given duration to the end time of the record")
 	editRecord.PersistentFlags().StringVarP(&options.Minus, "minus", "m", "", "Substracts the given duration to the end time of the record")
+	editRecord.PersistentFlags().BoolVarP(&options.Revert, "revert", "r", false, "Restores the record to it's state prior to the last 'edit' command.")
 
 	return editRecord
 }
