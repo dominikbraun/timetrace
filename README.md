@@ -9,7 +9,7 @@
 
 ![CLI screenshot 64x16](timetrace.png)
 
-:fire: **New:** [Editing records is now possible](#edit-a-record)
+:fire: **New:** [Reverting `edit` and `delete` commands is now possible](#edit-a-record)
 
 ## Installation
 
@@ -265,7 +265,7 @@ Edit a project called `make-coffee`:
 timetrace edit project make-coffee
 ```
 
-Restore the project to it's state prior to the last edit:
+:fire: **New:** Restore the project to it's state prior to the last edit:
 
 ```
 timetrace edit project make-coffee --revert
@@ -307,7 +307,7 @@ Add 15 minutes to the end of the record created on May 1st, 3PM:
 timetrace edit record 2021-05-01-15-00 --plus 15m
 ```
 
-Restore the record to it's state prior to the last edit:
+:fire: **New:** Restore the record to it's state prior to the last edit:
 
 ```
 timetrace edit record 2021-05-01-15-00 --revert
@@ -342,7 +342,7 @@ Delete a project called `make-coffee`:
 timetrace delete project make-coffee
 ```
 
-Restore the project to it's pre-deletion state:
+:fire: **New:** Restore the project to it's pre-deletion state:
 
 ```
 timetrace delete project make-coffee --revert
@@ -375,7 +375,7 @@ Delete a record created on May 1st 2021, 3:00 PM:
 timetrace delete record 2021-05-01-15-00
 ```
 
-Restore the record to it's pre-deletion state:
+:fire: **New:** Restore the record to it's pre-deletion state:
 
 ```
 timetrace delete record 2021-05-01-15-00 --revert
