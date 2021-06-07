@@ -3,6 +3,7 @@ package cli
 import (
 	"reflect"
 	"testing"
+	"time"
 
 	"github.com/dominikbraun/timetrace/core"
 )
@@ -113,4 +114,39 @@ func TestFilterProjectRecords(t *testing.T) {
 			t.Fatalf("error when %s: %v != %v", test.title, projectRecords, test.expected)
 		}
 	}
+}
+
+func TestTotalTrackedTime(t *testing.T) {
+	tt := []struct {
+		records  []*core.Record
+		expected time.Duration
+	}{
+		{records: []*core.Record{
+			{
+				Start: time.Date(2021, 06, 07, 16, 00, 00, 00, time.Local),          // 4:00PM
+				End:   timePtr(time.Date(2021, 06, 07, 16, 25, 00, 00, time.Local)), // 4:25PM
+			},
+			{
+				Start: time.Date(2021, 06, 07, 16, 30, 00, 00, time.Local),          // 4:30PM
+				End:   timePtr(time.Date(2021, 06, 07, 16, 50, 00, 00, time.Local)), // 4:50PM
+			},
+			{
+				Start: time.Date(2021, 06, 07, 16, 55, 00, 00, time.Local),          // 4:55PM
+				End:   timePtr(time.Date(2021, 06, 07, 17, 10, 00, 00, time.Local)), // 5:10PM
+			},
+		},
+			expected: time.Duration(time.Hour),
+		},
+	}
+	for _, test := range tt {
+		totalTime := getTotalTrackedTime(test.records)
+		if totalTime != test.expected {
+			t.Fatalf("error when %v != %v", totalTime, test.expected)
+		}
+	}
+}
+
+// timePtr gives a pointer of `time.Time` (an alias of int64).
+func timePtr(t time.Time) *time.Time {
+	return &t
 }

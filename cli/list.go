@@ -2,6 +2,7 @@ package cli
 
 import (
 	"strconv"
+	"time"
 
 	"github.com/dominikbraun/timetrace/core"
 	"github.com/dominikbraun/timetrace/out"
@@ -115,7 +116,11 @@ func listRecordsCommand(t *core.Timetrace) *cobra.Command {
 				rows[i][5] = billable
 			}
 
-			out.Table([]string{"#", "Key", "Project", "Start", "End", "Billable"}, rows, nil)
+			footer := make([]string, 6)
+			footer[len(footer)-2] = "Total: "
+			footer[len(footer)-1] = t.Formatter().FormatDuration(getTotalTrackedTime(records))
+
+			out.Table([]string{"#", "Key", "Project", "Start", "End", "Billable"}, rows, footer)
 		},
 	}
 
@@ -157,4 +162,19 @@ func removeModules(allProjects []*core.Project) []*core.Project {
 	}
 
 	return parentProjects
+}
+
+func getTotalTrackedTime(records []*core.Record) time.Duration {
+	var totalTime time.Duration
+	for _, record := range records {
+		if record.End != nil {
+			totalTime += record.End.Sub(record.Start)
+		} else {
+			// If the current record has no end time, then add the total time
+			// elapsed from the start of the record.
+			// TODO: test this scenario
+			totalTime += time.Since(record.Start)
+		}
+	}
+	return totalTime
 }
