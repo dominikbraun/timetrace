@@ -170,7 +170,10 @@ func getTotalTrackedTime(records []*core.Record) time.Duration {
 		if record.End != nil {
 			totalTime += record.End.Sub(record.Start)
 		} else {
-			totalTime += time.Now().Sub(record.Start)
+			// If the current record has no end time, then add the total time
+			// elapsed from the start of the record.
+			// TODO: test this scenario
+			totalTime += time.Since(record.Start)
 		}
 	}
 	return totalTime
