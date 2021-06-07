@@ -79,3 +79,38 @@ func (f *Formatter) ParseRecordKey(key string) (time.Time, error) {
 func (f *Formatter) RecordKey(record *Record) string {
 	return record.Start.Format(f.RecordKeyLayout())
 }
+
+// FormatTodayTime returns the formated string of the total
+// time of today follwoing the format convention
+func (f *Formatter) FormatTodayTime(report *Report) string {
+	return f.formatDuration(report.TrackedTimeToday)
+}
+
+// FormatCurrentTime returns the formated string of the current
+// report time follwoing the format convention
+func (f *Formatter) FormatCurrentTime(report *Report) string {
+	return f.formatDuration(*report.TrackedTimeCurrent)
+}
+
+// FormatBreakTime returns the formated string of the total time
+// taking breaks today following the format convention
+func (f *Formatter) FormatBreakTime(report *Report) string {
+	return f.formatDuration(report.BreakTimeToday)
+}
+
+// formatDuration formats the passed duration into a string.
+// The format will be "8h 24min". If the duration is less then 60 secods
+// the format will be "0h 0min 12sec".
+func (f *Formatter) formatDuration(duration time.Duration) string {
+
+	hours := int64(duration.Hours()) % 60
+	minutes := int64(duration.Minutes()) % 60
+	secods := int64(duration.Seconds()) % 60
+
+	// as by convention if the duarion is < then 60 secods
+	// return "0h 0min Xsec"
+	if hours == 0 && minutes == 0 {
+		return fmt.Sprintf("0h 0min %dsec", secods)
+	}
+	return fmt.Sprintf("%dh %dmin", hours, minutes)
+}

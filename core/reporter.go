@@ -102,10 +102,10 @@ func (r Reporter) Table() ([][]string, string) {
 			rows = append(rows, []string{project, date, start, end, billable, ""})
 		}
 		// append with last row for total of tracked time for project
-		rows = append(rows, []string{key, "", "", "", defaultTotalSymbol, formatDuration(r.totals[key])})
+		rows = append(rows, []string{key, "", "", "", defaultTotalSymbol, r.t.Formatter().formatDuration(r.totals[key])})
 		totalSum += r.totals[key]
 	}
-	return rows, formatDuration(totalSum)
+	return rows, r.t.Formatter().formatDuration(totalSum)
 }
 
 // Json prepares the r.report and r.totals data so that it can be written to a json file

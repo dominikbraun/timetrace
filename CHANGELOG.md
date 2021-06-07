@@ -5,7 +5,21 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [Unreleased]
+## [0.8.0] - 2021-06-06
+
+### Added
+* Introduce the `--revert` flag for `edit record`, `delete record`, `edit project` and `delete project` (#93)
+* Add the overall break time for `timetrace status` (#100)
+
+## [0.7.2] - 2021-06-04
+
+### Fixed
+* Fix critical error when starting tracking if there are no existing records (#103)
+
+## [0.7.1] - 2021-06-02
+
+### Fixed
+* Fix unhandled error in `edit record` command if there are no tracked records (#96)
 
 ## [0.7.0] - 2021-05-30
 

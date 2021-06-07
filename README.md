@@ -9,7 +9,7 @@
 
 ![CLI screenshot 64x16](timetrace.png)
 
-:fire: **New:** [Editing records is now possible](#edit-a-record)
+:fire: **New:** [Reverting `edit` and `delete` commands is now possible](#edit-a-record)
 
 ## Installation
 
@@ -252,12 +252,23 @@ timetrace edit project <KEY>
 |-|-|
 |`KEY`|The project key.|
 
+**Flags:**
+|Flag|Short|Description|
+|-|-|-|
+|`--revert`|`-r`|Revert the project to it's state prior to the last edit.|
+
 **Example:**
 
 Edit a project called `make-coffee`:
 
 ```
 timetrace edit project make-coffee
+```
+
+:fire: **New:** Restore the project to it's state prior to the last edit:
+
+```
+timetrace edit project make-coffee --revert
 ```
 
 ### Edit a record
@@ -276,10 +287,11 @@ timetrace edit record {<KEY>|latest}
 
 **Flags:**
 
-|Flag|Description|
-|-|-|
-|`--plus`|Add the given duration to the record's end time, e.g. `--plus 1h 10m`|
-|`--minus`|Subtract the given duration from the record's end time, e.g. `--minus 1h 10m`|
+|Flag|Short|Description|
+|-|-|-|
+|`--plus`|`-p`|Add the given duration to the record's end time, e.g. `--plus 1h 10m`|
+|`--minus`|`-m`|Subtract the given duration from the record's end time, e.g. `--minus 1h 10m`|
+|`--revert`|`-r`|Revert the record to it's state prior to the last edit.|
 
 **Example:**
 
@@ -293,6 +305,12 @@ Add 15 minutes to the end of the record created on May 1st, 3PM:
 
 ```
 timetrace edit record 2021-05-01-15-00 --plus 15m
+```
+
+:fire: **New:** Restore the record to it's state prior to the last edit:
+
+```
+timetrace edit record 2021-05-01-15-00 --revert
 ```
 
 Tip: You can get the record key `2021-05-01-15-00` using [`timetrace list records`](#list-all-records-from-a-date).
@@ -311,12 +329,23 @@ timetrace delete project <KEY>
 |-|-|
 |`KEY`|The project key.|
 
+**Flags:**
+|Flag|Short|Description|
+|-|-|-|
+|`--revert`|`-r`|Restore a deleted project.|
+
 **Example:**
 
 Delete a project called `make-coffee`:
 
 ```
 timetrace delete project make-coffee
+```
+
+:fire: **New:** Restore the project to it's pre-deletion state:
+
+```
+timetrace delete project make-coffee --revert
 ```
 
 ### Delete a record
@@ -333,9 +362,10 @@ timetrace delete record <YYYY-MM-DD-HH-MM>
 |-|-|
 |`YYYY-MM-DD-HH-MM`|The start time of the desired record.|
 
-|Flat|Description|
-|-|-|
-|--yes|Do not ask for confirmation|
+|Flag|Short|Description|
+|-|-|-|
+|`--yes`| |Do not ask for confirmation|
+|`--revert`|`-r`|Restore a deleted record.|
 
 **Example:**
 
@@ -343,6 +373,12 @@ Delete a record created on May 1st 2021, 3:00 PM:
 
 ```
 timetrace delete record 2021-05-01-15-00
+```
+
+:fire: **New:** Restore the record to it's pre-deletion state:
+
+```
+timetrace delete record 2021-05-01-15-00 --revert
 ```
 
 ### Start tracking
