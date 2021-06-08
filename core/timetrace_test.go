@@ -40,7 +40,7 @@ func TestFormatDuration(t *testing.T) {
 	formatter := Formatter{}
 
 	for _, test := range tt {
-		strFormat := formatter.formatDuration(test.Duration)
+		strFormat := formatter.FormatDuration(test.Duration)
 		if strFormat != test.Expected {
 			t.Fatalf("format error: %s != %s", strFormat, test.Expected)
 		}
