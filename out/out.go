@@ -70,6 +70,10 @@ func setHeaderColor(table *tablewriter.Table, header []string) {
 func headersWithPadding(headers []string) []string {
 	newHeaders := make([]string, len(headers))
 	for idx, val := range headers {
+		// Do not pad empty headers.
+		if val == "" {
+			continue
+		}
 		newHeaders[idx] = " " + val + " "
 	}
 	return newHeaders
