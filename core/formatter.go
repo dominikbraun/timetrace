@@ -31,6 +31,22 @@ func (f *Formatter) ParseDate(input string) (time.Time, error) {
 	return date, nil
 }
 
+// ParseTime parses a time from an input string in the configured timeLayout
+func (f *Formatter) ParseTime(input string) (time.Time, error) {
+	date, err := time.Parse(f.timeLayout(), input)
+	if err != nil {
+		return time.Time{}, err
+	}
+	return date, nil
+}
+
+// CombineDateAndTime takes a date and a time and combines them to the time
+// struct that represents the given time on the given day
+func (f *Formatter) CombineDateAndTime(d, t time.Time) time.Time {
+	year, month, day := d.Date()
+	return time.Date(year, month, day, t.Hour(), t.Minute(), t.Second(), t.Nanosecond(), time.Local)
+}
+
 const (
 	defaultTimeLayout        = "15:04"
 	default12HoursTimeLayout = "03:04PM"
