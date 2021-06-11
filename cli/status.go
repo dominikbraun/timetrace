@@ -59,9 +59,10 @@ func statusCommand(t *core.Timetrace) *cobra.Command {
 				format = strings.ReplaceAll(format, "{breakTime}", t.Formatter().FormatBreakTime(report))
 				format = strings.ReplaceAll(format, `\n`, "\n")
 				fmt.Printf(format)
-			} else {
-				out.Table([]string{"Current project", "Worked since start", "Worked today", "Breaks"}, rows, nil)
+				return
 			}
+			
+			out.Table([]string{"Current project", "Worked since start", "Worked today", "Breaks"}, rows, nil)
 		},
 	}
 
