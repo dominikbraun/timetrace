@@ -2,6 +2,8 @@ package cli
 
 import (
 	"errors"
+	"fmt"
+	"strings"
 
 	"github.com/dominikbraun/timetrace/core"
 	"github.com/dominikbraun/timetrace/out"
@@ -10,6 +12,8 @@ import (
 )
 
 func statusCommand(t *core.Timetrace) *cobra.Command {
+	var format string
+
 	status := &cobra.Command{
 		Use:   "status",
 		Short: "Display the current tracking status",
@@ -48,9 +52,21 @@ func statusCommand(t *core.Timetrace) *cobra.Command {
 					t.Formatter().FormatBreakTime(report),
 				},
 			}
+			if format != "" {
+				format = strings.ReplaceAll(format, "{project}", project)
+				format = strings.ReplaceAll(format, "{trackedTimeCurrent}", trackedTimeCurrent)
+				format = strings.ReplaceAll(format, "{todayTime}", t.Formatter().FormatTodayTime(report))
+				format = strings.ReplaceAll(format, "{breakTime}", t.Formatter().FormatBreakTime(report))
+				format = strings.ReplaceAll(format, `\n`, "\n")
+				fmt.Printf(format)
+				return
+			}
+			
 			out.Table([]string{"Current project", "Worked since start", "Worked today", "Breaks"}, rows, nil)
 		},
 	}
+
+	status.Flags().StringVarP(&format, "format", "f", "", "Format string, availiable:\n{project}, {trackedTimeCurrent}, {todayTime}, {breakTime}")
 
 	return status
 }
