@@ -61,7 +61,7 @@ func statusCommand(t *core.Timetrace) *cobra.Command {
 				fmt.Printf(format)
 				return
 			}
-			
+
 			out.Table([]string{"Current project", "Worked since start", "Worked today", "Breaks"}, rows, nil)
 		},
 	}
