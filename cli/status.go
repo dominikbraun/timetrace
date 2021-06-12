@@ -66,7 +66,7 @@ func statusCommand(t *core.Timetrace) *cobra.Command {
 		},
 	}
 
-	status.Flags().StringVarP(&format, "format", "f", "", "Format string, availiable:\n{project}, {trackedTimeCurrent}, {todayTime}, {breakTime}")
+	status.Flags().StringVarP(&format, "format", "f", "", "Format string, availiable:\n{project}, {trackedTimeCurrent}, {trackedTimeToday}, {breakTimeToday}")
 
 	return status
 }
