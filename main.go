@@ -20,14 +20,15 @@ func main() {
 		out.Warn("%s", err.Error())
 	}
 
-	plugins := &plugin.Plugins{}
-	plugins.Init(c)
-	defer plugins.Close()
-
 	filesystem := fs.New(c)
 	timetrace := core.New(c, filesystem)
 
-	if err := cli.RootCommand(timetrace, version, plugins).Execute(); err != nil {
+	pluginHost := &plugin.Host{
+		T: timetrace,
+	}
+	pluginHost.Init(c)
+
+	if err := cli.RootCommand(timetrace, version, pluginHost).Execute(); err != nil {
 		out.Err("%s", err.Error())
 		os.Exit(1)
 	}

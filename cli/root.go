@@ -12,7 +12,7 @@ const (
 	defaultBool   = "no"
 )
 
-func RootCommand(t *core.Timetrace, version string, plugins *plugin.Plugins) *cobra.Command {
+func RootCommand(t *core.Timetrace, version string, pluginHost *plugin.Host) *cobra.Command {
 	root := &cobra.Command{
 		Use:           "timetrace",
 		Short:         "timetrace is a simple CLI for tracking your working time.",
@@ -37,7 +37,7 @@ func RootCommand(t *core.Timetrace, version string, plugins *plugin.Plugins) *co
 	root.AddCommand(stopCommand(t))
 	root.AddCommand(versionCommand(version))
 
-	plugins.AddToCobra(root)
+	pluginHost.AddToCobra(root)
 
 	return root
 }

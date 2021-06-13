@@ -1,40 +1,44 @@
 package main
 
 import (
+	"fmt"
 	"github.com/dominikbraun/timetrace/plugin"
 	"strings"
 )
 
-func main() {
-	p := plugin.New("HelloWorld")
-	err := p.Register()
-	if err != nil {
-		panic(err)
+type HelloPlugin struct {
+	plugin.Timetrace
+}
+
+func New() HelloPlugin {
+	return HelloPlugin{
+		Timetrace: plugin.New("hello_plugin"),
 	}
+}
 
-	logger := p.Logger()
-	logger.Println("Initializing")
-
+func main() {
+	p := New()
 	p.RegisterCobraCommand(plugin.RegisterCobraCommand{
 		Use:     "hello",
-		Short:   "prints Hello World and all arguments",
+		Short:   "prints Hello and all arguments",
 		Example: "hello",
+		Action: func(args []string) error {
+			p.Print(strings.Join(args, ", ") + "\n")
+			return nil
+		},
 	})
 
-	p.OnCommand(func(cmd plugin.OnCommand) error {
-		if cmd.Cmd.Use == "hello" {
-			return p.Print("Hello World" + strings.Join(cmd.Args, ", "))
-		}
+	p.RegisterCobraCommand(plugin.RegisterCobraCommand{
+		Use:     "record",
+		Short:   "prints the current record",
+		Example: "record",
+		Action: func(args []string) error {
+			r := p.LoadLatestRecord()
 
-		return nil
+			p.Print(fmt.Sprintf("Latest record: %v, %v, %v, %v", r.Project.Key, r.Start, r.End, r.IsBillable) + "\n")
+			return nil
+		},
 	})
 
-	p.OnAllInitialized(func() error {
-		return nil
-	})
-
-	err = p.Run()
-	if err != nil {
-		logger.Println(err)
-	}
+	p.Run()
 }

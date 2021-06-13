@@ -1,37 +1,66 @@
 package plugin
 
-import "github.com/aligator/goplug"
+import (
+	"encoding/json"
+	"github.com/aligator/goplug/goplug"
+	"github.com/aligator/goplug/plugin"
+	"os"
+)
 
-// TimetracePlugin provides the methods, which can be used by plugins.
-type TimetracePlugin struct {
-	goplug.Plugin
+type RegisterCobraCommand struct {
+	Use     string                    `json:"use"`
+	Short   string                    `json:"short"`
+	Long    string                    `json:"long"`
+	Example string                    `json:"example"`
+	Action  func(args []string) error `json:"-"`
 }
 
-func New(ID string) TimetracePlugin {
-	return TimetracePlugin{
-		Plugin: goplug.Plugin{
-			ID: ID,
+type Metadata struct {
+	Commands []RegisterCobraCommand `json:"commands"`
+}
+
+// Timetrace provides the methods, which can be used by plugins.
+type Timetrace struct {
+	plugin   plugin.Plugin
+	commands []RegisterCobraCommand
+}
+
+func New(id string) Timetrace {
+	return Timetrace{
+		plugin: plugin.Plugin{
+			PluginInfo: goplug.PluginInfo{
+				ID:         id,
+				PluginType: goplug.OneShot,
+			},
 		},
 	}
 }
 
-func (p *TimetracePlugin) OnCommand(listener func(cmd OnCommand) error) {
-	p.RegisterCommand("command", func() interface{} {
-		return &OnCommand{}
-	}, func(message interface{}) error {
-		data := message.(*OnCommand)
-		if p.ID == data.Cmd.PluginID {
-			return listener(*data)
+func (t *Timetrace) RegisterCobraCommand(cmd RegisterCobraCommand) {
+	t.commands = append(t.commands, cmd)
+}
+
+func (t *Timetrace) Run() error {
+	metaJson, err := json.Marshal(Metadata{
+		Commands: t.commands,
+	})
+	if err != nil {
+		return err
+	}
+	t.plugin.Metadata = metaJson
+
+	t.plugin.Init()
+
+	for _, cmd := range t.commands {
+		if cmd.Use != os.Args[1] {
+			continue
 		}
 
-		return nil
-	})
-}
+		err := cmd.Action(os.Args[1:])
+		if err != nil {
+			panic(err)
+		}
+	}
 
-func (p TimetracePlugin) RegisterCobraCommand(cmd RegisterCobraCommand) error {
-	return p.Send("registerCobraCommand", cmd)
-}
-
-func (p TimetracePlugin) Print(message string) error {
-	return p.Send("print", message)
+	return nil
 }
