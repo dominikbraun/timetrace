@@ -94,6 +94,19 @@ timetrace list projects
 When filtering by projects, for example with `timetrace list records -p make-coffee today`, the modules of that project
 will be included.
 
+## Starship integration
+
+To integrate timetrace into Starship, add the following lines to `$HOME/.config/starship.toml`:
+
+```
+[custom.timetrace]
+command = """ timetrace status --format "Current project: {project} - Worked today: {trackedTimeToday}" """
+when = "timetrace status"
+shell = "sh"
+```
+
+You can find a list of available formatting variables in the [`status` reference](#print-current-status).
+
 ## Command reference
 
 ### Create a project
@@ -417,6 +430,21 @@ timetrace start --billable make-coffee
 timetrace status
 ```
 
+**Flags:**
+
+|Flag|Short|Description|
+|-|-|-|
+|`--format`|`-f`|Display the status in a custom format (see below).|
+
+**Formatting variables:**
+
+|Variable|Description|
+|-|-|
+|`{project}`|The key of the current project.|
+|`{trackedTimeCurrent}`|The time tracked for the current record.|
+|`{trackedTimeToday}`|The time tracked today.|
+|`{breakTimeToday}`|The break time since the first record.|
+
 **Example:**
 
 Print the current tracking status:
@@ -429,6 +457,14 @@ timetrace status
 | make-coffee       | 1h 15min             | 4h 30min       |
 +-------------------+----------------------+----------------+
 ```
+
+Print the current project and the total working time as a custom string:
+
+```
+timetrace status --format "Current project: {project} - Worked today: {trackedTimeToday}"
+```
+
+Given the example above, the output will be `Current project: make-coffee - Worked today: 3h 30min`.
 
 ### Stop tracking
 
