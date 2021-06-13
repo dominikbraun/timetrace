@@ -5,7 +5,55 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [Unreleased]
+## [0.9.0] - 2021-06-09
+
+### Added
+* Add the total tracked time for all listed records to `timetrace list records` (#106)
+
+## [0.8.0] - 2021-06-06
+
+### Added
+* Introduce the `--revert` flag for `edit record`, `delete record`, `edit project` and `delete project` (#93)
+* Add the overall break time for `timetrace status` (#100)
+
+## [0.7.2] - 2021-06-04
+
+### Fixed
+* Fix critical error when starting tracking if there are no existing records (#103)
+
+## [0.7.1] - 2021-06-02
+
+### Fixed
+* Fix unhandled error in `edit record` command if there are no tracked records (#96)
+
+## [0.7.0] - 2021-05-30
+
+### Added
+* Add support for project modules
+
+### Changed
+* Consider project modules when filtering projects (#63)
+* Display project modules when listing projects (#70)
+* Require parent projects to exist when creating a module (#80)
+
+## [0.6.1] - 2021-05-26
+
+### Fixed
+* Fix `timetrace stop` command (#86)
+
+## [0.6.0] - 2021-05-26
+
+### Added
+* Add `timetrace edit record` command (#51)
+* Add `latest` alias for `timetrace edit record` (#73)
+
+### Changed
+* Use an info output for `timetrace status` when there's no active tracking (#65)
+* Always adhere to the `use12hours` setting for date- and time input and output (#67)
+
+### Fixed
+* Don't allow edting of incomplete records (#69)
+* Don't allow re-creation of existing projects (#79)
 
 ## [0.5.0] - 2021-05-22
 

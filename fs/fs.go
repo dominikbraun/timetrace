@@ -19,8 +19,9 @@ const (
 )
 
 const (
-	recordDirLayout      = "2006-01-02"
-	recordFilepathLayout = "15-04.json"
+	recordDirLayout            = "2006-01-02"
+	recordFilepathLayout       = "15-04.json"
+	recordBackupFilepathLayout = "15-04.json.bak"
 )
 
 type Fs struct {
@@ -42,7 +43,15 @@ func (fs *Fs) ProjectFilepath(key string) string {
 	return filepath.Join(fs.projectsDir(), name)
 }
 
-// ProjectFilepaths returns all project filepaths sorted alphabetically.
+// ProjectBackupFilepath return the filepath of the backup project with the
+// given key.
+func (fs *Fs) ProjectBackupFilepath(key string) string {
+	key = fs.sanitizer.Replace(key)
+	name := fmt.Sprintf("%s.json.bak", key)
+	return filepath.Join(fs.projectsDir(), name)
+}
+
+// ProjectFilepaths returns all non-backup project filepaths sorted alphabetically.
 func (fs *Fs) ProjectFilepaths() ([]string, error) {
 	dir := fs.projectsDir()
 
@@ -57,9 +66,13 @@ func (fs *Fs) ProjectFilepaths() ([]string, error) {
 		if item.IsDir() {
 			continue
 		}
-		filepaths = append(filepaths, filepath.Join(dir, item.Name()))
-	}
+		itemName := item.Name()
+		if strings.HasSuffix(itemName, ".bak") {
+			continue
+		}
 
+		filepaths = append(filepaths, filepath.Join(dir, itemName))
+	}
 	sort.Strings(filepaths)
 
 	return filepaths, nil
@@ -74,8 +87,13 @@ func (fs *Fs) RecordFilepath(start time.Time) string {
 	return filepath.Join(fs.RecordDirFromDate(start), name)
 }
 
-// RecordFilepaths returns all record filepaths within the given directory
-// sorted by the given function.
+func (fs *Fs) RecordBackupFilepath(start time.Time) string {
+	name := start.Format(recordBackupFilepathLayout)
+	return filepath.Join(fs.RecordDirFromDate(start), name)
+}
+
+// RecordFilepaths returns all non-backup record filepaths within the given
+// directory sorted by the given function.
 //
 // The directory can be obtained using functions like recordDir or RecordDirs.
 // If you have a record date, use RecordDirFromDate to get the directory name.
@@ -108,7 +126,12 @@ func (fs *Fs) RecordFilepaths(dir string, less func(a, b string) bool) ([]string
 		if item.IsDir() {
 			continue
 		}
-		filepaths = append(filepaths, filepath.Join(dir, item.Name()))
+		itemName := item.Name()
+		if strings.HasSuffix(itemName, ".bak") {
+			continue
+		}
+
+		filepaths = append(filepaths, filepath.Join(dir, itemName))
 	}
 
 	sort.Slice(filepaths, func(i, j int) bool {

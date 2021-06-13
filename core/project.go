@@ -14,8 +14,10 @@ const (
 )
 
 var (
-	ErrProjectNotFound      = errors.New("project not found")
-	ErrProjectAlreadyExists = errors.New("project already exists")
+	ErrProjectNotFound       = errors.New("project not found")
+	ErrBackupProjectNotFound = errors.New("backup project not found")
+	ErrProjectAlreadyExists  = errors.New("project already exists")
+	ErrParentlessModule      = errors.New("no parent project for module exists, please create parent first")
 )
 
 type Project struct {
@@ -45,6 +47,35 @@ func (t *Timetrace) LoadProject(key string) (*Project, error) {
 	return t.loadProject(path)
 }
 
+func (t *Timetrace) LoadBackupProject(key string) (*Project, error) {
+	path := t.fs.ProjectBackupFilepath(key)
+	return t.loadProject(path)
+}
+
+// ListProjectModules loads all modules for a project and returns their keys as a concatenated string
+func (t *Timetrace) ListProjectModules(project *Project) (string, error) {
+	allModules, err := t.loadProjectModules(project)
+	if err != nil {
+		return "", err
+	}
+
+	if len(allModules) == 0 {
+		return "-", nil
+	}
+
+	var mList string
+	for i, p := range allModules {
+		// get the name of the module without the prefix
+		mList += strings.Split(p.Key, "@")[0]
+		// append comma if it is not the last element
+		if i+1 != len(allModules) {
+			mList += ","
+		}
+	}
+
+	return mList, nil
+}
+
 // ListProjects loads and returns all stored projects sorted by their filenames.
 // If no projects are found, an empty slice and no error will be returned.
 func (t *Timetrace) ListProjects() ([]*Project, error) {
@@ -69,9 +100,15 @@ func (t *Timetrace) ListProjects() ([]*Project, error) {
 // SaveProject persists the given project. Returns ErrProjectAlreadyExists if
 // the project already exists and saving isn't forced.
 func (t *Timetrace) SaveProject(project Project, force bool) error {
-	path := t.fs.ProjectFilepath(project.Key)
+	if project.IsModule() {
+		err := t.assertParent(project)
+		if err != nil {
+			return err
+		}
+	}
 
-	if _, err := os.Stat(path); os.IsExist(err) && !force {
+	path := t.fs.ProjectFilepath(project.Key)
+	if _, err := os.Stat(path); err == nil && !force {
 		return ErrProjectAlreadyExists
 	}
 
@@ -90,7 +127,54 @@ func (t *Timetrace) SaveProject(project Project, force bool) error {
 	return err
 }
 
-// EditProject opens the project file in the preferred or default editor.
+// BackupProject creates a backup of the given project file.
+func (t *Timetrace) BackupProject(projectKey string) error {
+	project, err := t.LoadProject(projectKey)
+	if err != nil {
+		return err
+	}
+
+	path := t.fs.ProjectBackupFilepath(projectKey)
+
+	file, err := os.OpenFile(path, os.O_WRONLY|os.O_CREATE|os.O_TRUNC, 0600)
+	if err != nil {
+		return err
+	}
+
+	bytes, err := json.MarshalIndent(&project, "", "\t")
+	if err != nil {
+		return err
+	}
+
+	_, err = file.Write(bytes)
+
+	return err
+}
+
+func (t *Timetrace) RevertProject(projectKey string) error {
+	project, err := t.LoadBackupProject(projectKey)
+	if err != nil {
+		return err
+	}
+	// get filepath of reverted file
+	path := t.fs.ProjectFilepath(projectKey)
+
+	file, err := os.OpenFile(path, os.O_WRONLY|os.O_CREATE|os.O_TRUNC, 0600)
+	if err != nil {
+		return err
+	}
+
+	bytes, err := json.MarshalIndent(&project, "", "\t")
+	if err != nil {
+		return err
+	}
+
+	_, err = file.Write(bytes)
+
+	return err
+}
+
+// EditProject opens the project file in the preferred or default editor .
 func (t *Timetrace) EditProject(projectKey string) error {
 	if _, err := t.LoadProject(projectKey); err != nil {
 		return err
@@ -123,6 +207,9 @@ func (t *Timetrace) loadProject(path string) (*Project, error) {
 	file, err := ioutil.ReadFile(path)
 	if err != nil {
 		if os.IsNotExist(err) {
+			if strings.HasSuffix(path, ".bak") {
+				return nil, ErrBackupProjectNotFound
+			}
 			return nil, ErrProjectNotFound
 		}
 		return nil, err
@@ -151,7 +238,7 @@ func (t *Timetrace) loadProjectModules(project *Project) ([]*Project, error) {
 
 	for _, p := range projects {
 		if p.Parent() == project.Key {
-			modules = append(modules, project)
+			modules = append(modules, p)
 		}
 	}
 
@@ -168,4 +255,19 @@ func (t *Timetrace) editorFromEnvironment() string {
 	}
 
 	return defaultEditor
+}
+
+func (t *Timetrace) assertParent(project Project) error {
+	allP, err := t.ListProjects()
+	if err != nil {
+		return err
+	}
+
+	for _, p := range allP {
+		if p.Key == project.Parent() {
+			return nil
+		}
+	}
+
+	return ErrParentlessModule
 }

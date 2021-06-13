@@ -13,7 +13,7 @@ func TestFormatDuration(t *testing.T) {
 	}{
 		{
 			Duration: time.Duration(12 * time.Second),
-			Expected: "0h 0min 12sec",
+			Expected: "0h 0min",
 		},
 		{
 			Duration: time.Duration(60 * time.Minute),
@@ -33,12 +33,14 @@ func TestFormatDuration(t *testing.T) {
 		},
 		{
 			Duration: time.Duration(0 * time.Second),
-			Expected: "0h 0min 0sec",
+			Expected: "0h 0min",
 		},
 	}
 
+	formatter := Formatter{}
+
 	for _, test := range tt {
-		strFormat := formatDuration(test.Duration)
+		strFormat := formatter.FormatDuration(test.Duration)
 		if strFormat != test.Expected {
 			t.Fatalf("format error: %s != %s", strFormat, test.Expected)
 		}
