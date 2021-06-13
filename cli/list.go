@@ -2,7 +2,6 @@ package cli
 
 import (
 	"strconv"
-	"strings"
 	"time"
 
 	"github.com/dominikbraun/timetrace/core"
@@ -31,21 +30,30 @@ func listProjectsCommand(t *core.Timetrace) *cobra.Command {
 		Use:   "projects",
 		Short: "List all projects",
 		Run: func(cmd *cobra.Command, args []string) {
-			projects, err := t.ListProjects()
+			allProjects, err := t.ListProjects()
 			if err != nil {
 				out.Err("Failed to list projects: %s", err.Error())
 				return
 			}
 
-			rows := make([][]string, len(projects))
+			// remove all modules from the project list
+			parentProjects := removeModules(allProjects)
 
-			for i, project := range projects {
-				rows[i] = make([]string, 2)
+			rows := make([][]string, len(parentProjects))
+
+			for i, project := range parentProjects {
+				allModules, err := t.ListProjectModules(project)
+				if err != nil {
+					out.Err("Failed to load project modules: %s", err.Error())
+					return
+				}
+				rows[i] = make([]string, 3)
 				rows[i][0] = strconv.Itoa(i + 1)
 				rows[i][1] = project.Key
+				rows[i][2] = allModules
 			}
 
-			out.Table([]string{"#", "Key"}, rows)
+			out.Table([]string{"#", "Key", "Modules"}, rows, nil)
 		},
 	}
 
@@ -114,7 +122,11 @@ func listRecordsCommand(t *core.Timetrace) *cobra.Command {
 				rows[i][5] = billable
 			}
 
-			out.Table([]string{"#", "Key", "Project", "Start", "End", "Billable"}, rows)
+			footer := make([]string, 6)
+			footer[len(footer)-2] = "Total: "
+			footer[len(footer)-1] = t.Formatter().FormatDuration(getTotalTrackedTime(records))
+
+			out.Table([]string{"#", "Key", "Project", "Start", "End", "Billable"}, rows, footer)
 		},
 	}
 
@@ -137,12 +149,38 @@ func filterBillableRecords(records []*core.Record) []*core.Record {
 	return billableRecords
 }
 
-func filterProjectRecords(records []*core.Record, projectKey string) []*core.Record {
+func filterProjectRecords(records []*core.Record, key string) []*core.Record {
 	projectRecords := []*core.Record{}
 	for _, record := range records {
-		if strings.Compare(record.Project.Key, projectKey) == 0 {
+		if record.Project.Key == key || record.Project.Parent() == key {
 			projectRecords = append(projectRecords, record)
 		}
 	}
 	return projectRecords
+}
+
+func removeModules(allProjects []*core.Project) []*core.Project {
+	var parentProjects []*core.Project
+	for _, p := range allProjects {
+		if !p.IsModule() {
+			parentProjects = append(parentProjects, p)
+		}
+	}
+
+	return parentProjects
+}
+
+func getTotalTrackedTime(records []*core.Record) time.Duration {
+	var totalTime time.Duration
+	for _, record := range records {
+		if record.End != nil {
+			totalTime += record.End.Sub(record.Start)
+		} else {
+			// If the current record has no end time, then add the total time
+			// elapsed from the start of the record.
+			// TODO: test this scenario
+			totalTime += time.Since(record.Start)
+		}
+	}
+	return totalTime
 }

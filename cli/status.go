@@ -1,6 +1,10 @@
 package cli
 
 import (
+	"errors"
+	"fmt"
+	"strings"
+
 	"github.com/dominikbraun/timetrace/core"
 	"github.com/dominikbraun/timetrace/out"
 
@@ -8,12 +12,17 @@ import (
 )
 
 func statusCommand(t *core.Timetrace) *cobra.Command {
+	var format string
+
 	status := &cobra.Command{
 		Use:   "status",
 		Short: "Display the current tracking status",
 		Run: func(cmd *cobra.Command, args []string) {
 			report, err := t.Status()
-			if err != nil {
+			if errors.Is(err, core.ErrTrackingNotStarted) {
+				out.Info("You haven't started tracking time today")
+				return
+			} else if err != nil {
 				out.Err("Failed to obtain status: %s", err.Error())
 				return
 			}
@@ -32,19 +41,32 @@ func statusCommand(t *core.Timetrace) *cobra.Command {
 			trackedTimeCurrent := defaultString
 
 			if report.TrackedTimeCurrent != nil {
-				trackedTimeCurrent = report.FormatCurrentTime()
+				trackedTimeCurrent = t.Formatter().FormatCurrentTime(report)
 			}
 
 			rows := [][]string{
 				{
 					project,
 					trackedTimeCurrent,
-					report.FormatTodayTime(),
+					t.Formatter().FormatTodayTime(report),
+					t.Formatter().FormatBreakTime(report),
 				},
 			}
-			out.Table([]string{"Current project", "Worked since start", "Worked today"}, rows)
+			if format != "" {
+				format = strings.ReplaceAll(format, "{project}", project)
+				format = strings.ReplaceAll(format, "{trackedTimeCurrent}", trackedTimeCurrent)
+				format = strings.ReplaceAll(format, "{todayTime}", t.Formatter().FormatTodayTime(report))
+				format = strings.ReplaceAll(format, "{breakTime}", t.Formatter().FormatBreakTime(report))
+				format = strings.ReplaceAll(format, `\n`, "\n")
+				fmt.Printf(format)
+				return
+			}
+
+			out.Table([]string{"Current project", "Worked since start", "Worked today", "Breaks"}, rows, nil)
 		},
 	}
+
+	status.Flags().StringVarP(&format, "format", "f", "", "Format string, availiable:\n{project}, {trackedTimeCurrent}, {todayTime}, {breakTime}")
 
 	return status
 }
