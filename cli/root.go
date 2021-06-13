@@ -35,6 +35,7 @@ func RootCommand(t *core.Timetrace, version string) *cobra.Command {
 	root.AddCommand(statusCommand(t))
 	root.AddCommand(stopCommand(t))
 	root.AddCommand(versionCommand(version))
+	root.AddCommand(notifyCommand(t))
 
 	return root
 }
