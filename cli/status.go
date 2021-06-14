@@ -55,8 +55,8 @@ func statusCommand(t *core.Timetrace) *cobra.Command {
 			if format != "" {
 				format = strings.ReplaceAll(format, "{project}", project)
 				format = strings.ReplaceAll(format, "{trackedTimeCurrent}", trackedTimeCurrent)
-				format = strings.ReplaceAll(format, "{todayTime}", t.Formatter().FormatTodayTime(report))
-				format = strings.ReplaceAll(format, "{breakTime}", t.Formatter().FormatBreakTime(report))
+				format = strings.ReplaceAll(format, "{trackedTimeToday}", t.Formatter().FormatTodayTime(report))
+				format = strings.ReplaceAll(format, "{breakTimeToday}", t.Formatter().FormatBreakTime(report))
 				format = strings.ReplaceAll(format, `\n`, "\n")
 				fmt.Printf(format)
 				return
@@ -66,7 +66,7 @@ func statusCommand(t *core.Timetrace) *cobra.Command {
 		},
 	}
 
-	status.Flags().StringVarP(&format, "format", "f", "", "Format string, availiable:\n{project}, {trackedTimeCurrent}, {todayTime}, {breakTime}")
+	status.Flags().StringVarP(&format, "format", "f", "", "Format string, availiable:\n{project}, {trackedTimeCurrent}, {trackedTimeToday}, {breakTimeToday}")
 
 	return status
 }
