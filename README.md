@@ -32,6 +32,13 @@ sudo snap install timetrace --edge --devmode
 yay -S timetrace-bin
 ```
 
+### Scoop
+
+```
+scoop bucket add https://github.com/Br1ght0ne/scoop-bucket
+scoop install timetrace
+```
+
 ### Docker
 
 The timetrace Docker image stores all data in the `/data` directory. To persist
