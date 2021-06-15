@@ -1,6 +1,7 @@
 package cli
 
 import (
+	"encoding/json"
 	"errors"
 	"fmt"
 	"strings"
@@ -11,8 +12,20 @@ import (
 	"github.com/spf13/cobra"
 )
 
+type statusReport struct {
+	Project            string `json:"project"`
+	TrackedTimeCurrent string `json:"trackedTimeCurrent"`
+	TrackedTimeToday   string `json:"trackedTimeToday"`
+	BreakTimeToday     string `json:"breakTimeToday"`
+}
+
+type statusOptions struct {
+	format string
+	output string
+}
+
 func statusCommand(t *core.Timetrace) *cobra.Command {
-	var format string
+	var options statusOptions
 
 	status := &cobra.Command{
 		Use:   "status",
@@ -32,41 +45,63 @@ func statusCommand(t *core.Timetrace) *cobra.Command {
 				return
 			}
 
-			project := defaultString
-
-			if report.Current != nil {
-				project = report.Current.Project.Key
+			statusReport := statusReport{
+				Project:            defaultString,
+				TrackedTimeCurrent: defaultString,
+				TrackedTimeToday:   t.Formatter().FormatTodayTime(report),
+				BreakTimeToday:     t.Formatter().FormatBreakTime(report),
 			}
 
-			trackedTimeCurrent := defaultString
+			if report.Current != nil {
+				statusReport.Project = report.Current.Project.Key
+			}
 
 			if report.TrackedTimeCurrent != nil {
-				trackedTimeCurrent = t.Formatter().FormatCurrentTime(report)
+				statusReport.TrackedTimeCurrent = t.Formatter().FormatCurrentTime(report)
+			}
+
+			if options.format != "" {
+				format := options.format
+				format = strings.ReplaceAll(format, "{project}", statusReport.Project)
+				format = strings.ReplaceAll(format, "{trackedTimeCurrent}", statusReport.TrackedTimeCurrent)
+				format = strings.ReplaceAll(format, "{trackedTimeToday}", statusReport.BreakTimeToday)
+				format = strings.ReplaceAll(format, "{breakTimeToday}", statusReport.BreakTimeToday)
+				format = strings.ReplaceAll(format, `\n`, "\n")
+				fmt.Printf(format)
+				return
+			}
+
+			if options.output != "" {
+				switch options.output {
+				case "json":
+					bytes, err := json.MarshalIndent(statusReport, "", "\t")
+					if err != nil {
+						out.Err("error printing JSON: %s", err.Error())
+						return
+					}
+					fmt.Println(string(bytes))
+					return
+				default:
+					out.Err("unknown output format: %s", options.format)
+					return
+				}
 			}
 
 			rows := [][]string{
 				{
-					project,
-					trackedTimeCurrent,
-					t.Formatter().FormatTodayTime(report),
-					t.Formatter().FormatBreakTime(report),
+					statusReport.Project,
+					statusReport.TrackedTimeCurrent,
+					statusReport.TrackedTimeToday,
+					statusReport.BreakTimeToday,
 				},
-			}
-			if format != "" {
-				format = strings.ReplaceAll(format, "{project}", project)
-				format = strings.ReplaceAll(format, "{trackedTimeCurrent}", trackedTimeCurrent)
-				format = strings.ReplaceAll(format, "{trackedTimeToday}", t.Formatter().FormatTodayTime(report))
-				format = strings.ReplaceAll(format, "{breakTimeToday}", t.Formatter().FormatBreakTime(report))
-				format = strings.ReplaceAll(format, `\n`, "\n")
-				fmt.Printf(format)
-				return
 			}
 
 			out.Table([]string{"Current project", "Worked since start", "Worked today", "Breaks"}, rows, nil)
 		},
 	}
 
-	status.Flags().StringVarP(&format, "format", "f", "", "Format string, availiable:\n{project}, {trackedTimeCurrent}, {trackedTimeToday}, {breakTimeToday}")
+	status.Flags().StringVarP(&options.format, "format", "f", "", "Format string, availiable:\n{project}, {trackedTimeCurrent}, {trackedTimeToday}, {breakTimeToday}")
+	status.Flags().StringVarP(&options.output, "output", "o", "", "The output format. Available: json")
 
 	return status
 }
