@@ -195,13 +195,17 @@ Print the status as JSON:
 
 ```
 timetrace status -o json
+```
+
+The output will look as follows:
+
+```json
 {
         "project": "web-store",
         "trackedTimeCurrent": "1h 45min",
         "trackedTimeToday": "7h 30min",
         "breakTimeToday": "0h 30min"
 }
-
 ```
 
 ### Stop tracking
