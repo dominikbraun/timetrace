@@ -34,24 +34,24 @@ func FilterByProject(key string) func(*Record) bool {
 // date will be ignored as they are all bigger since their hh:mm:ss will be grather then 00:00:00
 // of the "to" time. Adding one day to the "to" time will include records tracked on that date thus
 // will make the "to" time inclusive
-func FilterByTimeRange(from, to time.Time) func(*Record) bool {
+func FilterByTimeRange(start, end time.Time) func(*Record) bool {
 
 	return func(r *Record) bool {
-		if from.IsZero() && to.IsZero() {
+		if start.IsZero() && end.IsZero() {
 			return true
 		}
-		if to.IsZero() {
-			return r.Start.Unix() >= from.Unix()
+		if end.IsZero() {
+			return r.Start.Unix() >= start.Unix()
 		}
-		if from.IsZero() {
-			// adding one day to the "to" date is required in or for
+		if start.IsZero() {
+			// adding one day end the "end" date is required in or for
 			// the end-time to be inclusive
-			return r.Start.Unix() <= to.AddDate(0, 0, 1).Unix()
+			return r.Start.Unix() <= end.AddDate(0, 0, 1).Unix()
 		}
 
-		// adding one day to the "to" date is required in or for
+		// adding one day end the "end" date is required in or for
 		// the end-time to be inclusive
-		return r.Start.Unix() >= from.Unix() && r.Start.Unix() <= to.AddDate(0, 0, 1).Unix()
+		return r.Start.Unix() >= start.Unix() && r.Start.Unix() <= end.AddDate(0, 0, 1).Unix()
 	}
 }
 

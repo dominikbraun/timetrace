@@ -34,6 +34,7 @@ func (f *Formatter) ParseDate(input string) (time.Time, error) {
 const (
 	defaultTimeLayout        = "15:04"
 	default12HoursTimeLayout = "03:04PM"
+	defaultDatelayoutPretty  = "Monday, 02. January 2006"
 )
 
 func (f *Formatter) timeLayout() string {
@@ -50,12 +51,7 @@ func (f *Formatter) TimeString(input time.Time) string {
 // PrettyDateString returns a nice representation of a given time
 // example: Mon 31. May 2021
 func (f *Formatter) PrettyDateString(input time.Time) string {
-	year := input.Local().Year()
-	day := input.Local().Day()
-	weekday := input.Local().Weekday()
-	month := input.Local().Month()
-
-	return fmt.Sprintf("%v %d. %v %d", weekday, day, month, year)
+	return input.Format(defaultDatelayoutPretty)
 }
 
 const (

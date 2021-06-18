@@ -305,22 +305,20 @@ func (t *Timetrace) loadFromRecordDir(recordDir string, filter ...func(*Record) 
 		return nil, err
 	}
 	var foundRecords = make([]*Record, 0)
+
+outer:
 	for _, info := range filesInfo {
 		record, err := t.loadRecord(filepath.Join(recordDir, info.Name()))
 		if err != nil {
 			return nil, err
 		}
 		// apply all filter on record to check if Records should be used
-		var useRecord = true
 		for _, f := range filter {
 			if !f(record) {
-				useRecord = false
-				break
+				// if either filter returns false
+				// skip record
+				continue outer
 			}
-		}
-		// check if eighter filter negates useRecord
-		if !useRecord {
-			continue
 		}
 		foundRecords = append(foundRecords, record)
 	}
