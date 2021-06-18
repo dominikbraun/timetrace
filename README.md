@@ -509,6 +509,25 @@ timetrace delete record 2021-05-01-15-00
 timetrace delete record 2021-05-01-15-00 --revert
 ```
 
+## Generate a report
+
+**Syntax:**
+
+```
+timetrace report
+```
+
+**Flags:**
+
+|Flag|Short|Description|
+|-|-|-|
+|`--billable`|`-b`|Filter report for only billable records.|
+|`--start <YYYY-MM-DD>`|`-s`|Filter report from a specific point in time (start is inclusive).|
+|`--end <YYYY-MM-DD>`|`-e`|Filter report to a specific point in time (end is inclusive).|
+|`--project <KEY>`|`-p`|Filter report for only one project.|
+|`--format <json>`|`-f`|Write report as JSON to file.|
+|`--out path/to/report`|`-o`|Write report to a specific file <br>(if not given will use config `report-dir`<br> if config not present writes to `$HOME/.timetrace/reports/report-<time.unix>`).|
+
 ### Print version information
 
 **Syntax:**
