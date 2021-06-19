@@ -74,7 +74,7 @@ func editRecordCommand(t *core.Timetrace) *cobra.Command {
 	var options editOptions
 
 	editRecord := &cobra.Command{
-		Use:   "record {<KEY>|latest|*ID}",
+		Use:   "record {<KEY>|latest|@ID}",
 		Short: "Edit a record",
 		Args:  cobra.ExactArgs(1),
 		Run: func(cmd *cobra.Command, args []string) {
@@ -93,7 +93,7 @@ func editRecordCommand(t *core.Timetrace) *cobra.Command {
 					return
 				}
 				recordTime = rec.Start
-			} else if strings.Contains(args[0], "*") {
+			} else if strings.Contains(args[0], "@") {
 				id, err := strconv.Atoi(args[0][1:])
 				if err != nil {
 					out.Err("Error on parsing ID: %s", err.Error())
