@@ -183,6 +183,10 @@ func (t *Timetrace) RevertProject(projectKey string) error {
 	if err != nil {
 		return err
 	}
+	err = t.updateProjectOnRecords(projectKey, project)
+	if err != nil {
+		return err
+	}
 
 	_, err = file.Write(bytes)
 
