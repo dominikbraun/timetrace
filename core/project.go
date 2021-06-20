@@ -3,7 +3,6 @@ package core
 import (
 	"encoding/json"
 	"errors"
-	"fmt"
 	"io/ioutil"
 	"os"
 	"os/exec"
@@ -231,52 +230,7 @@ func (t *Timetrace) EditProject(projectKey string) error {
 		return err
 	}
 
-	// at this point, loop through records -> {date folders} -> *.json / .json.bak with old project key and rename
-	recordDirs, err := t.fs.RecordDirs()
-	if err != nil {
-		return err
-	}
-
-	allRecordPaths := []string{}
-	for _, recordDir := range recordDirs {
-		paths, err := t.fs.RecordFilepathsUnfiltered(recordDir, func(_, _ string) bool {
-			return true
-		})
-		if err != nil {
-			return err
-		}
-		allRecordPaths = append(allRecordPaths, paths...)
-	}
-	fmt.Println(allRecordPaths)
-
-	for _, recordPath := range allRecordPaths {
-		fmt.Println("working on ", recordPath)
-		record, err := t.loadRecord(recordPath)
-		fmt.Printf("loaded %v %v\n", record.Start, record.Project.Key)
-		if err != nil {
-			return err
-		}
-		if record.Project.Key != projectKey {
-			fmt.Printf("skipping %v\n", record.Project.Key)
-			continue
-		}
-		record.Project = project
-
-		if strings.HasSuffix(recordPath, ".bak") {
-			fmt.Println("made it to .bak logic")
-			err = t.BackupRecord(*record)
-			if err != nil {
-				return err
-			}
-		} else {
-			err = t.SaveRecord(*record, true)
-			if err != nil {
-				return err
-			}
-		}
-	}
-
-	return nil
+	return t.updateProjectOnRecords(projectKey, project)
 }
 
 // DeleteProject removes the given project. Returns ErrProjectNotFound if the
@@ -358,4 +312,36 @@ func (t *Timetrace) assertParent(project Project) error {
 	}
 
 	return ErrParentlessModule
+}
+
+func (t *Timetrace) updateProjectOnRecords(oldKey string, project *Project) error {
+	allRecordPaths, err := t.getAllRecordPaths()
+	if err != nil {
+		return err
+	}
+
+	for _, recordPath := range allRecordPaths {
+		record, err := t.loadRecord(recordPath)
+		if err != nil {
+			return err
+		}
+
+		if record.Project.Key != oldKey {
+			continue
+		}
+		record.Project = project
+
+		if strings.HasSuffix(recordPath, ".bak") {
+			err = t.BackupRecord(*record)
+			if err != nil {
+				return err
+			}
+		} else {
+			err = t.SaveRecord(*record, true)
+			if err != nil {
+				return err
+			}
+		}
+	}
+	return nil
 }

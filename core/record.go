@@ -367,3 +367,23 @@ func (t *Timetrace) editRecord(record *Record, plus string, minus string) error 
 
 	return nil
 }
+
+// getAllRecordPaths returns all current and backup record filepaths
+func (t *Timetrace) getAllRecordPaths() ([]string, error) {
+	recordDirs, err := t.fs.RecordDirs()
+	if err != nil {
+		return nil, err
+	}
+
+	allRecordPaths := []string{}
+	for _, recordDir := range recordDirs {
+		paths, err := t.fs.RecordFilepathsUnfiltered(recordDir, func(_, _ string) bool {
+			return true
+		})
+		if err != nil {
+			return nil, err
+		}
+		allRecordPaths = append(allRecordPaths, paths...)
+	}
+	return allRecordPaths, nil
+}
