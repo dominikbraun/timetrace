@@ -2,6 +2,7 @@ package cli
 
 import (
 	"errors"
+	"fmt"
 	"strings"
 	"time"
 
@@ -120,6 +121,11 @@ func editRecordCommand(t *core.Timetrace) *cobra.Command {
 			}
 
 			if options.Minus == "" && options.Plus == "" {
+				fmt.Printf("Warning: Directly editing the record can lead to undefined behavior.\nIf you change the start time of the record, the underlying file will be renamed automatically. Make sure it doesn't collide with other records. If you want to change the end time, use --minus or --plus instead.\nContinue? ")
+				if !askForConfirmation() {
+					out.Info("Editting record aborted.")
+					return
+				}
 				out.Info("Opening %s in default editor", recordTime)
 				if err := t.EditRecordManual(recordTime); err != nil {
 					out.Err("Failed to edit record: %s", err.Error())
