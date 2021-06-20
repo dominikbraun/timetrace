@@ -93,14 +93,9 @@ func (t *Timetrace) SaveRecord(record Record, force bool) error {
 }
 
 // BackupRecord creates a backup of the given record file
-func (t *Timetrace) BackupRecord(recordKey time.Time) error {
-	path := t.fs.RecordFilepath(recordKey)
-	record, err := t.loadRecord(path)
-	if err != nil {
-		return err
-	}
+func (t *Timetrace) BackupRecord(record Record) error {
 	// create a new .bak filepath from the record struct
-	backupPath := t.fs.RecordBackupFilepath(recordKey)
+	backupPath := t.fs.RecordBackupFilepath(record.Start)
 
 	backupFile, err := os.OpenFile(backupPath, os.O_WRONLY|os.O_CREATE|os.O_TRUNC, 0600)
 	if err != nil {

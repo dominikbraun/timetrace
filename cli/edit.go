@@ -84,9 +84,10 @@ func editRecordCommand(t *core.Timetrace) *cobra.Command {
 
 			var recordTime time.Time
 			var err error
+			var rec *core.Record
 			// if more aliases are needed, this should be expanded to a switch
 			if strings.ToLower(args[0]) == "latest" {
-				rec, err := t.LoadLatestRecord()
+				rec, err = t.LoadLatestRecord()
 				if err != nil {
 					out.Err("Error on loading last record: %s", err.Error())
 					return
@@ -96,6 +97,10 @@ func editRecordCommand(t *core.Timetrace) *cobra.Command {
 				recordTime, err = t.Formatter().ParseRecordKey(args[0])
 				if err != nil {
 					out.Err("Failed to parse date argument: %s", err.Error())
+					return
+				}
+				rec, err = t.LoadRecord(recordTime)
+				if err != nil {
 					return
 				}
 			}
@@ -109,7 +114,7 @@ func editRecordCommand(t *core.Timetrace) *cobra.Command {
 				return
 			}
 
-			if err := t.BackupRecord(recordTime); err != nil {
+			if err := t.BackupRecord(*rec); err != nil {
 				out.Err("Failed to backup record before edit: %s", err.Error())
 				return
 			}
