@@ -156,10 +156,25 @@ func (t *Timetrace) RevertProject(projectKey string) error {
 	if err != nil {
 		return err
 	}
-	// get filepath of reverted file
-	path := t.fs.ProjectFilepath(projectKey)
+	// rename the project to match the reverted key, then
+	// open it
+	oldPath := t.fs.ProjectFilepath(projectKey)
+	newPath := t.fs.ProjectFilepath(project.Key)
 
-	file, err := os.OpenFile(path, os.O_WRONLY|os.O_CREATE|os.O_TRUNC, 0600)
+	err = os.Rename(oldPath, newPath)
+	if err != nil {
+		return err
+	}
+
+	oldBackupPath := t.fs.ProjectBackupFilepath(projectKey)
+	newBackupPath := t.fs.ProjectBackupFilepath(project.Key)
+
+	err = os.Rename(oldBackupPath, newBackupPath)
+	if err != nil {
+		return err
+	}
+
+	file, err := os.OpenFile(newPath, os.O_WRONLY|os.O_CREATE|os.O_TRUNC, 0600)
 	if err != nil {
 		return err
 	}
@@ -182,13 +197,35 @@ func (t *Timetrace) EditProject(projectKey string) error {
 
 	editor := t.editorFromEnvironment()
 	path := t.fs.ProjectFilepath(projectKey)
+	backupPath := t.fs.ProjectBackupFilepath(projectKey)
 
 	cmd := exec.Command(editor, path)
 	cmd.Stdin = os.Stdin
 	cmd.Stdout = os.Stdout
 	cmd.Stderr = os.Stderr
 
-	return cmd.Run()
+	err := cmd.Run()
+	if err != nil {
+		return err
+	}
+
+	project, err := t.LoadProject(projectKey)
+	if err != nil {
+		return err
+	}
+
+	newKey := project.Key
+	newPath := t.fs.ProjectFilepath(newKey)
+	newBackupPath := t.fs.ProjectBackupFilepath(newKey)
+
+	err = os.Rename(path, newPath)
+	if err != nil {
+		return err
+	}
+
+	// need to rename backup so that it plays well with
+	// new filenames
+	return os.Rename(backupPath, newBackupPath)
 }
 
 // DeleteProject removes the given project. Returns ErrProjectNotFound if the
