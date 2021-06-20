@@ -144,6 +144,30 @@ func (fs *Fs) RecordFilepaths(dir string, less func(a, b string) bool) ([]string
 	return filepaths, nil
 }
 
+// This function returns all current and backup record filepaths
+func (fs *Fs) RecordFilepathsUnfiltered(dir string, less func(a, b string) bool) ([]string, error) {
+	items, err := ioutil.ReadDir(dir)
+	if err != nil {
+		return nil, err
+	}
+
+	filepaths := make([]string, 0)
+
+	for _, item := range items {
+		if item.IsDir() {
+			continue
+		}
+		itemName := item.Name()
+		filepaths = append(filepaths, filepath.Join(dir, itemName))
+	}
+
+	sort.Slice(filepaths, func(i, j int) bool {
+		return less(filepaths[i], filepaths[j])
+	})
+
+	return filepaths, nil
+}
+
 // RecordDirs returns all record directories sorted alphabetically. This can be
 // used to determine the latest record directory and obtain the latest record
 // within that directory using RecordFilepaths.

@@ -226,6 +226,8 @@ func (t *Timetrace) EditProject(projectKey string) error {
 	// need to rename backup so that it plays well with
 	// new filenames
 	return os.Rename(backupPath, newBackupPath)
+
+	// at this point, loop through records -> {date folders} -> *.json / .json.bak with old project key and rename
 }
 
 // DeleteProject removes the given project. Returns ErrProjectNotFound if the
