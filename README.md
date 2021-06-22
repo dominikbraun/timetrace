@@ -9,6 +9,7 @@
 
 ![CLI screenshot 64x16](timetrace.png)
 
+:fire: **New:** [Display the tracking status as JSON or in your own format](#print-the-tracking-status)  
 :fire: **New:** [Reverting `edit` and `delete` commands is now possible](#edit-a-record)
 
 ## Installation
@@ -30,6 +31,13 @@ sudo snap install timetrace --edge --devmode
 
 ```
 yay -S timetrace-bin
+```
+
+### Scoop
+
+```
+scoop bucket add https://github.com/Br1ght0ne/scoop-bucket
+scoop install timetrace
 ```
 
 ### Docker
@@ -94,7 +102,127 @@ timetrace list projects
 When filtering by projects, for example with `timetrace list records -p make-coffee today`, the modules of that project
 will be included.
 
+## Starship integration
+
+To integrate timetrace into Starship, add the following lines to `$HOME/.config/starship.toml`:
+
+```
+[custom.timetrace]
+command = """ timetrace status --format "Current project: {project} - Worked today: {trackedTimeToday}" """
+when = "timetrace status"
+shell = "sh"
+```
+
+You can find a list of available formatting variables in the [`status` reference](#print-the-tracking-status).
+
 ## Command reference
+
+### Start tracking
+
+**Syntax:**
+
+```
+timetrace start <PROJECT KEY>
+```
+
+**Arguments:**
+
+|Argument|Description|
+|-|-|
+|`PROJECT KEY`|The key of the project.|
+
+**Flags:**
+
+|Flag|Short|Description|
+|-|-|-|
+|`--billable`|`-b`|Mark the record as billable.|
+
+**Example:**
+
+Start working on a project called `make-coffee` and mark it as billable:
+
+```
+timetrace start --billable make-coffee
+```
+
+### Print the tracking status
+
+**Syntax:**
+
+```
+timetrace status
+```
+
+**Flags:**
+
+|Flag|Short|Description|
+|-|-|-|
+|`--format`|`-f`|Display the status in a custom format (see below).|
+|`--output`|`-o`|Display the status in a specific output. Valid values: `json`|
+
+**Formatting variables:**
+
+The names of the formatting variables are the same as the JSON keys printed by `--output json`.
+
+|Variable|Description|
+|-|-|
+|`{project}`|The key of the current project.|
+|`{trackedTimeCurrent}`|The time tracked for the current record.|
+|`{trackedTimeToday}`|The time tracked today.|
+|`{breakTimeToday}`|The break time since the first record.|
+
+**Example:**
+
+Print the current tracking status:
+
+```
+timetrace status
++-------------------+----------------------+----------------+
+|  CURRENT PROJECT  |  WORKED SINCE START  |  WORKED TODAY  |
++-------------------+----------------------+----------------+
+| make-coffee       | 1h 15min             | 4h 30min       |
++-------------------+----------------------+----------------+
+```
+
+Print the current project and the total working time as a custom string. Given the example above, the output will be
+`Current project: make-coffee - Worked today: 3h 30min`.
+
+```
+timetrace status --format "Current project: {project} - Worked today: {trackedTimeToday}"
+```
+
+Print the status as JSON:
+
+```
+timetrace status -o json
+```
+
+The output will look as follows:
+
+```json
+{
+        "project": "web-store",
+        "trackedTimeCurrent": "1h 45min",
+        "trackedTimeToday": "7h 30min",
+        "breakTimeToday": "0h 30min"
+}
+```
+
+### Stop tracking
+
+**Syntax:**
+
+```
+timetrace stop
+```
+
+**Example:**
+
+Stop working on your current project:
+
+```
+timetrace stop
+```
 
 ### Create a project
 
@@ -381,70 +509,24 @@ timetrace delete record 2021-05-01-15-00
 timetrace delete record 2021-05-01-15-00 --revert
 ```
 
-### Start tracking
+## Generate a report
 
 **Syntax:**
 
 ```
-timetrace start <PROJECT KEY>
+timetrace report
 ```
-
-**Arguments:**
-
-|Argument|Description|
-|-|-|
-|`PROJECT KEY`|The key of the project.|
 
 **Flags:**
 
 |Flag|Short|Description|
 |-|-|-|
-|`--billable`|`-b`|Mark the record as billable.|
-
-**Example:**
-
-Start working on a project called `make-coffee` and mark it as billable:
-
-```
-timetrace start --billable make-coffee
-```
-
-### Print current status
-
-**Syntax:**
-
-```
-timetrace status
-```
-
-**Example:**
-
-Print the current tracking status:
-
-```
-timetrace status
-+-------------------+----------------------+----------------+
-|  CURRENT PROJECT  |  WORKED SINCE START  |  WORKED TODAY  |
-+-------------------+----------------------+----------------+
-| make-coffee       | 1h 15min             | 4h 30min       |
-+-------------------+----------------------+----------------+
-```
-
-### Stop tracking
-
-**Syntax:**
-
-```
-timetrace stop
-```
-
-**Example:**
-
-Stop working on your current project:
-
-```
-timetrace stop
-```
+|`--billable`|`-b`|Filter report for only billable records.|
+|`--start <YYYY-MM-DD>`|`-s`|Filter report from a specific point in time (start is inclusive).|
+|`--end <YYYY-MM-DD>`|`-e`|Filter report to a specific point in time (end is inclusive).|
+|`--project <KEY>`|`-p`|Filter report for only one project.|
+|`--format <json>`|`-f`|Write report as JSON to file.|
+|`--out path/to/report`|`-o`|Write report to a specific file <br>(if not given will use config `report-dir`<br> if config not present writes to `$HOME/.timetrace/reports/report-<time.unix>`).|
 
 ### Print version information
 

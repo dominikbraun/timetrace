@@ -6,9 +6,10 @@ import (
 )
 
 type Config struct {
-	Store        string `json:"store"`
-	Use12Hours   bool   `json:"use12hours"`
-	Editor       string `json:"editor"`
+	Store      string `json:"store"`
+	Use12Hours bool   `json:"use12hours"`
+	Editor     string `json:"editor"`
+	ReportPath string `json:"report-path"`
 	PluginFolder string `json:"pluginFolder"`
 }
 

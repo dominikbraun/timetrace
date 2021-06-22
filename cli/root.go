@@ -35,6 +35,7 @@ func RootCommand(t *core.Timetrace, version string, pluginHost *plugin.Host) *co
 	root.AddCommand(startCommand(t))
 	root.AddCommand(statusCommand(t))
 	root.AddCommand(stopCommand(t))
+	root.AddCommand(generateReportCommand(t))
 	root.AddCommand(versionCommand(version))
 
 	pluginHost.AddToCobra(root)

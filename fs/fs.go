@@ -4,8 +4,10 @@ import (
 	"fmt"
 	"io/ioutil"
 	"os"
+	"path"
 	"path/filepath"
 	"sort"
+	"strconv"
 	"strings"
 	"time"
 
@@ -16,6 +18,7 @@ const (
 	rootDirName     = ".timetrace"
 	projectsDirName = "projects"
 	recordsDirName  = "records"
+	reportDirName   = "reports"
 )
 
 const (
@@ -178,6 +181,7 @@ func (fs *Fs) EnsureDirectories() error {
 		fs.projectsDir(),
 		fs.recordsDir(),
 		fs.recordsInitSubDir(),
+		fs.ReportDir(),
 	}
 
 	for _, dir := range dirs {
@@ -209,6 +213,10 @@ func (fs *Fs) recordsInitSubDir() string {
 	return fs.RecordDirFromDate(time.Now())
 }
 
+func (fs *Fs) ReportDir() string {
+	return path.Join(fs.rootDir(), reportDirName)
+}
+
 func (fs *Fs) rootDir() string {
 	if fs.config.Store != "" {
 		return os.ExpandEnv(fs.config.Store)
@@ -217,4 +225,23 @@ func (fs *Fs) rootDir() string {
 	homeDir, _ := os.UserHomeDir()
 
 	return filepath.Join(homeDir, rootDirName)
+}
+
+func (fs *Fs) WriteReport(filepath string, data []byte) error {
+	reportPath := filepath
+	// no out flag provided
+	// TODO: looks a little irritating could be re-written
+	if reportPath == "" {
+		reportPath = fs.config.ReportPath
+		if reportPath == "" {
+			// fileName -> report-<time.unix>
+			fileName := strings.Join([]string{"report", strconv.FormatInt(time.Now().Unix(), 10)}, "-")
+			reportPath = path.Join(fs.ReportDir(), fileName)
+		}
+	}
+
+	if err := ioutil.WriteFile(reportPath, data, 0644); err != nil {
+		return err
+	}
+	return nil
 }
