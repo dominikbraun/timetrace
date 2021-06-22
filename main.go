@@ -1,4 +1,8 @@
+// Note: go install needs min Go 1.16
+//go:generate go install github.com/aligator/goplug@v0.0.7
+//go:generate goplug -o plugin/actions .
 //go:generate go build -o ./plugins ./plugins/example/hello
+
 package main
 
 import (

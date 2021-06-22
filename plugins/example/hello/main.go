@@ -2,17 +2,21 @@ package main
 
 import (
 	"fmt"
+	"github.com/aligator/goplug/goplug"
 	"github.com/dominikbraun/timetrace/plugin"
 	"strings"
 )
 
 type HelloPlugin struct {
-	plugin.Timetrace
+	plugin.Plugin
 }
 
 func New() HelloPlugin {
 	return HelloPlugin{
-		Timetrace: plugin.New("hello_plugin"),
+		Plugin: plugin.New(goplug.PluginInfo{
+			ID:         "superplugin",
+			PluginType: goplug.OneShot,
+		}),
 	}
 }
 
@@ -33,7 +37,10 @@ func main() {
 		Short:   "prints the current record",
 		Example: "record",
 		Action: func(args []string) error {
-			r := p.LoadLatestRecord()
+			r, err := p.LoadLatestRecord()
+			if err != nil {
+				return err
+			}
 
 			p.Print(fmt.Sprintf("Latest record: %v, %v, %v, %v", r.Project.Key, r.Start, r.End, r.IsBillable) + "\n")
 			return nil

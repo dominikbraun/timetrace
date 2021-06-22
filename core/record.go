@@ -241,6 +241,7 @@ func (t *Timetrace) loadAllRecordsSortedAscending(date time.Time) ([]*Record, er
 
 // LoadLatestRecord loads the youngest record. This may also be a record from
 // another day. If there is no latest record, nil and no error will be returned.
+//goplug:generate
 func (t *Timetrace) LoadLatestRecord() (*Record, error) {
 	latestDirs, err := t.fs.RecordDirs()
 	if err != nil {

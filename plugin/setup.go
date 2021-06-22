@@ -5,6 +5,7 @@ import (
 	"github.com/aligator/goplug/goplug"
 	"github.com/dominikbraun/timetrace/config"
 	"github.com/dominikbraun/timetrace/core"
+	"github.com/dominikbraun/timetrace/plugin/actions"
 	"github.com/spf13/cobra"
 )
 
@@ -16,7 +17,7 @@ type Host struct {
 
 func (h *Host) RegisterOneShot(info goplug.PluginInfo, action goplug.OnOneShot) error {
 	var meta Metadata
-	err := json.Unmarshal(info.Metadata, &meta)
+	err := json.Unmarshal([]byte(info.Metadata), &meta)
 	if err != nil {
 		return err
 	}
@@ -34,7 +35,7 @@ func (h *Host) Init(c *config.Config) error {
 	g := goplug.GoPlug{
 		PluginFolder: c.PluginFolder,
 		Host:         h,
-		Actions:      &Actions{h.T},
+		Actions:      &actions.HostActions{Core0TimetraceRef: h.T},
 	}
 	return g.Init()
 }
