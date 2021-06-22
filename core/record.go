@@ -30,11 +30,13 @@ type Record struct {
 
 // LoadRecord loads the record with the given start time. Returns
 // ErrRecordNotFound if the record cannot be found.
+//goplug:generate
 func (t *Timetrace) LoadRecord(start time.Time) (*Record, error) {
 	path := t.fs.RecordFilepath(start)
 	return t.loadRecord(path)
 }
 
+//goplug:generate
 func (t *Timetrace) LoadBackupRecord(start time.Time) (*Record, error) {
 	path := t.fs.RecordBackupFilepath(start)
 	return t.loadRecord(path)
@@ -66,6 +68,7 @@ func (t *Timetrace) ListRecords(date time.Time) ([]*Record, error) {
 
 // SaveRecord persists the given record. Returns ErrRecordAlreadyExists if the
 // record already exists and saving isn't forced.
+//goplug:generate
 func (t *Timetrace) SaveRecord(record Record, force bool) error {
 	path := t.fs.RecordFilepath(record.Start)
 
@@ -93,6 +96,7 @@ func (t *Timetrace) SaveRecord(record Record, force bool) error {
 }
 
 // BackupRecord creates a backup of the given record file
+//goplug:generate
 func (t *Timetrace) BackupRecord(recordKey time.Time) error {
 	path := t.fs.RecordFilepath(recordKey)
 	record, err := t.loadRecord(path)
@@ -117,6 +121,7 @@ func (t *Timetrace) BackupRecord(recordKey time.Time) error {
 	return err
 }
 
+//goplug:generate
 func (t *Timetrace) RevertRecord(recordKey time.Time) error {
 	record, err := t.LoadBackupRecord(recordKey)
 	if err != nil {
@@ -142,6 +147,7 @@ func (t *Timetrace) RevertRecord(recordKey time.Time) error {
 
 // DeleteRecord removes the given record. Returns ErrRecordNotFound if the
 // project doesn't exist.
+//goplug:generate
 func (t *Timetrace) DeleteRecord(record Record) error {
 	path := t.fs.RecordFilepath(record.Start)
 
@@ -153,6 +159,7 @@ func (t *Timetrace) DeleteRecord(record Record) error {
 }
 
 // EditRecordManual opens the record file in the preferred or default editor.
+//goplug:generate
 func (t *Timetrace) EditRecordManual(recordTime time.Time) error {
 	path := t.fs.RecordFilepath(recordTime)
 
@@ -170,6 +177,7 @@ func (t *Timetrace) EditRecordManual(recordTime time.Time) error {
 }
 
 // EditRecord loads the record internally, applies the option values and saves the record
+//goplug:generate
 func (t *Timetrace) EditRecord(recordTime time.Time, plus string, minus string) error {
 	path := t.fs.RecordFilepath(recordTime)
 

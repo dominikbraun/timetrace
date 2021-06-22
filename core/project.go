@@ -42,6 +42,7 @@ func (p *Project) IsModule() bool {
 
 // LoadProject loads the project with the given key. Returns ErrProjectNotFound
 // if the project cannot be found.
+//goplug:generate
 func (t *Timetrace) LoadProject(key string) (*Project, error) {
 	path := t.fs.ProjectFilepath(key)
 	return t.loadProject(path)
