@@ -6,6 +6,6 @@ package core
 // command
 type Provider interface {
 	CheckRecordsExist(records []*Record) ([]*Record, error)
-	UploadRecords(records []*Record) error
+	UploadRecord(records *Record) error
 	Name() string
 }

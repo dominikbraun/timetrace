@@ -1,7 +1,9 @@
 package main
 
 import (
+	"math/rand"
 	"os"
+	"time"
 
 	"github.com/dominikbraun/timetrace/cli"
 	"github.com/dominikbraun/timetrace/config"
@@ -20,6 +22,7 @@ func main() {
 	}
 
 	// TODO: only load jira repo if specified
+	rand.Seed(time.Now().UTC().UnixNano())
 	jiraRepo := jira.New(jira.RepositoryConfig{})
 
 	filesystem := fs.New(c)

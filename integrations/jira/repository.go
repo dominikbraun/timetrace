@@ -1,7 +1,9 @@
 package jira
 
 import (
+	"math/rand"
 	"net/http"
+	"time"
 
 	"github.com/dominikbraun/timetrace/core"
 )
@@ -49,6 +51,7 @@ func (r *Repository) CheckRecordsExist(records []*core.Record) ([]*core.Record, 
 }
 
 // UploadRecords takes an array of records and attempts to upload them to JIRA
-func (r *Repository) UploadRecords(records []*core.Record) error {
+func (r *Repository) UploadRecord(records *core.Record) error {
+	time.Sleep(time.Duration(rand.Intn(3)) * time.Second)
 	return nil
 }

@@ -4,6 +4,7 @@ package out
 import (
 	"fmt"
 	"os"
+	"sync"
 
 	"github.com/enescakir/emoji"
 	"github.com/fatih/color"
@@ -63,6 +64,46 @@ func Table(header []string, rows [][]string, footer []string, opts ...TableOptio
 	table.Render()
 }
 
+// TableWriter is used to display green ticks/red crosses next to records that
+// are being pushed
+type TableWriter struct {
+	Mutex        *sync.Mutex
+	cursorOffset int
+}
+
+// NewTableWriter returns a new table writer designed to overwrite certain
+// table columns. DANGER! This function will horse the cursor to whereever it
+// thinks the 0,0 position of the table is.
+func NewTableWriter(n int) *TableWriter {
+	rowsToMoveUp := 4 + n
+	fmt.Printf("\033[%dA\033[%dC", rowsToMoveUp, 2)
+
+	return &TableWriter{
+		Mutex:        new(sync.Mutex),
+		cursorOffset: rowsToMoveUp,
+	}
+}
+
+// Finish returns the cursor to where it started
+func (tw *TableWriter) Finish() {
+	tw.Mutex.Lock()
+	defer tw.Mutex.Unlock()
+	fmt.Printf("\033[%dB\033[%dD", tw.cursorOffset, 2)
+}
+
+// Success will put a green tick in the box on that row
+func (tw *TableWriter) Success(index int) {
+	tw.Mutex.Lock()
+	defer tw.Mutex.Unlock()
+
+	fmt.Printf("\033[%dB%s\033[%dA\033[2D", index+1, emoji.CheckMarkButton, index+1)
+}
+
+// Failure will put a red cross
+func (tw *TableWriter) Failure(index int, err error) {
+	Err("failure: %d, %s", index, err)
+}
+
 // setHeaderColor set colors for the headers on the table
 func setHeaderColor(table *tablewriter.Table, header []string) {
 	colors := []tablewriter.Colors{}
@@ -91,7 +132,7 @@ func p(attribute color.Attribute, emoji emoji.Emoji, format string, a ...interfa
 	_, _ = color.New(attribute).Printf(formatWithEmoji, a...)
 }
 
-// TableOptions allows to modify the table instance
+// TableOption allows to modify the table instance
 // with different functionalities
 type TableOption func(*tablewriter.Table)
 

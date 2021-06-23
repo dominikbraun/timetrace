@@ -2,7 +2,6 @@ package cli
 
 import (
 	"bufio"
-	"errors"
 	"fmt"
 	"log"
 	"os"
@@ -11,6 +10,7 @@ import (
 
 	"github.com/dominikbraun/timetrace/core"
 	"github.com/dominikbraun/timetrace/out"
+	"github.com/enescakir/emoji"
 	"github.com/spf13/cobra"
 )
 
@@ -22,17 +22,20 @@ func pushCommand(t *core.Timetrace) *cobra.Command {
 		// Use a prerun to clarify that the user is satisfied with the proposed
 		// state change in JIRA
 		PreRunE: func(cmd *cobra.Command, args []string) error {
+
+			return nil
+		},
+		Run: func(cmd *cobra.Command, args []string) {
 			integrationName := args[0]
 			if _, exists := t.ListIntegrations()[integrationName]; !exists {
 				err := fmt.Errorf("integration %s is not available", integrationName)
 				out.Err(err.Error())
-				return err
 			}
 
 			recordsToPush, err := t.VerifyPush(integrationName)
 			if err != nil {
 				out.Err("Aborting push. err: %s", err)
-				return err
+				return
 			}
 
 			// print what is about to be pushed as a table
@@ -40,21 +43,14 @@ func pushCommand(t *core.Timetrace) *cobra.Command {
 
 			if !awaitConfirmation() {
 				out.Info("not pushing records. Goodbye!")
-				return errors.New("exiting")
+				return
 			}
 
-			return nil
-		},
-		Run: func(cmd *cobra.Command, args []string) {
-			// we've been through the prerun, so know args[0] here will be ok.
-			// Inject in the writer to avoid a depedency of core onto the out
-			// package, but still provide a mechanism to show when records have been
-			// synced
-			if err := t.Push(args[0]); err != nil {
+			tw := out.NewTableWriter(len(recordsToPush))
+			defer tw.Finish()
+			if err := t.Push(integrationName, recordsToPush, tw); err != nil {
 				out.Err(err.Error())
 			}
-
-			out.Success("Pushed to JIRA")
 		},
 	}
 
@@ -83,13 +79,18 @@ func awaitConfirmation() bool {
 }
 
 func printPushTable(integrationName string, records []*core.Record) {
-	headings := []string{"OPERATION", "DURATION", fmt.Sprintf("%s RECORD", integrationName)}
+	headings := []string{
+		"STATUS",
+		"OPERATION",
+		"DURATION",
+		fmt.Sprintf("%s RECORD", integrationName),
+	}
 
 	out.Info("About to push to %s", integrationName)
 	tableRowCols := make([][]string, len(records))
 	for i, record := range records {
 		duration := record.End.Sub(record.Start).Round(time.Second)
-		tableRowCols[i] = []string{"PUSH", duration.String(), record.Project.Key}
+		tableRowCols[i] = []string{emoji.OutboxTray.String(), "PUSH", duration.String(), record.Project.Key}
 	}
 	out.Table(headings, tableRowCols, nil)
 }

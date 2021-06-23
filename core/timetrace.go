@@ -4,6 +4,7 @@ import (
 	"errors"
 	"io"
 	"os"
+	"sync"
 	"time"
 
 	"github.com/dominikbraun/timetrace/config"
@@ -333,7 +334,7 @@ func (t *Timetrace) ListIntegrations() map[string]Provider {
 // to the selected integ
 func (t *Timetrace) VerifyPush(integrationName string) ([]*Record, error) {
 	// get all records locally TODO: obviously improve the time parsing
-	from, _ := t.Formatter().ParseDate("today")
+	from, _ := t.Formatter().ParseDate("yesterday")
 	records, err := t.ListRecords(from)
 	if err != nil {
 		return nil, err
@@ -353,6 +354,26 @@ type PushNotifier interface {
 }
 
 // Push will attempt to push all given records to the integration specified
-func (t *Timetrace) Push(integrationName string) error {
+func (t *Timetrace) Push(integrationName string, records []*Record, pn PushNotifier) error {
+	var wg sync.WaitGroup
+
+	wg.Add(len(records))
+
+	integration := t.integrations[integrationName]
+	for i, record := range records {
+		go func(index int, r *Record) {
+			defer wg.Done()
+
+			err := integration.UploadRecord(r)
+			if err != nil {
+				pn.Failure(index, err)
+				return
+			}
+			pn.Success(index)
+		}(i, record)
+	}
+
+	wg.Wait()
+
 	return nil
 }
