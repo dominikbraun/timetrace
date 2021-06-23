@@ -1,0 +1,19 @@
+{
+  "timeSpentSeconds": 12000,
+  "comment": {
+    "type": "doc",
+    "version": 1,
+    "content": [
+      {
+        "type": "paragraph",
+        "content": [
+          {
+            "text": "I did some work here.",
+            "type": "text"
+          }
+        ]
+      }
+    ]
+  },
+  "started": "2021-06-23T07:06:34.077+0000"
+}

@@ -7,6 +7,7 @@ import (
 	"github.com/dominikbraun/timetrace/config"
 	"github.com/dominikbraun/timetrace/core"
 	"github.com/dominikbraun/timetrace/fs"
+	"github.com/dominikbraun/timetrace/integrations/jira"
 	"github.com/dominikbraun/timetrace/out"
 )
 
@@ -18,8 +19,11 @@ func main() {
 		out.Warn("%s", err.Error())
 	}
 
+	// TODO: only load jira repo if specified
+	jiraRepo := jira.New(jira.RepositoryConfig{})
+
 	filesystem := fs.New(c)
-	timetrace := core.New(c, filesystem)
+	timetrace := core.New(c, filesystem, []core.Provider{jiraRepo})
 
 	if err := cli.RootCommand(timetrace, version).Execute(); err != nil {
 		out.Err("%s", err.Error())
