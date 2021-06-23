@@ -30,6 +30,7 @@ func pushCommand(t *core.Timetrace) *cobra.Command {
 			if _, exists := t.ListIntegrations()[integrationName]; !exists {
 				err := fmt.Errorf("integration %s is not available", integrationName)
 				out.Err(err.Error())
+				return
 			}
 
 			recordsToPush, err := t.VerifyPush(integrationName)
@@ -86,11 +87,11 @@ func printPushTable(integrationName string, records []*core.Record) {
 		fmt.Sprintf("%s RECORD", integrationName),
 	}
 
-	out.Info("About to push to %s", integrationName)
 	tableRowCols := make([][]string, len(records))
 	for i, record := range records {
 		duration := record.End.Sub(record.Start).Round(time.Second)
-		tableRowCols[i] = []string{emoji.OutboxTray.String(), "PUSH", duration.String(), record.Project.Key}
+		tableRowCols[i] = []string{emoji.OrangeCircle.String(), "PUSH", duration.String(), record.Project.Key}
 	}
 	out.Table(headings, tableRowCols, nil)
+	out.Warn("These records will be pushed to %s. Proceed?", integrationName)
 }

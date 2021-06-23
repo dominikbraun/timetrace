@@ -75,7 +75,7 @@ type TableWriter struct {
 // table columns. DANGER! This function will horse the cursor to whereever it
 // thinks the 0,0 position of the table is.
 func NewTableWriter(n int) *TableWriter {
-	rowsToMoveUp := 4 + n
+	rowsToMoveUp := 5 + n
 	fmt.Printf("\033[%dA\033[%dC", rowsToMoveUp, 2)
 
 	return &TableWriter{
