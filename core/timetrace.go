@@ -273,3 +273,40 @@ func (t *Timetrace) latestNonEmptyDir(dirs []string) (string, error) {
 
 	return "", ErrAllDirectoriesEmpty
 }
+
+// RecordCollides checks if the time of a record collides
+// with other records of the same day and returns a bool
+func (t *Timetrace) RecordCollides(toCheck Record) (bool, error) {
+	allRecords, err := t.loadAllRecords(toCheck.Start)
+	if err != nil {
+		return false, err
+	}
+
+	if toCheck.Start.Day() != toCheck.End.Day() {
+		moreRecords, err := t.loadAllRecords(*toCheck.End)
+		if err != nil {
+			return false, err
+		}
+		for _, rec := range moreRecords {
+			allRecords = append(allRecords, rec)
+		}
+	}
+
+	return collides(toCheck, allRecords), nil
+}
+
+func collides(toCheck Record, allRecords []*Record) bool {
+	for _, rec := range allRecords {
+		if rec.Start.Before(toCheck.Start) && rec.End.After(toCheck.Start) {
+			return true
+		} else if rec.Start.Before(*toCheck.End) && rec.End.After(*toCheck.End) {
+			return true
+		} else if toCheck.Start.Before(rec.Start) && toCheck.End.After(rec.Start) {
+			return true
+		} else if toCheck.Start.Before(*rec.End) && toCheck.End.After(*rec.End) {
+			return true
+		}
+	}
+
+	return false
+}
