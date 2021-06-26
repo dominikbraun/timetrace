@@ -14,7 +14,7 @@ type reportOptions struct {
 	isBillable   bool
 	projectKey   string
 	outputFormat string
-	outputPath   string
+	filePath     string
 	startTime    string
 	endTime      string
 }
@@ -75,7 +75,7 @@ func generateReportCommand(t *core.Timetrace) *cobra.Command {
 				if err != nil {
 					out.Err(err.Error())
 				}
-				t.WriteReport(options.outputPath, data)
+				t.WriteReport(options.filePath, data)
 			default:
 				projects, total := report.Table()
 				out.Table(
@@ -105,11 +105,11 @@ func generateReportCommand(t *core.Timetrace) *cobra.Command {
 	report.Flags().StringVarP(&options.projectKey, "project", "p",
 		"", "filter records by a specific project")
 
-	report.Flags().StringVarP(&options.outputFormat, "format", "f",
-		"print table", "output format for report (json/csv)")
+	report.Flags().StringVarP(&options.outputFormat, "output", "o",
+		"print table", "output format for report file (json)")
 
-	report.Flags().StringVarP(&options.outputPath, "out", "o",
-		"", "choose output path for report")
+	report.Flags().StringVarP(&options.filePath, "file", "f",
+		"", "file to write report to")
 
 	return report
 }
