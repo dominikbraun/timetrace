@@ -9,7 +9,7 @@
 
 ![CLI screenshot 64x16](timetrace.png)
 
-:fire: **New:** [Create belated records](#create-a-record)
+:fire: **New:** [Create belated records](#create-a-record)  
 :fire: **New:** [Display the tracking status as JSON or in your own format](#print-the-tracking-status)  
 :fire: **New:** [Reverting `edit` and `delete` commands is now possible](#edit-a-record)
 
