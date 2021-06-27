@@ -15,10 +15,10 @@ func FilterNoneNilEndTime(r *Record) bool {
 	return r.End != nil
 }
 
-// FilterBillable returns a records if its IsBillable flag matches the paramter display
-func FilterBillable(dislay bool) func(*Record) bool {
+// FilterBillable returns a record if its IsBillable flag matches the paramter display
+func FilterBillable(display bool) func(*Record) bool {
 	return func(r *Record) bool {
-		return r.IsBillable == dislay
+		return r.IsBillable == display
 	}
 }
 
