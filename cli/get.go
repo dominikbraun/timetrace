@@ -68,7 +68,7 @@ func getRecordCommand(t *core.Timetrace) *cobra.Command {
 				return
 			}
 
-			showRecord(record, t.Formatter())
+			showRecord(&record, t.Formatter())
 		},
 	}
 

@@ -3,7 +3,7 @@ package actions
 import (
 	"github.com/aligator/goplug/goplug"
 	core0 "github.com/dominikbraun/timetrace/core"
-	time1 "time"
+	time0 "time"
 )
 
 // HostActions contains the host-implementations of actions.
@@ -34,7 +34,7 @@ type LoadProjectRequest struct {
 }
 
 type LoadProjectResponse struct {
-	Res0 *core0.Project `json:"res0"`
+	Res0 core0.Project `json:"res0"`
 }
 
 // LoadProject loads the project with the given key. Returns ErrProjectNotFound
@@ -60,7 +60,7 @@ func (h *HostActions) LoadProject(args LoadProjectRequest, reply *LoadProjectRes
 // if the project cannot be found.
 func (c *ClientActions) LoadProject(
 	key string,
-) (res0 *core0.Project, err error) {
+) (res0 core0.Project, err error) {
 	// Calling from the plugin.
 	response := LoadProjectResponse{}
 	err = c.client.Call("LoadProject", LoadProjectRequest{
@@ -69,12 +69,290 @@ func (c *ClientActions) LoadProject(
 	return response.Res0, err
 }
 
+type LoadBackupProjectRequest struct {
+	Key string `json:"key"`
+}
+
+type LoadBackupProjectResponse struct {
+	Res0 core0.Project `json:"res0"`
+}
+
+func (h *HostActions) LoadBackupProject(args LoadBackupProjectRequest, reply *LoadBackupProjectResponse) error {
+	// Host implementation.
+	res0, err := h.Core0TimetraceRef.LoadBackupProject(
+		args.Key,
+	)
+
+	if err != nil {
+		return err
+	}
+
+	*reply = LoadBackupProjectResponse{
+		Res0: res0,
+	}
+
+	return nil
+}
+
+func (c *ClientActions) LoadBackupProject(
+	key string,
+) (res0 core0.Project, err error) {
+	// Calling from the plugin.
+	response := LoadBackupProjectResponse{}
+	err = c.client.Call("LoadBackupProject", LoadBackupProjectRequest{
+		Key: key,
+	}, &response)
+	return response.Res0, err
+}
+
+type ListProjectModulesRequest struct {
+	Project core0.Project `json:"project"`
+}
+
+type ListProjectModulesResponse struct {
+	Res0 string `json:"res0"`
+}
+
+// ListProjectModules loads all modules for a project and returns their keys as a concatenated string
+func (h *HostActions) ListProjectModules(args ListProjectModulesRequest, reply *ListProjectModulesResponse) error {
+	// Host implementation.
+	res0, err := h.Core0TimetraceRef.ListProjectModules(
+		args.Project,
+	)
+
+	if err != nil {
+		return err
+	}
+
+	*reply = ListProjectModulesResponse{
+		Res0: res0,
+	}
+
+	return nil
+}
+
+// ListProjectModules loads all modules for a project and returns their keys as a concatenated string
+func (c *ClientActions) ListProjectModules(
+	project core0.Project,
+) (res0 string, err error) {
+	// Calling from the plugin.
+	response := ListProjectModulesResponse{}
+	err = c.client.Call("ListProjectModules", ListProjectModulesRequest{
+		Project: project,
+	}, &response)
+	return response.Res0, err
+}
+
+type ListProjectsRequest struct {
+}
+
+type ListProjectsResponse struct {
+	Res0 []core0.Project `json:"res0"`
+}
+
+// ListProjects loads and returns all stored projects sorted by their filenames.
+// If no projects are found, an empty slice and no error will be returned.
+func (h *HostActions) ListProjects(args ListProjectsRequest, reply *ListProjectsResponse) error {
+	// Host implementation.
+	res0, err := h.Core0TimetraceRef.ListProjects()
+
+	if err != nil {
+		return err
+	}
+
+	*reply = ListProjectsResponse{
+		Res0: res0,
+	}
+
+	return nil
+}
+
+// ListProjects loads and returns all stored projects sorted by their filenames.
+// If no projects are found, an empty slice and no error will be returned.
+func (c *ClientActions) ListProjects() (res0 []core0.Project, err error) {
+	// Calling from the plugin.
+	response := ListProjectsResponse{}
+	err = c.client.Call("ListProjects", ListProjectsRequest{}, &response)
+	return response.Res0, err
+}
+
+type SaveProjectRequest struct {
+	Project core0.Project `json:"project"`
+	Force   bool          `json:"force"`
+}
+
+type SaveProjectResponse struct {
+}
+
+// SaveProject persists the given project. Returns ErrProjectAlreadyExists if
+// the project already exists and saving isn't forced.
+func (h *HostActions) SaveProject(args SaveProjectRequest, reply *SaveProjectResponse) error {
+	// Host implementation.
+	err := h.Core0TimetraceRef.SaveProject(
+		args.Project,
+		args.Force,
+	)
+
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+// SaveProject persists the given project. Returns ErrProjectAlreadyExists if
+// the project already exists and saving isn't forced.
+func (c *ClientActions) SaveProject(
+	project core0.Project,
+	force bool,
+) error {
+	// Calling from the plugin.
+	response := SaveProjectResponse{}
+	err := c.client.Call("SaveProject", SaveProjectRequest{
+		Project: project,
+		Force:   force,
+	}, &response)
+	return err
+}
+
+type BackupProjectRequest struct {
+	ProjectKey string `json:"projectKey"`
+}
+
+type BackupProjectResponse struct {
+}
+
+// BackupProject creates a backup of the given project file.
+func (h *HostActions) BackupProject(args BackupProjectRequest, reply *BackupProjectResponse) error {
+	// Host implementation.
+	err := h.Core0TimetraceRef.BackupProject(
+		args.ProjectKey,
+	)
+
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+// BackupProject creates a backup of the given project file.
+func (c *ClientActions) BackupProject(
+	projectKey string,
+) error {
+	// Calling from the plugin.
+	response := BackupProjectResponse{}
+	err := c.client.Call("BackupProject", BackupProjectRequest{
+		ProjectKey: projectKey,
+	}, &response)
+	return err
+}
+
+type RevertProjectRequest struct {
+	ProjectKey string `json:"projectKey"`
+}
+
+type RevertProjectResponse struct {
+}
+
+func (h *HostActions) RevertProject(args RevertProjectRequest, reply *RevertProjectResponse) error {
+	// Host implementation.
+	err := h.Core0TimetraceRef.RevertProject(
+		args.ProjectKey,
+	)
+
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (c *ClientActions) RevertProject(
+	projectKey string,
+) error {
+	// Calling from the plugin.
+	response := RevertProjectResponse{}
+	err := c.client.Call("RevertProject", RevertProjectRequest{
+		ProjectKey: projectKey,
+	}, &response)
+	return err
+}
+
+type EditProjectRequest struct {
+	ProjectKey string `json:"projectKey"`
+}
+
+type EditProjectResponse struct {
+}
+
+// EditProject opens the project file in the preferred or default editor .
+func (h *HostActions) EditProject(args EditProjectRequest, reply *EditProjectResponse) error {
+	// Host implementation.
+	err := h.Core0TimetraceRef.EditProject(
+		args.ProjectKey,
+	)
+
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+// EditProject opens the project file in the preferred or default editor .
+func (c *ClientActions) EditProject(
+	projectKey string,
+) error {
+	// Calling from the plugin.
+	response := EditProjectResponse{}
+	err := c.client.Call("EditProject", EditProjectRequest{
+		ProjectKey: projectKey,
+	}, &response)
+	return err
+}
+
+type DeleteProjectRequest struct {
+	Project core0.Project `json:"project"`
+}
+
+type DeleteProjectResponse struct {
+}
+
+// DeleteProject removes the given project. Returns ErrProjectNotFound if the
+// project doesn't exist.
+func (h *HostActions) DeleteProject(args DeleteProjectRequest, reply *DeleteProjectResponse) error {
+	// Host implementation.
+	err := h.Core0TimetraceRef.DeleteProject(
+		args.Project,
+	)
+
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+// DeleteProject removes the given project. Returns ErrProjectNotFound if the
+// project doesn't exist.
+func (c *ClientActions) DeleteProject(
+	project core0.Project,
+) error {
+	// Calling from the plugin.
+	response := DeleteProjectResponse{}
+	err := c.client.Call("DeleteProject", DeleteProjectRequest{
+		Project: project,
+	}, &response)
+	return err
+}
+
 type LoadRecordRequest struct {
-	Start time1.Time `json:"start"`
+	Start time0.Time `json:"start"`
 }
 
 type LoadRecordResponse struct {
-	Res0 *core0.Record `json:"res0"`
+	Res0 core0.Record `json:"res0"`
 }
 
 // LoadRecord loads the record with the given start time. Returns
@@ -99,8 +377,8 @@ func (h *HostActions) LoadRecord(args LoadRecordRequest, reply *LoadRecordRespon
 // LoadRecord loads the record with the given start time. Returns
 // ErrRecordNotFound if the record cannot be found.
 func (c *ClientActions) LoadRecord(
-	start time1.Time,
-) (res0 *core0.Record, err error) {
+	start time0.Time,
+) (res0 core0.Record, err error) {
 	// Calling from the plugin.
 	response := LoadRecordResponse{}
 	err = c.client.Call("LoadRecord", LoadRecordRequest{
@@ -110,11 +388,11 @@ func (c *ClientActions) LoadRecord(
 }
 
 type LoadBackupRecordRequest struct {
-	Start time1.Time `json:"start"`
+	Start time0.Time `json:"start"`
 }
 
 type LoadBackupRecordResponse struct {
-	Res0 *core0.Record `json:"res0"`
+	Res0 core0.Record `json:"res0"`
 }
 
 func (h *HostActions) LoadBackupRecord(args LoadBackupRecordRequest, reply *LoadBackupRecordResponse) error {
@@ -135,12 +413,52 @@ func (h *HostActions) LoadBackupRecord(args LoadBackupRecordRequest, reply *Load
 }
 
 func (c *ClientActions) LoadBackupRecord(
-	start time1.Time,
-) (res0 *core0.Record, err error) {
+	start time0.Time,
+) (res0 core0.Record, err error) {
 	// Calling from the plugin.
 	response := LoadBackupRecordResponse{}
 	err = c.client.Call("LoadBackupRecord", LoadBackupRecordRequest{
 		Start: start,
+	}, &response)
+	return response.Res0, err
+}
+
+type ListRecordsRequest struct {
+	Date time0.Time `json:"date"`
+}
+
+type ListRecordsResponse struct {
+	Res0 []core0.Record `json:"res0"`
+}
+
+// ListRecords loads and returns all records from the given date. If no records
+// are found, an empty slice and no error will be returned.
+func (h *HostActions) ListRecords(args ListRecordsRequest, reply *ListRecordsResponse) error {
+	// Host implementation.
+	res0, err := h.Core0TimetraceRef.ListRecords(
+		args.Date,
+	)
+
+	if err != nil {
+		return err
+	}
+
+	*reply = ListRecordsResponse{
+		Res0: res0,
+	}
+
+	return nil
+}
+
+// ListRecords loads and returns all records from the given date. If no records
+// are found, an empty slice and no error will be returned.
+func (c *ClientActions) ListRecords(
+	date time0.Time,
+) (res0 []core0.Record, err error) {
+	// Calling from the plugin.
+	response := ListRecordsResponse{}
+	err = c.client.Call("ListRecords", ListRecordsRequest{
+		Date: date,
 	}, &response)
 	return response.Res0, err
 }
@@ -185,7 +503,7 @@ func (c *ClientActions) SaveRecord(
 }
 
 type BackupRecordRequest struct {
-	RecordKey time1.Time `json:"recordKey"`
+	RecordKey time0.Time `json:"recordKey"`
 }
 
 type BackupRecordResponse struct {
@@ -207,7 +525,7 @@ func (h *HostActions) BackupRecord(args BackupRecordRequest, reply *BackupRecord
 
 // BackupRecord creates a backup of the given record file
 func (c *ClientActions) BackupRecord(
-	recordKey time1.Time,
+	recordKey time0.Time,
 ) error {
 	// Calling from the plugin.
 	response := BackupRecordResponse{}
@@ -218,7 +536,7 @@ func (c *ClientActions) BackupRecord(
 }
 
 type RevertRecordRequest struct {
-	RecordKey time1.Time `json:"recordKey"`
+	RecordKey time0.Time `json:"recordKey"`
 }
 
 type RevertRecordResponse struct {
@@ -238,7 +556,7 @@ func (h *HostActions) RevertRecord(args RevertRecordRequest, reply *RevertRecord
 }
 
 func (c *ClientActions) RevertRecord(
-	recordKey time1.Time,
+	recordKey time0.Time,
 ) error {
 	// Calling from the plugin.
 	response := RevertRecordResponse{}
@@ -284,7 +602,7 @@ func (c *ClientActions) DeleteRecord(
 }
 
 type EditRecordManualRequest struct {
-	RecordTime time1.Time `json:"recordTime"`
+	RecordTime time0.Time `json:"recordTime"`
 }
 
 type EditRecordManualResponse struct {
@@ -306,7 +624,7 @@ func (h *HostActions) EditRecordManual(args EditRecordManualRequest, reply *Edit
 
 // EditRecordManual opens the record file in the preferred or default editor.
 func (c *ClientActions) EditRecordManual(
-	recordTime time1.Time,
+	recordTime time0.Time,
 ) error {
 	// Calling from the plugin.
 	response := EditRecordManualResponse{}
@@ -317,7 +635,7 @@ func (c *ClientActions) EditRecordManual(
 }
 
 type EditRecordRequest struct {
-	RecordTime time1.Time `json:"recordTime"`
+	RecordTime time0.Time `json:"recordTime"`
 	Plus       string     `json:"plus"`
 	Minus      string     `json:"minus"`
 }
@@ -343,7 +661,7 @@ func (h *HostActions) EditRecord(args EditRecordRequest, reply *EditRecordRespon
 
 // EditRecord loads the record internally, applies the option values and saves the record
 func (c *ClientActions) EditRecord(
-	recordTime time1.Time,
+	recordTime time0.Time,
 	plus string,
 	minus string,
 ) error {
@@ -361,7 +679,7 @@ type LoadLatestRecordRequest struct {
 }
 
 type LoadLatestRecordResponse struct {
-	Res0 *core0.Record `json:"res0"`
+	Res0 core0.Record `json:"res0"`
 }
 
 // LoadLatestRecord loads the youngest record. This may also be a record from
@@ -383,7 +701,7 @@ func (h *HostActions) LoadLatestRecord(args LoadLatestRecordRequest, reply *Load
 
 // LoadLatestRecord loads the youngest record. This may also be a record from
 // another day. If there is no latest record, nil and no error will be returned.
-func (c *ClientActions) LoadLatestRecord() (res0 *core0.Record, err error) {
+func (c *ClientActions) LoadLatestRecord() (res0 core0.Record, err error) {
 	// Calling from the plugin.
 	response := LoadLatestRecordResponse{}
 	err = c.client.Call("LoadLatestRecord", LoadLatestRecordRequest{}, &response)

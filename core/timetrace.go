@@ -65,11 +65,11 @@ func (t *Timetrace) Start(projectKey string, isBillable bool) error {
 	}
 
 	// If there is no end time of the latest record, the user has to stop first.
-	if latestRecord != nil && latestRecord.End == nil {
+	if latestRecord.End == nil {
 		return ErrNoEndTime
 	}
 
-	var project *Project
+	var project Project
 
 	if projectKey != "" {
 		if project, err = t.LoadProject(projectKey); err != nil {
@@ -79,7 +79,7 @@ func (t *Timetrace) Start(projectKey string, isBillable bool) error {
 
 	record := Record{
 		Start:      time.Now(),
-		Project:    project,
+		Project:    &project,
 		IsBillable: isBillable,
 	}
 
@@ -129,7 +129,7 @@ func (t *Timetrace) Status() (*Report, error) {
 		return report, nil
 	}
 
-	report.Current = latestRecord
+	report.Current = &latestRecord
 
 	// If the latest record has not been stopped yet, time tracking is active.
 	// Calculate the time tracked for the current record and for today.
@@ -161,14 +161,14 @@ func (t *Timetrace) Stop() error {
 		return err
 	}
 
-	if latestRecord == nil || latestRecord.End != nil {
+	if latestRecord.End != nil {
 		return ErrTrackingNotStarted
 	}
 
 	end := time.Now()
 	latestRecord.End = &end
 
-	return t.SaveRecord(*latestRecord, true)
+	return t.SaveRecord(latestRecord, true)
 }
 
 // Report generates a report of tracked times
@@ -176,13 +176,13 @@ func (t *Timetrace) Stop() error {
 // The report can be filtered by the given Filter* funcs. By default
 // all records of all projects will be collected. Interaction with the report
 // can be done via the Reporter instance
-func (t *Timetrace) Report(filter ...func(*Record) bool) (*Reporter, error) {
+func (t *Timetrace) Report(filter ...func(Record) bool) (*Reporter, error) {
 	recordDirs, err := t.fs.RecordDirs()
 	if err != nil {
 		return nil, err
 	}
 	// collect records
-	var result = make([]*Record, 0)
+	var result = make([]Record, 0)
 	for _, dir := range recordDirs {
 		records, err := t.loadFromRecordDir(dir, filter...)
 		if err != nil {
@@ -193,7 +193,7 @@ func (t *Timetrace) Report(filter ...func(*Record) bool) (*Reporter, error) {
 
 	var reporter = Reporter{
 		t:      t,
-		report: make(map[string][]*Record),
+		report: make(map[string][]Record),
 		totals: make(map[string]time.Duration),
 	}
 	// prepare data  for serialization

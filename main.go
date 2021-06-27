@@ -1,6 +1,6 @@
 // Note: go install needs min Go 1.16
-//go:generate go install github.com/aligator/goplug@v0.0.7
-//go:generate goplug -o plugin/actions .
+//go:generate go install github.com/aligator/goplug@v0.0.8
+//go:generate goplug -o plugin/actions -allow-structs -allow-slices .
 //go:generate go build -o ./plugins ./plugins/example/hello
 
 package main
@@ -30,7 +30,12 @@ func main() {
 	pluginHost := &plugin.Host{
 		T: timetrace,
 	}
-	pluginHost.Init(c)
+
+	err = pluginHost.Init(c)
+	if err != nil {
+		out.Err("%s", err.Error())
+		os.Exit(1)
+	}
 
 	if err := cli.RootCommand(timetrace, version, pluginHost).Execute(); err != nil {
 		out.Err("%s", err.Error())

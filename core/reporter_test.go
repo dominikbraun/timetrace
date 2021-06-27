@@ -80,7 +80,7 @@ func TestReportFilterTimeRange(t *testing.T) {
 		Expected: false,
 	})
 	for _, tc := range tt {
-		ok := FilterByTimeRange(tc.From, tc.To)(&tc.Record)
+		ok := FilterByTimeRange(tc.From, tc.To)(tc.Record)
 		if ok != tc.Expected {
 			t.Fatalf("filter time range: filter returned wrong statement!")
 		}
