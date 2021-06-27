@@ -1,6 +1,7 @@
 package cli
 
 import (
+	"fmt"
 	"time"
 
 	"github.com/dominikbraun/timetrace/core"
@@ -87,14 +88,15 @@ func generateReportCommand(t *core.Timetrace) *cobra.Command {
 				t.WriteReport(options.filePath, data)
 			default:
 				projects, total := report.Table()
+				fmt.Println(projects)
 				out.Table(
-					[]string{"Project", "Date", "Start", "End", "Billable", "Total"},
+					[]string{"Project", "Module", "Date", "Start", "End", "Billable", "Total"},
 					projects,
-					[]string{"", "", "", "", "TOTAL", total},
+					[]string{"", "", "", "", "", "TOTAL", total},
 					out.TableWithCellMerge(0), // merge cells over "Project" (index:0) column
 					out.TableFooterColor(
 						tablewriter.Colors{}, tablewriter.Colors{},
-						tablewriter.Colors{}, tablewriter.Colors{},
+						tablewriter.Colors{}, tablewriter.Colors{}, tablewriter.Colors{},
 						tablewriter.Colors{tablewriter.Bold},          // text "TOTAL"
 						tablewriter.Colors{tablewriter.FgGreenColor}), // digit of "TOTAL"
 				)

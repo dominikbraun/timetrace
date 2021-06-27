@@ -3,6 +3,7 @@ package core
 import (
 	"encoding/json"
 	"fmt"
+	"strings"
 	"time"
 )
 
@@ -22,9 +23,23 @@ func FilterBillable(dislay bool) func(*Record) bool {
 }
 
 // FilterByProject returns true if the record matches the given project keys
+// if a module is given "mod@project" filter checks if module and project match
 func FilterByProject(key string) func(*Record) bool {
+	module := strings.Split(key, "@") // if a module is given mod@project
 	return func(r *Record) bool {
-		return r.Project.Key == key
+		recordModule := strings.Split(r.Project.Key, "@")
+		// mod@key - mod@key -> search for project with module X
+		if r.Project.IsModule() && len(module) > 1 {
+			return recordModule[0] == module[0] && recordModule[1] == module[1]
+		}
+		// key - mod@key || key - key -> search for project where key
+		if len(module) == 1 {
+			if r.Project.IsModule() {
+				return recordModule[1] == key
+			}
+			return r.Project.Key == key
+		}
+		return false
 	}
 }
 
@@ -68,18 +83,24 @@ type Reporter struct {
 
 // sortAndMerge assigns each record in the given slice to the correct project key in the
 // Reporter.report map and computes each projects total time.Duration
+// projects with module will be grouped by
 func (r *Reporter) sortAndMerge(records []*Record) {
 	for _, record := range records {
-		cached, ok := r.report[record.Project.Key]
+		key := record.Project.Key
+		keyParts := strings.Split(key, "@")
+		if len(keyParts) > 1 {
+			key = keyParts[1]
+		}
+		cached, ok := r.report[key]
 		if !ok {
-			r.report[record.Project.Key] = []*Record{record}
-			r.totals[record.Project.Key] = record.End.Sub(record.Start)
+			r.report[key] = []*Record{record}
+			r.totals[key] = record.End.Sub(record.Start)
 			continue
 		}
-		r.report[record.Project.Key] = append(cached, record)
+		r.report[key] = append(cached, record)
 		// compute updated total
-		tmp := r.totals[record.Project.Key] + record.End.Sub(record.Start)
-		r.totals[record.Project.Key] = tmp
+		tmp := r.totals[key] + record.End.Sub(record.Start)
+		r.totals[key] = tmp
 	}
 }
 
@@ -92,7 +113,12 @@ func (r Reporter) Table() ([][]string, string) {
 
 	for key, records := range r.report {
 		for _, record := range records {
-			project := key
+			keyParts := strings.Split(record.Project.Key, "@")
+			module, key := "", keyParts[0]
+			if len(keyParts) > 1 {
+				module = keyParts[0]
+				key = keyParts[1]
+			}
 			billable := "no"
 			if record.IsBillable {
 				billable = "yes"
@@ -101,10 +127,10 @@ func (r Reporter) Table() ([][]string, string) {
 			start := r.t.Formatter().TimeString(record.Start)
 			end := r.t.Formatter().TimeString(*record.End)
 
-			rows = append(rows, []string{project, date, start, end, billable, ""})
+			rows = append(rows, []string{key, module, date, start, end, billable, ""})
 		}
 		// append with last row for total of tracked time for project
-		rows = append(rows, []string{key, "", "", "", defaultTotalSymbol, r.t.Formatter().FormatDuration(r.totals[key])})
+		rows = append(rows, []string{"", "", "", "", "", defaultTotalSymbol, r.t.Formatter().FormatDuration(r.totals[key])})
 		totalSum += r.totals[key]
 	}
 	return rows, r.t.Formatter().FormatDuration(totalSum)
