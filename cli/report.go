@@ -1,7 +1,6 @@
 package cli
 
 import (
-	"fmt"
 	"time"
 
 	"github.com/dominikbraun/timetrace/core"
@@ -88,7 +87,6 @@ func generateReportCommand(t *core.Timetrace) *cobra.Command {
 				t.WriteReport(options.filePath, data)
 			default:
 				projects, total := report.Table()
-				fmt.Println(projects)
 				out.Table(
 					[]string{"Project", "Module", "Date", "Start", "End", "Billable", "Total"},
 					projects,
