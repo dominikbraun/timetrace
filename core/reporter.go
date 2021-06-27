@@ -14,9 +14,11 @@ func FilterNoneNilEndTime(r *Record) bool {
 	return r.End != nil
 }
 
-// FilterBillable returns true if a records is listed as billable
-func FilterBillable(r *Record) bool {
-	return r.IsBillable
+// FilterBillable returns a records if its IsBillable flag matches the paramter display
+func FilterBillable(dislay bool) func(*Record) bool {
+	return func(r *Record) bool {
+		return r.IsBillable == dislay
+	}
 }
 
 // FilterByProject returns true if the record matches the given project keys
