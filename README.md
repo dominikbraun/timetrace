@@ -254,7 +254,7 @@ timetrace create project make-coffee
 **Syntax:**
 
 ```
-timetrace record <PROJECT KEY> {<YYYY-MM-DD>|today|yesterday} <HH:MM> <HH:MM>
+timetrace create record <PROJECT KEY> {<YYYY-MM-DD>|today|yesterday} <HH:MM> <HH:MM>
 ```
 
 **Arguments:**
@@ -384,7 +384,7 @@ timetrace list records 2021-05-01
 
 Filter records by the `make-coffee` project:
 ```
-timetrace list records 2021-05-01
+timetrace list records -p make-coffee 2021-05-01
 +-----+-------------+---------+-------+------------+
 |  #  |   PROJECT   |  START  |  END  |  BILLABLE  |
 +-----+-------------+---------+-------+------------+
