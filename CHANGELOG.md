@@ -5,6 +5,23 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.11.0] - 2021-06-26
+
+### Added
+* Add `create record` command (#118)
+* Add beta support for reports (#99)
+
+## [0.10.0] - 2021-06-15
+
+### Added
+* Add `--output` flag for `timetrace status` (#129)
+* Add `--format` flag for `timetrace status` (#114, #123, #124)
+* Add Starship support
+* Add Scoop support
+
+### Changed
+* Remove seconds from printed durations (#113)
+
 ## [0.9.0] - 2021-06-09
 
 ### Added

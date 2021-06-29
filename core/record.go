@@ -6,6 +6,7 @@ import (
 	"io/ioutil"
 	"os"
 	"os/exec"
+	"path/filepath"
 	"strings"
 	"time"
 )
@@ -294,6 +295,34 @@ func (t *Timetrace) loadOldestRecord(date time.Time) (*Record, error) {
 	path := oldestRecords[0]
 
 	return t.loadRecord(path)
+}
+
+// loadFromRecordDir loads all records for one directory and returns them. The slice can be filtered
+// through the filter options.
+func (t *Timetrace) loadFromRecordDir(recordDir string, filter ...func(*Record) bool) ([]*Record, error) {
+	filesInfo, err := ioutil.ReadDir(recordDir)
+	if err != nil {
+		return nil, err
+	}
+	var foundRecords = make([]*Record, 0)
+
+outer:
+	for _, info := range filesInfo {
+		record, err := t.loadRecord(filepath.Join(recordDir, info.Name()))
+		if err != nil {
+			return nil, err
+		}
+		// apply all filter on record to check if Records should be used
+		for _, f := range filter {
+			if !f(record) {
+				// if either filter returns false
+				// skip record
+				continue outer
+			}
+		}
+		foundRecords = append(foundRecords, record)
+	}
+	return foundRecords, nil
 }
 
 func (t *Timetrace) loadRecord(path string) (*Record, error) {

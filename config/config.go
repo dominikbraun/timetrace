@@ -9,6 +9,7 @@ type Config struct {
 	Store      string `json:"store"`
 	Use12Hours bool   `json:"use12hours"`
 	Editor     string `json:"editor"`
+	ReportPath string `json:"report-path"`
 }
 
 var cached *Config

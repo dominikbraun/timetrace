@@ -31,9 +31,11 @@ type Filesystem interface {
 	RecordBackupFilepath(start time.Time) string
 	RecordFilepaths(dir string, less func(a, b string) bool) ([]string, error)
 	RecordDirs() ([]string, error)
+	ReportDir() string
 	RecordDirFromDate(date time.Time) string
 	EnsureDirectories() error
 	EnsureRecordDir(date time.Time) error
+	WriteReport(path string, data []byte) error
 }
 
 type Timetrace struct {
@@ -169,6 +171,43 @@ func (t *Timetrace) Stop() error {
 	return t.SaveRecord(*latestRecord, true)
 }
 
+// Report generates a report of tracked times
+//
+// The report can be filtered by the given Filter* funcs. By default
+// all records of all projects will be collected. Interaction with the report
+// can be done via the Reporter instance
+func (t *Timetrace) Report(filter ...func(*Record) bool) (*Reporter, error) {
+	recordDirs, err := t.fs.RecordDirs()
+	if err != nil {
+		return nil, err
+	}
+	// collect records
+	var result = make([]*Record, 0)
+	for _, dir := range recordDirs {
+		records, err := t.loadFromRecordDir(dir, filter...)
+		if err != nil {
+			return nil, err
+		}
+		result = append(result, records...)
+	}
+
+	var reporter = Reporter{
+		t:      t,
+		report: make(map[string][]*Record),
+		totals: make(map[string]time.Duration),
+	}
+	// prepare data  for serialization
+	reporter.sortAndMerge(result)
+	return &reporter, nil
+}
+
+// WriteReport forwards the byte slice to the fs but checks in prior for
+// the correct output path. If the user has not provided one the config.ReportPath
+// will be used if not set path falls-back to $HOME/.timetrace/reports/report-<time.unix>
+func (t *Timetrace) WriteReport(path string, data []byte) error {
+	return t.fs.WriteReport(path, data)
+}
+
 func (t *Timetrace) EnsureDirectories() error {
 	return t.fs.EnsureDirectories()
 }
@@ -233,4 +272,41 @@ func (t *Timetrace) latestNonEmptyDir(dirs []string) (string, error) {
 	}
 
 	return "", ErrAllDirectoriesEmpty
+}
+
+// RecordCollides checks if the time of a record collides
+// with other records of the same day and returns a bool
+func (t *Timetrace) RecordCollides(toCheck Record) (bool, error) {
+	allRecords, err := t.loadAllRecords(toCheck.Start)
+	if err != nil {
+		return false, err
+	}
+
+	if toCheck.Start.Day() != toCheck.End.Day() {
+		moreRecords, err := t.loadAllRecords(*toCheck.End)
+		if err != nil {
+			return false, err
+		}
+		for _, rec := range moreRecords {
+			allRecords = append(allRecords, rec)
+		}
+	}
+
+	return collides(toCheck, allRecords), nil
+}
+
+func collides(toCheck Record, allRecords []*Record) bool {
+	for _, rec := range allRecords {
+		if rec.Start.Before(toCheck.Start) && rec.End.After(toCheck.Start) {
+			return true
+		} else if rec.Start.Before(*toCheck.End) && rec.End.After(*toCheck.End) {
+			return true
+		} else if toCheck.Start.Before(rec.Start) && toCheck.End.After(rec.Start) {
+			return true
+		} else if toCheck.Start.Before(*rec.End) && toCheck.End.After(*rec.End) {
+			return true
+		}
+	}
+
+	return false
 }
