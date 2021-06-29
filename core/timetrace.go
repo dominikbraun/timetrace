@@ -229,14 +229,7 @@ func (t *Timetrace) trackedTime(date time.Time) (time.Duration, error) {
 	var trackedTime time.Duration
 
 	for _, record := range records {
-		// If the record doesn't have an end time, it is expected that this is
-		// the current record and time is still being tracked.
-		if record.End == nil {
-			trackedTime += time.Now().Sub(record.Start)
-			continue
-		}
-
-		trackedTime += record.End.Sub(record.Start)
+		trackedTime += record.Duration()
 	}
 
 	return trackedTime, nil
