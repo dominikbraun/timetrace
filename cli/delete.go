@@ -55,6 +55,11 @@ func deleteProjectCommand(t *core.Timetrace) *cobra.Command {
 				Key: key,
 			}
 
+			if !askForConfirmation() {
+				out.Info("Record NOT deleted.")
+				return
+			}
+
 			if err := t.BackupProject(key); err != nil {
 				out.Err("Failed to backup project before deletion: %s", err.Error())
 				return
@@ -135,19 +140,10 @@ func deleteRecordCommand(t *core.Timetrace) *cobra.Command {
 
 func askForConfirmation() bool {
 	reader := bufio.NewReader(os.Stdin)
-	for {
-		fmt.Fprint(os.Stderr, "Please confirm (Y/N): ")
-		s, _ := reader.ReadString('\n')
-		s = strings.TrimSuffix(s, "\n")
-		s = strings.ToLower(s)
-		if len(s) > 1 {
-			continue
-		}
-		if strings.Compare(s, "n") == 0 {
-			return false
-		} else if strings.Compare(s, "y") == 0 {
-			break
-		}
-	}
-	return true
+	fmt.Fprint(os.Stderr, "Please confirm [y/N]: ")
+	s, _ := reader.ReadString('\n')
+	s = strings.TrimSuffix(s, "\n")
+	s = strings.ToLower(s)
+
+	return s == "y"
 }
