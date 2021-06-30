@@ -28,21 +28,31 @@ type Record struct {
 	IsBillable bool       `json:"is_billable"`
 }
 
-// LoadRecord loads the record with the given start time. Returns
-// ErrRecordNotFound if the record cannot be found.
-func (t *Timetrace) LoadRecord(start time.Time) (*Record, error) {
-	path := t.fs.RecordFilepath(start)
-	return t.loadRecord(path)
+func unwrapRecordPointerResult(record *Record, err error) (Record, error) {
+	if err != nil {
+		return Record{}, err
+	}
+	return *record, err
 }
 
-func (t *Timetrace) LoadBackupRecord(start time.Time) (*Record, error) {
+// LoadRecord loads the record with the given start time. Returns
+// ErrRecordNotFound if the record cannot be found.
+//goplug:generate
+func (t *Timetrace) LoadRecord(start time.Time) (Record, error) {
+	path := t.fs.RecordFilepath(start)
+	return unwrapRecordPointerResult(t.loadRecord(path))
+}
+
+//goplug:generate
+func (t *Timetrace) LoadBackupRecord(start time.Time) (Record, error) {
 	path := t.fs.RecordBackupFilepath(start)
-	return t.loadRecord(path)
+	return unwrapRecordPointerResult(t.loadRecord(path))
 }
 
 // ListRecords loads and returns all records from the given date. If no records
 // are found, an empty slice and no error will be returned.
-func (t *Timetrace) ListRecords(date time.Time) ([]*Record, error) {
+//goplug:generate
+func (t *Timetrace) ListRecords(date time.Time) ([]Record, error) {
 	dir := t.fs.RecordDirFromDate(date)
 	paths, err := t.fs.RecordFilepaths(dir, func(_, _ string) bool {
 		return true
@@ -51,14 +61,14 @@ func (t *Timetrace) ListRecords(date time.Time) ([]*Record, error) {
 		return nil, err
 	}
 
-	records := make([]*Record, 0)
+	records := make([]Record, 0)
 
 	for _, path := range paths {
 		record, err := t.loadRecord(path)
 		if err != nil {
 			return nil, err
 		}
-		records = append(records, record)
+		records = append(records, *record)
 	}
 
 	return records, nil
@@ -66,6 +76,7 @@ func (t *Timetrace) ListRecords(date time.Time) ([]*Record, error) {
 
 // SaveRecord persists the given record. Returns ErrRecordAlreadyExists if the
 // record already exists and saving isn't forced.
+//goplug:generate
 func (t *Timetrace) SaveRecord(record Record, force bool) error {
 	path := t.fs.RecordFilepath(record.Start)
 
@@ -93,6 +104,7 @@ func (t *Timetrace) SaveRecord(record Record, force bool) error {
 }
 
 // BackupRecord creates a backup of the given record file
+//goplug:generate
 func (t *Timetrace) BackupRecord(recordKey time.Time) error {
 	path := t.fs.RecordFilepath(recordKey)
 	record, err := t.loadRecord(path)
@@ -117,6 +129,7 @@ func (t *Timetrace) BackupRecord(recordKey time.Time) error {
 	return err
 }
 
+//goplug:generate
 func (t *Timetrace) RevertRecord(recordKey time.Time) error {
 	record, err := t.LoadBackupRecord(recordKey)
 	if err != nil {
@@ -142,6 +155,7 @@ func (t *Timetrace) RevertRecord(recordKey time.Time) error {
 
 // DeleteRecord removes the given record. Returns ErrRecordNotFound if the
 // project doesn't exist.
+//goplug:generate
 func (t *Timetrace) DeleteRecord(record Record) error {
 	path := t.fs.RecordFilepath(record.Start)
 
@@ -153,6 +167,7 @@ func (t *Timetrace) DeleteRecord(record Record) error {
 }
 
 // EditRecordManual opens the record file in the preferred or default editor.
+//goplug:generate
 func (t *Timetrace) EditRecordManual(recordTime time.Time) error {
 	path := t.fs.RecordFilepath(recordTime)
 
@@ -170,6 +185,7 @@ func (t *Timetrace) EditRecordManual(recordTime time.Time) error {
 }
 
 // EditRecord loads the record internally, applies the option values and saves the record
+//goplug:generate
 func (t *Timetrace) EditRecord(recordTime time.Time, plus string, minus string) error {
 	path := t.fs.RecordFilepath(recordTime)
 
@@ -241,19 +257,20 @@ func (t *Timetrace) loadAllRecordsSortedAscending(date time.Time) ([]*Record, er
 
 // LoadLatestRecord loads the youngest record. This may also be a record from
 // another day. If there is no latest record, nil and no error will be returned.
-func (t *Timetrace) LoadLatestRecord() (*Record, error) {
+//goplug:generate
+func (t *Timetrace) LoadLatestRecord() (Record, error) {
 	latestDirs, err := t.fs.RecordDirs()
 	if err != nil {
-		return nil, err
+		return Record{}, err
 	}
 
 	if len(latestDirs) == 0 {
-		return nil, nil
+		return Record{}, nil
 	}
 
 	dir, err := t.latestNonEmptyDir(latestDirs)
 	if err != nil {
-		return nil, err
+		return Record{}, err
 	}
 
 	latestRecords, err := t.fs.RecordFilepaths(dir, func(a, b string) bool {
@@ -262,16 +279,16 @@ func (t *Timetrace) LoadLatestRecord() (*Record, error) {
 		return timeA.Before(timeB)
 	})
 	if err != nil {
-		return nil, err
+		return Record{}, err
 	}
 
 	if len(latestRecords) == 0 {
-		return nil, nil
+		return Record{}, nil
 	}
 
 	path := latestRecords[len(latestRecords)-1]
 
-	return t.loadRecord(path)
+	return unwrapRecordPointerResult(t.loadRecord(path))
 }
 
 // loadOldestRecord returns the oldest record of the given date. If there is no
@@ -299,12 +316,12 @@ func (t *Timetrace) loadOldestRecord(date time.Time) (*Record, error) {
 
 // loadFromRecordDir loads all records for one directory and returns them. The slice can be filtered
 // through the filter options.
-func (t *Timetrace) loadFromRecordDir(recordDir string, filter ...func(*Record) bool) ([]*Record, error) {
+func (t *Timetrace) loadFromRecordDir(recordDir string, filter ...func(Record) bool) ([]Record, error) {
 	filesInfo, err := ioutil.ReadDir(recordDir)
 	if err != nil {
 		return nil, err
 	}
-	var foundRecords = make([]*Record, 0)
+	var foundRecords = make([]Record, 0)
 
 outer:
 	for _, info := range filesInfo {
@@ -314,13 +331,13 @@ outer:
 		}
 		// apply all filter on record to check if Records should be used
 		for _, f := range filter {
-			if !f(record) {
+			if !f(*record) {
 				// if either filter returns false
 				// skip record
 				continue outer
 			}
 		}
-		foundRecords = append(foundRecords, record)
+		foundRecords = append(foundRecords, *record)
 	}
 	return foundRecords, nil
 }

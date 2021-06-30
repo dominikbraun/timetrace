@@ -106,7 +106,7 @@ func deleteRecordCommand(t *core.Timetrace) *cobra.Command {
 				return
 			}
 
-			showRecord(record, t.Formatter())
+			showRecord(&record, t.Formatter())
 			if !confirmed {
 				if !askForConfirmation() {
 					out.Info("Record NOT deleted.")
@@ -119,7 +119,7 @@ func deleteRecordCommand(t *core.Timetrace) *cobra.Command {
 				return
 			}
 
-			if err := t.DeleteRecord(*record); err != nil {
+			if err := t.DeleteRecord(record); err != nil {
 				out.Err("Failed to delete %s", err.Error())
 				return
 			}

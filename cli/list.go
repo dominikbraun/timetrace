@@ -109,7 +109,7 @@ func listRecordsCommand(t *core.Timetrace) *cobra.Command {
 
 				rows[i] = make([]string, 6)
 				rows[i][0] = strconv.Itoa(i + 1)
-				rows[i][1] = t.Formatter().RecordKey(record)
+				rows[i][1] = t.Formatter().RecordKey(&record)
 				rows[i][2] = record.Project.Key
 				rows[i][3] = t.Formatter().TimeString(record.Start)
 				rows[i][4] = end
@@ -133,8 +133,8 @@ func listRecordsCommand(t *core.Timetrace) *cobra.Command {
 	return listRecords
 }
 
-func filterBillableRecords(records []*core.Record) []*core.Record {
-	billableRecords := []*core.Record{}
+func filterBillableRecords(records []core.Record) []core.Record {
+	billableRecords := []core.Record{}
 	for _, record := range records {
 		if record.IsBillable == true {
 			billableRecords = append(billableRecords, record)
@@ -143,8 +143,8 @@ func filterBillableRecords(records []*core.Record) []*core.Record {
 	return billableRecords
 }
 
-func filterProjectRecords(records []*core.Record, key string) []*core.Record {
-	projectRecords := []*core.Record{}
+func filterProjectRecords(records []core.Record, key string) []core.Record {
+	projectRecords := []core.Record{}
 	for _, record := range records {
 		if record.Project.Key == key || record.Project.Parent() == key {
 			projectRecords = append(projectRecords, record)
@@ -153,8 +153,8 @@ func filterProjectRecords(records []*core.Record, key string) []*core.Record {
 	return projectRecords
 }
 
-func removeModules(allProjects []*core.Project) []*core.Project {
-	var parentProjects []*core.Project
+func removeModules(allProjects []core.Project) []core.Project {
+	var parentProjects []core.Project
 	for _, p := range allProjects {
 		if !p.IsModule() {
 			parentProjects = append(parentProjects, p)
@@ -164,7 +164,7 @@ func removeModules(allProjects []*core.Project) []*core.Project {
 	return parentProjects
 }
 
-func getTotalTrackedTime(records []*core.Record) time.Duration {
+func getTotalTrackedTime(records []core.Record) time.Duration {
 	var totalTime time.Duration
 	for _, record := range records {
 		if record.End != nil {

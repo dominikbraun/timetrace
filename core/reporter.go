@@ -10,18 +10,18 @@ const (
 	defaultTotalSymbol = "∑"
 )
 
-func FilterNoneNilEndTime(r *Record) bool {
+func FilterNoneNilEndTime(r Record) bool {
 	return r.End != nil
 }
 
 // FilterBillable returns true if a records is listed as billable
-func FilterBillable(r *Record) bool {
+func FilterBillable(r Record) bool {
 	return r.IsBillable
 }
 
 // FilterByProject returns true if the record matches the given project keys
-func FilterByProject(key string) func(*Record) bool {
-	return func(r *Record) bool {
+func FilterByProject(key string) func(Record) bool {
+	return func(r Record) bool {
 		return r.Project.Key == key
 	}
 }
@@ -34,9 +34,9 @@ func FilterByProject(key string) func(*Record) bool {
 // date will be ignored as they are all bigger since their hh:mm:ss will be grather then 00:00:00
 // of the "to" time. Adding one day to the "to" time will include records tracked on that date thus
 // will make the "to" time inclusive
-func FilterByTimeRange(start, end time.Time) func(*Record) bool {
+func FilterByTimeRange(start, end time.Time) func(Record) bool {
 
-	return func(r *Record) bool {
+	return func(r Record) bool {
 		if start.IsZero() && end.IsZero() {
 			return true
 		}
@@ -59,18 +59,18 @@ func FilterByTimeRange(start, end time.Time) func(*Record) bool {
 type Reporter struct {
 	t *Timetrace
 	// report stores project-key:tracked-records
-	report map[string][]*Record
+	report map[string][]Record
 	// total stores the overall time spend on a project
 	totals map[string]time.Duration
 }
 
 // sortAndMerge assigns each record in the given slice to the correct project key in the
 // Reporter.report map and computes each projects total time.Duration
-func (r *Reporter) sortAndMerge(records []*Record) {
+func (r *Reporter) sortAndMerge(records []Record) {
 	for _, record := range records {
 		cached, ok := r.report[record.Project.Key]
 		if !ok {
-			r.report[record.Project.Key] = []*Record{record}
+			r.report[record.Project.Key] = []Record{record}
 			r.totals[record.Project.Key] = record.End.Sub(record.Start)
 			continue
 		}

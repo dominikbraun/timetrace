@@ -24,6 +24,13 @@ type Project struct {
 	Key string `json:"key"`
 }
 
+func unwrapProjectPointerResult(project *Project, err error) (Project, error) {
+	if err != nil {
+		return Project{}, err
+	}
+	return *project, err
+}
+
 // Parent returns the parent project of the current project or an empty string
 // if there is no parent. If it has a parent, the current project is a module.
 func (p *Project) Parent() string {
@@ -42,19 +49,22 @@ func (p *Project) IsModule() bool {
 
 // LoadProject loads the project with the given key. Returns ErrProjectNotFound
 // if the project cannot be found.
-func (t *Timetrace) LoadProject(key string) (*Project, error) {
+//goplug:generate
+func (t *Timetrace) LoadProject(key string) (Project, error) {
 	path := t.fs.ProjectFilepath(key)
-	return t.loadProject(path)
+	return unwrapProjectPointerResult(t.loadProject(path))
 }
 
-func (t *Timetrace) LoadBackupProject(key string) (*Project, error) {
+//goplug:generate
+func (t *Timetrace) LoadBackupProject(key string) (Project, error) {
 	path := t.fs.ProjectBackupFilepath(key)
-	return t.loadProject(path)
+	return unwrapProjectPointerResult(t.loadProject(path))
 }
 
 // ListProjectModules loads all modules for a project and returns their keys as a concatenated string
-func (t *Timetrace) ListProjectModules(project *Project) (string, error) {
-	allModules, err := t.loadProjectModules(project)
+//goplug:generate
+func (t *Timetrace) ListProjectModules(project Project) (string, error) {
+	allModules, err := t.loadProjectModules(&project)
 	if err != nil {
 		return "", err
 	}
@@ -78,20 +88,21 @@ func (t *Timetrace) ListProjectModules(project *Project) (string, error) {
 
 // ListProjects loads and returns all stored projects sorted by their filenames.
 // If no projects are found, an empty slice and no error will be returned.
-func (t *Timetrace) ListProjects() ([]*Project, error) {
+//goplug:generate
+func (t *Timetrace) ListProjects() ([]Project, error) {
 	paths, err := t.fs.ProjectFilepaths()
 	if err != nil {
 		return nil, err
 	}
 
-	projects := make([]*Project, 0)
+	projects := make([]Project, 0)
 
 	for _, path := range paths {
 		project, err := t.loadProject(path)
 		if err != nil {
 			return nil, err
 		}
-		projects = append(projects, project)
+		projects = append(projects, *project)
 	}
 
 	return projects, nil
@@ -99,6 +110,7 @@ func (t *Timetrace) ListProjects() ([]*Project, error) {
 
 // SaveProject persists the given project. Returns ErrProjectAlreadyExists if
 // the project already exists and saving isn't forced.
+//goplug:generate
 func (t *Timetrace) SaveProject(project Project, force bool) error {
 	if project.IsModule() {
 		err := t.assertParent(project)
@@ -128,6 +140,7 @@ func (t *Timetrace) SaveProject(project Project, force bool) error {
 }
 
 // BackupProject creates a backup of the given project file.
+//goplug:generate
 func (t *Timetrace) BackupProject(projectKey string) error {
 	project, err := t.LoadProject(projectKey)
 	if err != nil {
@@ -151,6 +164,7 @@ func (t *Timetrace) BackupProject(projectKey string) error {
 	return err
 }
 
+//goplug:generate
 func (t *Timetrace) RevertProject(projectKey string) error {
 	project, err := t.LoadBackupProject(projectKey)
 	if err != nil {
@@ -175,6 +189,7 @@ func (t *Timetrace) RevertProject(projectKey string) error {
 }
 
 // EditProject opens the project file in the preferred or default editor .
+//goplug:generate
 func (t *Timetrace) EditProject(projectKey string) error {
 	if _, err := t.LoadProject(projectKey); err != nil {
 		return err
@@ -193,6 +208,7 @@ func (t *Timetrace) EditProject(projectKey string) error {
 
 // DeleteProject removes the given project. Returns ErrProjectNotFound if the
 // project doesn't exist.
+//goplug:generate
 func (t *Timetrace) DeleteProject(project Project) error {
 	path := t.fs.ProjectFilepath(project.Key)
 
@@ -228,13 +244,13 @@ func (t *Timetrace) loadProject(path string) (*Project, error) {
 //
 // Since project modules are projects with the name <module>@<project>, this
 // function simply loads all "projects" suffixed with @<key>.
-func (t *Timetrace) loadProjectModules(project *Project) ([]*Project, error) {
+func (t *Timetrace) loadProjectModules(project *Project) ([]Project, error) {
 	projects, err := t.ListProjects()
 	if err != nil {
 		return nil, err
 	}
 
-	var modules []*Project
+	var modules []Project
 
 	for _, p := range projects {
 		if p.Parent() == project.Key {

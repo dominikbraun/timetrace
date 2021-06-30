@@ -12,37 +12,37 @@ func TestFilterBillableRecords(t *testing.T) {
 
 	tt := []struct {
 		title    string
-		records  []*core.Record
-		expected []*core.Record
+		records  []core.Record
+		expected []core.Record
 	}{
 		{
 			title: "all records are billable",
-			records: []*core.Record{
+			records: []core.Record{
 				{Project: &core.Project{Key: "a"}, IsBillable: true},
 				{Project: &core.Project{Key: "b"}, IsBillable: true},
 			},
-			expected: []*core.Record{
+			expected: []core.Record{
 				{Project: &core.Project{Key: "a"}, IsBillable: true},
 				{Project: &core.Project{Key: "b"}, IsBillable: true},
 			},
 		},
 		{
 			title: "no records are billable",
-			records: []*core.Record{
+			records: []core.Record{
 				{Project: &core.Project{Key: "a"}, IsBillable: false},
 				{Project: &core.Project{Key: "b"}, IsBillable: false},
 			},
-			expected: []*core.Record{},
+			expected: []core.Record{},
 		},
 		{
 			title: "half of records are billable",
-			records: []*core.Record{
+			records: []core.Record{
 				{Project: &core.Project{Key: "a"}, IsBillable: true},
 				{Project: &core.Project{Key: "b"}, IsBillable: true},
 				{Project: &core.Project{Key: "c"}, IsBillable: false},
 				{Project: &core.Project{Key: "d"}, IsBillable: false},
 			},
-			expected: []*core.Record{
+			expected: []core.Record{
 				{Project: &core.Project{Key: "a"}, IsBillable: true},
 				{Project: &core.Project{Key: "b"}, IsBillable: true},
 			},
@@ -62,49 +62,49 @@ func TestFilterProjectRecords(t *testing.T) {
 	tt := []struct {
 		title    string
 		filter   string
-		records  []*core.Record
-		expected []*core.Record
+		records  []core.Record
+		expected []core.Record
 	}{
 		{
 			title:  "filter by project a",
 			filter: "a",
-			records: []*core.Record{
+			records: []core.Record{
 				{Project: &core.Project{Key: "a"}, IsBillable: false},
 				{Project: &core.Project{Key: "b"}, IsBillable: true},
 			},
-			expected: []*core.Record{
+			expected: []core.Record{
 				{Project: &core.Project{Key: "a"}, IsBillable: false},
 			},
 		},
 		{
 			title:  "filter by project b",
 			filter: "b",
-			records: []*core.Record{
+			records: []core.Record{
 				{Project: &core.Project{Key: "a"}, IsBillable: false},
 				{Project: &core.Project{Key: "b"}, IsBillable: true},
 			},
-			expected: []*core.Record{
+			expected: []core.Record{
 				{Project: &core.Project{Key: "b"}, IsBillable: true},
 			},
 		},
 		{
 			title:  "filter by project module@b",
 			filter: "b",
-			records: []*core.Record{
+			records: []core.Record{
 				{Project: &core.Project{Key: "module@b"}, IsBillable: false},
 			},
-			expected: []*core.Record{
+			expected: []core.Record{
 				{Project: &core.Project{Key: "module@b"}, IsBillable: false},
 			},
 		},
 		{
 			title:  "no records found",
 			filter: "a",
-			records: []*core.Record{
+			records: []core.Record{
 				{Project: &core.Project{Key: "c"}, IsBillable: false},
 				{Project: &core.Project{Key: "d"}, IsBillable: false},
 			},
-			expected: []*core.Record{},
+			expected: []core.Record{},
 		},
 	}
 
@@ -118,10 +118,10 @@ func TestFilterProjectRecords(t *testing.T) {
 
 func TestTotalTrackedTime(t *testing.T) {
 	tt := []struct {
-		records  []*core.Record
+		records  []core.Record
 		expected time.Duration
 	}{
-		{records: []*core.Record{
+		{records: []core.Record{
 			{
 				Start: time.Date(2021, 06, 07, 16, 00, 00, 00, time.Local),          // 4:00PM
 				End:   timePtr(time.Date(2021, 06, 07, 16, 25, 00, 00, time.Local)), // 4:25PM
@@ -135,7 +135,7 @@ func TestTotalTrackedTime(t *testing.T) {
 				End:   timePtr(time.Date(2021, 06, 07, 17, 10, 00, 00, time.Local)), // 5:10PM
 			},
 		},
-			expected: time.Duration(time.Hour),
+			expected: time.Hour,
 		},
 	}
 	for _, test := range tt {

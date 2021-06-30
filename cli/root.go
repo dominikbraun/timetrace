@@ -2,6 +2,7 @@ package cli
 
 import (
 	"github.com/dominikbraun/timetrace/core"
+	"github.com/dominikbraun/timetrace/plugin"
 
 	"github.com/spf13/cobra"
 )
@@ -11,7 +12,7 @@ const (
 	defaultBool   = "no"
 )
 
-func RootCommand(t *core.Timetrace, version string) *cobra.Command {
+func RootCommand(t *core.Timetrace, version string, pluginHost *plugin.Host) *cobra.Command {
 	root := &cobra.Command{
 		Use:           "timetrace",
 		Short:         "timetrace is a simple CLI for tracking your working time.",
@@ -36,6 +37,8 @@ func RootCommand(t *core.Timetrace, version string) *cobra.Command {
 	root.AddCommand(stopCommand(t))
 	root.AddCommand(generateReportCommand(t))
 	root.AddCommand(versionCommand(version))
+
+	pluginHost.AddToCobra(root)
 
 	return root
 }

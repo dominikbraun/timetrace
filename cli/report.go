@@ -47,7 +47,7 @@ func generateReportCommand(t *core.Timetrace) *cobra.Command {
 			}
 
 			// set-up filter options based on cmd flags
-			var filter = []func(*core.Record) bool{
+			var filter = []func(core.Record) bool{
 				// this will ignore records which end time to not set
 				// so current tracked times for example
 				core.FilterNoneNilEndTime,
