@@ -73,15 +73,14 @@ func listRecordsCommand(t *core.Timetrace) *cobra.Command {
 		Short: "List all records from a date",
 		Args:  cobra.MaximumNArgs(1),
 		Run: func(cmd *cobra.Command, args []string) {
-			date := time.Now()
+			if len(args) <= 0 {
+				args = append(args, "today")
+			}
 
-			if len(args) > 0 {
-				var err error
-				date, err = t.Formatter().ParseDate(args[0])
-				if err != nil {
-					out.Err("failed to parse date: %s", err.Error())
-					return
-				}
+			date, err := t.Formatter().ParseDate(args[0])
+			if err != nil {
+				out.Err("failed to parse date: %s", err.Error())
+				return
 			}
 
 			records, err := t.ListRecords(date)

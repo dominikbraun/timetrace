@@ -352,6 +352,11 @@ timetrace list projects
 timetrace list records {<YYYY-MM-DD>|today|yesterday}
 ```
 
+Without parameters, it is a synonym to `timetrace list records today`
+```
+timetrace list records
+```
+
 **Arguments:**
 
 |Argument|Description|
