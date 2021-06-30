@@ -95,7 +95,7 @@ func TestCollides(t *testing.T) {
 	// rec11 ends before savedRecTracked starts
 	rec11 := newTestRecord(-80, -70)
 
-	if !collides(rec11, allRecsTracked) {
+	if collides(rec11, allRecsTracked) {
 		t.Error("records should not collide")
 	}
 }
