@@ -19,11 +19,6 @@ func pushCommand(t *core.Timetrace) *cobra.Command {
 		Use:   "push <INTEGRATION>",
 		Short: "Pushes all unlogged records to the provided 3rd party provider (e.g. JIRA)",
 		Args:  cobra.ExactArgs(1),
-		// Use a prerun to clarify that the user is satisfied with the proposed
-		// state change in JIRA
-		PreRunE: func(cmd *cobra.Command, args []string) error {
-			return nil
-		},
 		Run: func(cmd *cobra.Command, args []string) {
 			integrationName := args[0]
 			if _, exists := t.ListIntegrations()[integrationName]; !exists {
