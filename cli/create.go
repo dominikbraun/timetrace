@@ -49,7 +49,7 @@ func createProjectCommand(t *core.Timetrace) *cobra.Command {
 func createRecordCommand(t *core.Timetrace) *cobra.Command {
 	var options startOptions
 	createRecord := &cobra.Command{
-		Use:   "record <PROJECT KEY> {<YYYY-MM-DD>|today|yesterday} <HH-MM> <HH-MM>",
+		Use:   "record <PROJECT KEY> {<YYYY-MM-DD>|today|yesterday} <HH:MM> <HH:MM>",
 		Short: "Create a new record",
 		Args:  cobra.ExactArgs(4),
 		Run: func(cmd *cobra.Command, args []string) {

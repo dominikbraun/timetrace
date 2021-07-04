@@ -9,6 +9,7 @@
 
 ![CLI screenshot 64x16](timetrace.png)
 
+:fire: **New:** [Create belated records](#create-a-record)  
 :fire: **New:** [Display the tracking status as JSON or in your own format](#print-the-tracking-status)  
 :fire: **New:** [Reverting `edit` and `delete` commands is now possible](#edit-a-record)
 
@@ -246,6 +247,33 @@ Create a project called `make-coffee`:
 timetrace create project make-coffee
 ```
 
+### Create a record
+
+:warning: You shouldn't use this command for normal tracking but only for belated records.
+
+**Syntax:**
+
+```
+timetrace create record <PROJECT KEY> {<YYYY-MM-DD>|today|yesterday} <HH:MM> <HH:MM>
+```
+
+**Arguments:**
+
+|Argument|Description|
+|-|-|
+|`PROJECT KEY`|The project key the record should be created for.|
+|`YYYY-MM-DD`|The date the record should be created for. Alternatively `today` or `yesterday`.|
+|`HH:MM`|The start time of the record.|
+|`HH:MM`|The end time of the record.|
+
+**Example:**
+
+Create a record for the `make-coffee` project today from 07:00 to 08:30:
+
+```
+timetrace create record make-coffee today 07:00 08:30
+```
+
 ### Get a project
 
 **Syntax:**
@@ -356,7 +384,7 @@ timetrace list records 2021-05-01
 
 Filter records by the `make-coffee` project:
 ```
-timetrace list records 2021-05-01
+timetrace list records -p make-coffee 2021-05-01
 +-----+-------------+---------+-------+------------+
 |  #  |   PROJECT   |  START  |  END  |  BILLABLE  |
 +-----+-------------+---------+-------+------------+
@@ -525,8 +553,8 @@ timetrace report
 |`--start <YYYY-MM-DD>`|`-s`|Filter report from a specific point in time (start is inclusive).|
 |`--end <YYYY-MM-DD>`|`-e`|Filter report to a specific point in time (end is inclusive).|
 |`--project <KEY>`|`-p`|Filter report for only one project.|
-|`--format <json>`|`-f`|Write report as JSON to file.|
-|`--out path/to/report`|`-o`|Write report to a specific file <br>(if not given will use config `report-dir`<br> if config not present writes to `$HOME/.timetrace/reports/report-<time.unix>`).|
+|`--output <json>`|`-o`|Write report as JSON to file.|
+|`--file path/to/report`|`-f`|Write report to a specific file <br>(if not given will use config `report-dir`<br> if config not present writes to `$HOME/.timetrace/reports/report-<time.unix>`).|
 
 ### Print version information
 
