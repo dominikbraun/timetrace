@@ -1,9 +1,7 @@
 package main
 
 import (
-	"math/rand"
 	"os"
-	"time"
 
 	"github.com/dominikbraun/timetrace/cli"
 	"github.com/dominikbraun/timetrace/config"
@@ -21,9 +19,14 @@ func main() {
 		out.Warn("%s", err.Error())
 	}
 
-	// TODO: only load jira repo if specified
-	rand.Seed(time.Now().UTC().UnixNano())
-	jiraRepo := jira.New(jira.RepositoryConfig{})
+	var jiraRepo *jira.Repository
+	if c.JIRAIntegration != (config.JIRAConfig{}) {
+		jiraRepo = jira.New(jira.RepositoryConfig{
+			AuthToken:   c.JIRAIntegration.APIToken,
+			Email:       c.JIRAIntegration.UserEmail,
+			JIRAAddress: c.JIRAIntegration.Host,
+		})
+	}
 
 	filesystem := fs.New(c)
 	timetrace := core.New(c, filesystem, []core.Provider{jiraRepo})

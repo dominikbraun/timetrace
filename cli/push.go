@@ -22,7 +22,6 @@ func pushCommand(t *core.Timetrace) *cobra.Command {
 		// Use a prerun to clarify that the user is satisfied with the proposed
 		// state change in JIRA
 		PreRunE: func(cmd *cobra.Command, args []string) error {
-
 			return nil
 		},
 		Run: func(cmd *cobra.Command, args []string) {

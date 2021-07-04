@@ -334,7 +334,7 @@ func (t *Timetrace) ListIntegrations() map[string]Provider {
 // to the selected integ
 func (t *Timetrace) VerifyPush(integrationName string) ([]*Record, error) {
 	// get all records locally TODO: obviously improve the time parsing
-	from, _ := t.Formatter().ParseDate("yesterday")
+	from, _ := t.Formatter().ParseDate("today")
 	records, err := t.ListRecords(from)
 	if err != nil {
 		return nil, err

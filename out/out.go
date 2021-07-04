@@ -69,6 +69,7 @@ func Table(header []string, rows [][]string, footer []string, opts ...TableOptio
 type TableWriter struct {
 	Mutex        *sync.Mutex
 	cursorOffset int
+	failures     []error
 }
 
 // NewTableWriter returns a new table writer designed to overwrite certain
@@ -89,6 +90,10 @@ func (tw *TableWriter) Finish() {
 	tw.Mutex.Lock()
 	defer tw.Mutex.Unlock()
 	fmt.Printf("\033[%dB\033[%dD", tw.cursorOffset, 2)
+
+	for _, e := range tw.failures {
+		fmt.Printf("%s %s\n", emoji.ExclamationMark, e)
+	}
 }
 
 // Success will put a green tick in the box on that row
@@ -99,9 +104,13 @@ func (tw *TableWriter) Success(index int) {
 	fmt.Printf("\033[%dB%s\033[%dA\033[2D", index+1, emoji.CheckMarkButton, index+1)
 }
 
-// Failure will put a red cross
+// Failure will put a red cross in the
 func (tw *TableWriter) Failure(index int, err error) {
-	Err("failure: %d, %s", index, err)
+	tw.Mutex.Lock()
+	defer tw.Mutex.Unlock()
+
+	tw.failures = append(tw.failures, err)
+	fmt.Printf("\033[%dB%s\033[%dA\033[2D", index+1, emoji.ExclamationMark, index+1)
 }
 
 // setHeaderColor set colors for the headers on the table
