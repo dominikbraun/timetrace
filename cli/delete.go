@@ -74,7 +74,7 @@ func deleteProjectCommand(t *core.Timetrace) *cobra.Command {
 		},
 	}
 
-	deleteProject.PersistentFlags().BoolVarP(&options.Revert, "revert", "r", false, "Restores the record to it's state prior to the last 'delete' command.")
+	deleteProject.PersistentFlags().BoolVarP(&options.Revert, "revert", "r", false, "Restores the record to its state prior to the last 'delete' command.")
 
 	return deleteProject
 }
@@ -133,7 +133,7 @@ func deleteRecordCommand(t *core.Timetrace) *cobra.Command {
 		},
 	}
 
-	deleteRecord.PersistentFlags().BoolVarP(&options.Revert, "revert", "r", false, "Restores the record to it's state prior to the last 'delete' command.")
+	deleteRecord.PersistentFlags().BoolVarP(&options.Revert, "revert", "r", false, "Restores the record to its state prior to the last 'delete' command.")
 
 	return deleteRecord
 }
