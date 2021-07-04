@@ -55,9 +55,11 @@ func deleteProjectCommand(t *core.Timetrace) *cobra.Command {
 				Key: key,
 			}
 
-			if !askForConfirmation() {
-				out.Info("Record NOT deleted.")
-				return
+			if !confirmed {
+				if !askForConfirmation() {
+					out.Info("Project NOT deleted.")
+					return
+				}
 			}
 
 			if err := t.BackupProject(key); err != nil {
