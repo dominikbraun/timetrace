@@ -89,7 +89,7 @@ func createRecordCommand(t *core.Timetrace) *cobra.Command {
 
 			now := time.Now()
 			if now.Before(start) || now.Before(end) {
-				out.Err("provided record happends in future!")
+				out.Err("provided record happens in the future!")
 				return
 			}
 
