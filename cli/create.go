@@ -1,6 +1,8 @@
 package cli
 
 import (
+	"time"
+
 	"github.com/dominikbraun/timetrace/core"
 	"github.com/dominikbraun/timetrace/out"
 
@@ -82,6 +84,12 @@ func createRecordCommand(t *core.Timetrace) *cobra.Command {
 
 			if end.Before(start) {
 				out.Err("end time is before start time!")
+				return
+			}
+
+			now := time.Now()
+			if now.Before(start) || now.Before(end) {
+				out.Err("provided record happens in the future!")
 				return
 			}
 
