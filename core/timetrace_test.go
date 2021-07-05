@@ -11,9 +11,16 @@ func newTestRecord(s int, e int) Record {
 	return Record{Start: start, End: &end}
 }
 
+func newTestRecTracked(s int) Record {
+	start := time.Now().Add(time.Duration(s) * time.Minute)
+	return Record{Start: start}
+}
+
 func TestCollides(t *testing.T) {
 	savedRec := newTestRecord(-60, -1)
 	allRecs := []*Record{&savedRec}
+	savedRecTracked := newTestRecTracked(-60)
+	allRecsTracked := []*Record{&savedRecTracked}
 
 	// rec1 starts and end after savedRec
 	rec1 := newTestRecord(-1, 0)
@@ -55,6 +62,41 @@ func TestCollides(t *testing.T) {
 
 	if !collides(rec6, allRecs) {
 		t.Error("records should collide")
+	}
+
+	// rec7 starts and ends at the same time as savedRec
+	rec7 := newTestRecord(-60, -1)
+
+	if !collides(rec7, allRecs) {
+		t.Error("records should collide")
+	}
+
+	// rec7 starts at the same time as savedRecTracked
+	rec8 := newTestRecord(-60, -1)
+
+	if !collides(rec8, allRecsTracked) {
+		t.Error("records should collide")
+	}
+
+	// rec9 ends at the time savedRecTracked ends
+	rec9 := newTestRecord(-80, -60)
+
+	if !collides(rec9, allRecsTracked) {
+		t.Error("records should collide")
+	}
+
+	// rec10 ends after savedRecTracked starts
+	rec10 := newTestRecord(-80, -50)
+
+	if !collides(rec10, allRecsTracked) {
+		t.Error("records should collide")
+	}
+
+	// rec11 ends before savedRecTracked starts
+	rec11 := newTestRecord(-80, -70)
+
+	if collides(rec11, allRecsTracked) {
+		t.Error("records should not collide")
 	}
 }
 
