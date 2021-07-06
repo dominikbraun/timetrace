@@ -191,9 +191,33 @@ func (t *Timetrace) EditProject(projectKey string) error {
 	return cmd.Run()
 }
 
-// DeleteProject removes the given project. Returns ErrProjectNotFound if the
+// DeleteProject removes the given project and any associated submodules. Returns ErrProjectNotFound if the
 // project doesn't exist.
 func (t *Timetrace) DeleteProject(project Project) error {
+	// check if project has submodules
+	modules, err := t.loadProjectModules(&project)
+	if err != nil {
+		return err
+	}
+
+	// delete all submodules if they exist
+	if len(modules) > 0 {
+		for _, module := range modules {
+			path := t.fs.ProjectFilepath(module.Key)
+
+			if _, err := os.Stat(path); os.IsNotExist(err) {
+				return ErrProjectNotFound
+			}
+
+			if err := t.BackupProject(module.Key); err != nil {
+				return err
+			}
+
+			os.Remove(path)
+		}
+	}
+
+	// delete parent project
 	path := t.fs.ProjectFilepath(project.Key)
 
 	if _, err := os.Stat(path); os.IsNotExist(err) {
