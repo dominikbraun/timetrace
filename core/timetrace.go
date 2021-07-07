@@ -307,13 +307,11 @@ func (t *Timetrace) RecordCollides(toCheck Record) (bool, error) {
 
 func collides(toCheck Record, allRecords []*Record) bool {
 	for _, rec := range allRecords {
-		if rec.Start.Before(toCheck.Start) && rec.End.After(toCheck.Start) {
+		if rec.End != nil && rec.Start.Before(*toCheck.End) && rec.End.After(toCheck.Start) {
 			return true
-		} else if rec.Start.Before(*toCheck.End) && rec.End.After(*toCheck.End) {
-			return true
-		} else if toCheck.Start.Before(rec.Start) && toCheck.End.After(rec.Start) {
-			return true
-		} else if toCheck.Start.Before(*rec.End) && toCheck.End.After(*rec.End) {
+		}
+
+		if rec.End == nil && toCheck.End.After(rec.Start) {
 			return true
 		}
 	}

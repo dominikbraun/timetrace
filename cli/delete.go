@@ -42,12 +42,13 @@ func deleteProjectCommand(t *core.Timetrace) *cobra.Command {
 		Args:  cobra.ExactArgs(1),
 		Run: func(cmd *cobra.Command, args []string) {
 			key := args[0]
+
 			if options.Revert {
 				if err := t.RevertProject(key); err != nil {
 					out.Err("Failed to revert project: %s", err.Error())
-				} else {
-					out.Info("Project backup restored successfully")
+					return
 				}
+				out.Info("Project backup restored successfully")
 				return
 			}
 
@@ -55,8 +56,8 @@ func deleteProjectCommand(t *core.Timetrace) *cobra.Command {
 				Key: key,
 			}
 
-			if !askForConfirmation() {
-				out.Info("Record NOT deleted.")
+			if !confirmed && !askForConfirmation() {
+				out.Info("Project NOT deleted.")
 				return
 			}
 
@@ -74,7 +75,7 @@ func deleteProjectCommand(t *core.Timetrace) *cobra.Command {
 		},
 	}
 
-	deleteProject.PersistentFlags().BoolVarP(&options.Revert, "revert", "r", false, "Restores the record to it's state prior to the last 'delete' command.")
+	deleteProject.PersistentFlags().BoolVarP(&options.Revert, "revert", "r", false, "Restores the record to its state prior to the last 'delete' command.")
 
 	return deleteProject
 }
@@ -99,9 +100,9 @@ func deleteRecordCommand(t *core.Timetrace) *cobra.Command {
 			if options.Revert {
 				if err := t.RevertRecord(start); err != nil {
 					out.Err("Failed to revert record: %s", err.Error())
-				} else {
-					out.Info("Record backup restored successfully")
+					return
 				}
+				out.Info("Record backup restored successfully")
 				return
 			}
 
@@ -112,11 +113,10 @@ func deleteRecordCommand(t *core.Timetrace) *cobra.Command {
 			}
 
 			showRecord(record, t.Formatter())
-			if !confirmed {
-				if !askForConfirmation() {
-					out.Info("Record NOT deleted.")
-					return
-				}
+
+			if !confirmed && !askForConfirmation() {
+				out.Info("Record NOT deleted.")
+				return
 			}
 
 			if err := t.BackupRecord(start); err != nil {
@@ -133,7 +133,7 @@ func deleteRecordCommand(t *core.Timetrace) *cobra.Command {
 		},
 	}
 
-	deleteRecord.PersistentFlags().BoolVarP(&options.Revert, "revert", "r", false, "Restores the record to it's state prior to the last 'delete' command.")
+	deleteRecord.PersistentFlags().BoolVarP(&options.Revert, "revert", "r", false, "Restores the record to its state prior to the last 'delete' command.")
 
 	return deleteRecord
 }
