@@ -1,7 +1,9 @@
 package main
 
 import (
+	"net/http"
 	"os"
+	"time"
 
 	"github.com/dominikbraun/timetrace/cli"
 	"github.com/dominikbraun/timetrace/config"
@@ -25,6 +27,9 @@ func main() {
 			AuthToken:   c.JIRAIntegration.APIToken,
 			Email:       c.JIRAIntegration.UserEmail,
 			JIRAAddress: c.JIRAIntegration.Host,
+			HTTPClient: &http.Client{
+				Timeout: time.Second * 5,
+			},
 		})
 	}
 

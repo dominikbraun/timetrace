@@ -2,7 +2,6 @@ package jira
 
 import (
 	"net/http"
-	"time"
 
 	"github.com/dominikbraun/timetrace/core"
 )
@@ -26,6 +25,7 @@ type RepositoryConfig struct {
 	AuthToken   string
 	Email       string
 	JIRAAddress string
+	HTTPClient  *http.Client
 }
 
 type issue struct {
@@ -42,9 +42,7 @@ func New(cfg RepositoryConfig) *Repository {
 		authToken:   cfg.AuthToken,
 		email:       cfg.Email,
 		jiraAddress: cfg.JIRAAddress,
-		client: &http.Client{
-			Timeout: time.Second * 5,
-		},
+		client:      cfg.HTTPClient,
 	}
 }
 

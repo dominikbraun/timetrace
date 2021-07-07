@@ -76,6 +76,10 @@ func (r *Repository) addTimetraceMetadata(record *core.Record, worklogID string)
 
 // createWorklog takes a record and attempts to create a worklog in JIRA
 func (r *Repository) createWorklog(record *core.Record) (string, error) {
+	if record == nil {
+		return "", errors.New("record to upload cannot be nil")
+	}
+
 	issueID := extractIssueID(record.Project)
 	url := fmt.Sprintf("https://%s/%s/issue/%s/worklog",
 		r.jiraAddress,
@@ -111,8 +115,11 @@ func (r *Repository) createWorklog(record *core.Record) (string, error) {
 	}
 
 	var wlr worklogResponse
-	err = json.Unmarshal(body, &wlr)
-	return wlr.ID, err
+	if err := json.Unmarshal(body, &wlr); err != nil {
+		return "", fmt.Errorf("error unmarshalling worklog create response: %w", err)
+
+	}
+	return wlr.ID, nil
 }
 
 func createWorklogBody(record *core.Record) ([]byte, error) {
