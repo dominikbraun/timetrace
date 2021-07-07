@@ -4,9 +4,14 @@ import (
 	"errors"
 	"io"
 	"os"
+	"path/filepath"
 	"time"
 
 	"github.com/dominikbraun/timetrace/config"
+)
+
+const (
+	BakFileExt = ".bak"
 )
 
 var (
@@ -307,4 +312,9 @@ func collides(toCheck Record, allRecords []*Record) bool {
 	}
 
 	return false
+}
+
+// isBackFile checks if a given filename is a backup-file
+func isBakFile(filename string) bool {
+	return filepath.Ext(filename) == BakFileExt
 }

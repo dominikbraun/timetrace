@@ -299,6 +299,7 @@ func (t *Timetrace) loadOldestRecord(date time.Time) (*Record, error) {
 
 // loadFromRecordDir loads all records for one directory and returns them. The slice can be filtered
 // through the filter options.
+// !imporant: .bak files will be ignored by this function - only .json files in the directory will be read!
 func (t *Timetrace) loadFromRecordDir(recordDir string, filter ...func(*Record) bool) ([]*Record, error) {
 	filesInfo, err := ioutil.ReadDir(recordDir)
 	if err != nil {
@@ -308,6 +309,10 @@ func (t *Timetrace) loadFromRecordDir(recordDir string, filter ...func(*Record) 
 
 outer:
 	for _, info := range filesInfo {
+		// igonre backup file
+		if isBakFile(info.Name()) {
+			continue
+		}
 		record, err := t.loadRecord(filepath.Join(recordDir, info.Name()))
 		if err != nil {
 			return nil, err
