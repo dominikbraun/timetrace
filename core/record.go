@@ -152,6 +152,57 @@ func (t *Timetrace) DeleteRecord(record Record) error {
 	return os.Remove(path)
 }
 
+func (t *Timetrace) DeleteRecordsByProject(key string) error {
+	keys := make([]string, 0)
+
+	// check if project has submodules
+	project, err := t.LoadProject(key)
+	if err != nil {
+		return err
+	}
+	modules, err := t.loadProjectModules(project)
+	if err != nil {
+		return err
+	}
+	// get all keys for submodules
+	if len(modules) > 0 {
+		for _, module := range modules {
+			keys = append(keys, module.Key)
+		}
+	}
+	// append parent project key
+	keys = append(keys, key)
+
+	// get all record dirs and filepaths in order to load the record for matching the parent key
+	allRecordDirs, err := t.fs.RecordDirs()
+	if err != nil {
+		return err
+	}
+
+	records := make([]*Record, 0)
+	for _, recordDir := range allRecordDirs {
+		r, err := t.loadFromRecordDir(recordDir)
+		if err != nil {
+			return err
+		}
+		records = append(records, r...)
+	}
+	// check for records that match project key and delete record
+	for _, k := range keys {
+		for _, record := range records {
+			if record.Project.Key != k {
+				continue
+			}
+			if err := t.BackupRecord(record.Start); err != nil {
+				return err
+			}
+			t.DeleteRecord(*record)
+		}
+	}
+
+	return nil
+}
+
 // EditRecordManual opens the record file in the preferred or default editor.
 func (t *Timetrace) EditRecordManual(recordTime time.Time) error {
 	path := t.fs.RecordFilepath(recordTime)

@@ -15,8 +15,15 @@ import (
 var confirmed bool
 
 type deleteOptions struct {
-	Revert bool
+	Revert        bool
+	DeleteRecords bool
 }
+
+const (
+	deleteRecordsWithProjectPrompt = "Would you like to delete project records as well? [y/N]: "
+	deleteProjectConfirmation      = "Deleting project...Please confirm [y/N]: "
+	deleteRecordConfirmation       = "Deleting record...Please confirm [y/N]: "
+)
 
 func deleteCommand(t *core.Timetrace) *cobra.Command {
 	delete := &cobra.Command{
@@ -56,7 +63,7 @@ func deleteProjectCommand(t *core.Timetrace) *cobra.Command {
 				Key: key,
 			}
 
-			if !confirmed && !askForConfirmation() {
+			if !confirmed && !askForConfirmation(deleteProjectConfirmation) {
 				out.Info("Project NOT deleted.")
 				return
 			}
@@ -66,16 +73,26 @@ func deleteProjectCommand(t *core.Timetrace) *cobra.Command {
 				return
 			}
 
-			if err := t.DeleteProject(project); err != nil {
-				out.Err("Failed to delete %s", err.Error())
-				return
+			defer func() {
+				if err := t.DeleteProject(project); err != nil {
+					out.Err("Failed to delete %s", err.Error())
+					return
+				}
+			}()
+
+			if options.DeleteRecords || askForConfirmation(deleteRecordsWithProjectPrompt) {
+				// find and delete records.
+				if err := t.DeleteRecordsByProject(key); err != nil {
+					out.Err("Failed to delete project records - %v", err)
+				}
 			}
 
 			out.Success("Deleted project %s", key)
 		},
 	}
 
-	deleteProject.PersistentFlags().BoolVarP(&options.Revert, "revert", "r", false, "Restores the record to its state prior to the last 'delete' command.")
+	deleteProject.PersistentFlags().BoolVarP(&options.Revert, "revert", "r", false, "Restores the project to its state prior to the last 'delete' command.")
+	deleteProject.PersistentFlags().BoolVarP(&options.DeleteRecords, "delete-records", "d", false, "Deletes project records along with the project.")
 
 	return deleteProject
 }
@@ -114,7 +131,7 @@ func deleteRecordCommand(t *core.Timetrace) *cobra.Command {
 
 			showRecord(record, t.Formatter())
 
-			if !confirmed && !askForConfirmation() {
+			if !confirmed && !askForConfirmation(deleteRecordConfirmation) {
 				out.Info("Record NOT deleted.")
 				return
 			}
@@ -138,9 +155,9 @@ func deleteRecordCommand(t *core.Timetrace) *cobra.Command {
 	return deleteRecord
 }
 
-func askForConfirmation() bool {
+func askForConfirmation(msg string) bool {
 	reader := bufio.NewReader(os.Stdin)
-	fmt.Fprint(os.Stderr, "Please confirm [y/N]: ")
+	fmt.Fprint(os.Stderr, msg)
 	s, _ := reader.ReadString('\n')
 	s = strings.TrimSuffix(s, "\n")
 	s = strings.ToLower(s)
