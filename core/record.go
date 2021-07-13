@@ -28,6 +28,17 @@ type Record struct {
 	IsBillable bool       `json:"is_billable"`
 }
 
+// Duration calculates time duration for a specific record. If the record doesn't
+// have an end time, then it is expected that time is still being tracked, and
+// duration will be counted to a current time since start.
+func (r *Record) Duration() time.Duration {
+	if r.End != nil {
+		return r.End.Sub(r.Start)
+	}
+
+	return time.Since(r.Start)
+}
+
 // LoadRecord loads the record with the given start time. Returns
 // ErrRecordNotFound if the record cannot be found.
 func (t *Timetrace) LoadRecord(start time.Time) (*Record, error) {

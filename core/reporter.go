@@ -95,12 +95,12 @@ func (r *Reporter) sortAndMerge(records []*Record) {
 		cached, ok := r.report[key]
 		if !ok {
 			r.report[key] = []*Record{record}
-			r.totals[key] = record.End.Sub(record.Start)
+			r.totals[key] = record.Duration()
 			continue
 		}
 		r.report[key] = append(cached, record)
 		// compute updated total
-		tmp := r.totals[key] + record.End.Sub(record.Start)
+		tmp := r.totals[key] + record.Duration()
 		r.totals[key] = tmp
 	}
 }
