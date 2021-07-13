@@ -133,7 +133,7 @@ func (t *Timetrace) Status() (*Report, error) {
 
 	// If the latest record has not been stopped yet, time tracking is active.
 	// Calculate the time tracked for the current record and for today.
-	trackedTimeCurrent := now.Sub(latestRecord.Start)
+	trackedTimeCurrent := latestRecord.Duration()
 	report.TrackedTimeCurrent = &trackedTimeCurrent
 
 	return report, nil
