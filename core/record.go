@@ -54,25 +54,7 @@ func (t *Timetrace) LoadBackupRecord(start time.Time) (*Record, error) {
 // ListRecords loads and returns all records from the given date. If no records
 // are found, an empty slice and no error will be returned.
 func (t *Timetrace) ListRecords(date time.Time) ([]*Record, error) {
-	dir := t.fs.RecordDirFromDate(date)
-	paths, err := t.fs.RecordFilepaths(dir, func(_, _ string) bool {
-		return true
-	})
-	if err != nil {
-		return nil, err
-	}
-
-	records := make([]*Record, 0)
-
-	for _, path := range paths {
-		record, err := t.loadRecord(path)
-		if err != nil {
-			return nil, err
-		}
-		records = append(records, record)
-	}
-
-	return records, nil
+	return t.loadAllRecords(date)
 }
 
 // SaveRecord persists the given record. Returns ErrRecordAlreadyExists if the

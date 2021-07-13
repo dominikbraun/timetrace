@@ -11,12 +11,13 @@ import (
 )
 
 type reportOptions struct {
-	isBillable   bool
-	projectKey   string
-	outputFormat string
-	filePath     string
-	startTime    string
-	endTime      string
+	isBillable    bool
+	isNonBillable bool
+	projectKey    string
+	outputFormat  string
+	filePath      string
+	startTime     string
+	endTime       string
 }
 
 func generateReportCommand(t *core.Timetrace) *cobra.Command {
@@ -57,8 +58,16 @@ func generateReportCommand(t *core.Timetrace) *cobra.Command {
 			if options.projectKey != "" {
 				filter = append(filter, core.FilterByProject(options.projectKey))
 			}
+			// wont hurt table will just be empty but makes sense to let the user know
+			if options.isBillable && options.isNonBillable {
+				out.Err("Cannot filter for billable and none billable records")
+				return
+			}
 			if options.isBillable {
-				filter = append(filter, core.FilterBillable)
+				filter = append(filter, core.FilterBillable(true))
+			}
+			if options.isNonBillable {
+				filter = append(filter, core.FilterBillable(false))
 			}
 
 			report, err := t.Report(filter...)
@@ -79,13 +88,13 @@ func generateReportCommand(t *core.Timetrace) *cobra.Command {
 			default:
 				projects, total := report.Table()
 				out.Table(
-					[]string{"Project", "Date", "Start", "End", "Billable", "Total"},
+					[]string{"Project", "Module", "Date", "Start", "End", "Billable", "Total"},
 					projects,
-					[]string{"", "", "", "", "TOTAL", total},
+					[]string{"", "", "", "", "", "TOTAL", total},
 					out.TableWithCellMerge(0), // merge cells over "Project" (index:0) column
 					out.TableFooterColor(
 						tablewriter.Colors{}, tablewriter.Colors{},
-						tablewriter.Colors{}, tablewriter.Colors{},
+						tablewriter.Colors{}, tablewriter.Colors{}, tablewriter.Colors{},
 						tablewriter.Colors{tablewriter.Bold},          // text "TOTAL"
 						tablewriter.Colors{tablewriter.FgGreenColor}), // digit of "TOTAL"
 				)
@@ -95,6 +104,9 @@ func generateReportCommand(t *core.Timetrace) *cobra.Command {
 
 	report.Flags().BoolVarP(&options.isBillable, "billable", "b",
 		false, "filter for only billable records")
+
+	report.Flags().BoolVarP(&options.isNonBillable, "non-billable", "n",
+		false, "filter for only none billable records")
 
 	report.Flags().StringVarP(&options.startTime, "start", "s",
 		"", "filter records from a given start date <YYYY-MM-DD>")

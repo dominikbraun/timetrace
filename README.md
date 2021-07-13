@@ -254,7 +254,7 @@ timetrace create project make-coffee
 **Syntax:**
 
 ```
-timetrace record <PROJECT KEY> {<YYYY-MM-DD>|today|yesterday} <HH:MM> <HH:MM>
+timetrace create record <PROJECT KEY> {<YYYY-MM-DD>|today|yesterday} <HH:MM> <HH:MM>
 ```
 
 **Arguments:**
@@ -384,7 +384,7 @@ timetrace list records 2021-05-01
 
 Filter records by the `make-coffee` project:
 ```
-timetrace list records 2021-05-01
+timetrace list records -p make-coffee 2021-05-01
 +-----+-------------+---------+-------+------------+
 |  #  |   PROJECT   |  START  |  END  |  BILLABLE  |
 +-----+-------------+---------+-------+------------+
@@ -411,7 +411,7 @@ timetrace edit project <KEY>
 **Flags:**
 |Flag|Short|Description|
 |-|-|-|
-|`--revert`|`-r`|Revert the project to it's state prior to the last edit.|
+|`--revert`|`-r`|Revert the project to its state prior to the last edit.|
 
 **Example:**
 
@@ -421,7 +421,7 @@ Edit a project called `make-coffee`:
 timetrace edit project make-coffee
 ```
 
-:fire: **New:** Restore the project to it's state prior to the last edit:
+:fire: **New:** Restore the project to its state prior to the last edit:
 
 ```
 timetrace edit project make-coffee --revert
@@ -447,7 +447,7 @@ timetrace edit record {<KEY>|latest}
 |-|-|-|
 |`--plus`|`-p`|Add the given duration to the record's end time, e.g. `--plus 1h 10m`|
 |`--minus`|`-m`|Subtract the given duration from the record's end time, e.g. `--minus 1h 10m`|
-|`--revert`|`-r`|Revert the record to it's state prior to the last edit.|
+|`--revert`|`-r`|Revert the record to its state prior to the last edit.|
 
 **Example:**
 
@@ -463,7 +463,7 @@ Add 15 minutes to the end of the record created on May 1st, 3PM:
 timetrace edit record 2021-05-01-15-00 --plus 15m
 ```
 
-:fire: **New:** Restore the record to it's state prior to the last edit:
+:fire: **New:** Restore the record to its state prior to the last edit:
 
 ```
 timetrace edit record 2021-05-01-15-00 --revert
@@ -498,7 +498,7 @@ Delete a project called `make-coffee`:
 timetrace delete project make-coffee
 ```
 
-:fire: **New:** Restore the project to it's pre-deletion state:
+:fire: **New:** Restore the project to its pre-deletion state:
 
 ```
 timetrace delete project make-coffee --revert
@@ -531,7 +531,7 @@ Delete a record created on May 1st 2021, 3:00 PM:
 timetrace delete record 2021-05-01-15-00
 ```
 
-:fire: **New:** Restore the record to it's pre-deletion state:
+:fire: **New:** Restore the record to its pre-deletion state:
 
 ```
 timetrace delete record 2021-05-01-15-00 --revert

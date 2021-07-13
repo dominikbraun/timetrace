@@ -42,17 +42,23 @@ func deleteProjectCommand(t *core.Timetrace) *cobra.Command {
 		Args:  cobra.ExactArgs(1),
 		Run: func(cmd *cobra.Command, args []string) {
 			key := args[0]
+
 			if options.Revert {
 				if err := t.RevertProject(key); err != nil {
 					out.Err("Failed to revert project: %s", err.Error())
-				} else {
-					out.Info("Project backup restored successfully")
+					return
 				}
+				out.Info("Project backup restored successfully")
 				return
 			}
 
 			project := core.Project{
 				Key: key,
+			}
+
+			if !confirmed && !askForConfirmation() {
+				out.Info("Project NOT deleted.")
+				return
 			}
 
 			if err := t.BackupProject(key); err != nil {
@@ -69,7 +75,7 @@ func deleteProjectCommand(t *core.Timetrace) *cobra.Command {
 		},
 	}
 
-	deleteProject.PersistentFlags().BoolVarP(&options.Revert, "revert", "r", false, "Restores the record to it's state prior to the last 'delete' command.")
+	deleteProject.PersistentFlags().BoolVarP(&options.Revert, "revert", "r", false, "Restores the record to its state prior to the last 'delete' command.")
 
 	return deleteProject
 }
@@ -94,9 +100,9 @@ func deleteRecordCommand(t *core.Timetrace) *cobra.Command {
 			if options.Revert {
 				if err := t.RevertRecord(start); err != nil {
 					out.Err("Failed to revert record: %s", err.Error())
-				} else {
-					out.Info("Record backup restored successfully")
+					return
 				}
+				out.Info("Record backup restored successfully")
 				return
 			}
 
@@ -107,11 +113,10 @@ func deleteRecordCommand(t *core.Timetrace) *cobra.Command {
 			}
 
 			showRecord(record, t.Formatter())
-			if !confirmed {
-				if !askForConfirmation() {
-					out.Info("Record NOT deleted.")
-					return
-				}
+
+			if !confirmed && !askForConfirmation() {
+				out.Info("Record NOT deleted.")
+				return
 			}
 
 			if err := t.BackupRecord(start); err != nil {
@@ -128,26 +133,17 @@ func deleteRecordCommand(t *core.Timetrace) *cobra.Command {
 		},
 	}
 
-	deleteRecord.PersistentFlags().BoolVarP(&options.Revert, "revert", "r", false, "Restores the record to it's state prior to the last 'delete' command.")
+	deleteRecord.PersistentFlags().BoolVarP(&options.Revert, "revert", "r", false, "Restores the record to its state prior to the last 'delete' command.")
 
 	return deleteRecord
 }
 
 func askForConfirmation() bool {
 	reader := bufio.NewReader(os.Stdin)
-	for {
-		fmt.Fprint(os.Stderr, "Please confirm (Y/N): ")
-		s, _ := reader.ReadString('\n')
-		s = strings.TrimSuffix(s, "\n")
-		s = strings.ToLower(s)
-		if len(s) > 1 {
-			continue
-		}
-		if strings.Compare(s, "n") == 0 {
-			return false
-		} else if strings.Compare(s, "y") == 0 {
-			break
-		}
-	}
-	return true
+	fmt.Fprint(os.Stderr, "Please confirm [y/N]: ")
+	s, _ := reader.ReadString('\n')
+	s = strings.TrimSuffix(s, "\n")
+	s = strings.ToLower(s)
+
+	return s == "y"
 }
