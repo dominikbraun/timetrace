@@ -5,11 +5,24 @@ import (
 	"github.com/spf13/viper"
 )
 
+// JIRAConfig provides the necessary information to setup an integration with
+// JIRA for pushing time logs. The temptation is to have a generic
+// "integration" config, but we cannot garuantee that all integrations require
+// the same config
+type JIRAConfig struct {
+	// https://github.com/spf13/viper/issues/385#issuecomment-337264721
+	Host      string `mapstructure:"host"`
+	UserEmail string `mapstructure:"user_email"`
+	APIToken  string `mapstructure:"api_token"`
+}
+
 type Config struct {
 	Store      string `json:"store"`
 	Use12Hours bool   `json:"use12hours"`
 	Editor     string `json:"editor"`
 	ReportPath string `json:"report-path"`
+	// https://github.com/spf13/viper/issues/385#issuecomment-337264721
+	JIRAIntegration JIRAConfig `mapstructure:"jira_integration"`
 }
 
 var cached *Config

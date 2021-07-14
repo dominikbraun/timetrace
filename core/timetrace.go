@@ -4,6 +4,7 @@ import (
 	"errors"
 	"io"
 	"os"
+	"sync"
 	"time"
 
 	"github.com/dominikbraun/timetrace/config"
@@ -39,18 +40,27 @@ type Filesystem interface {
 }
 
 type Timetrace struct {
-	config    *config.Config
-	fs        Filesystem
-	formatter *Formatter
+	config       *config.Config
+	fs           Filesystem
+	formatter    *Formatter
+	integrations map[string]Provider
 }
 
-func New(config *config.Config, fs Filesystem) *Timetrace {
+func New(config *config.Config, fs Filesystem, integrations []Provider) *Timetrace {
+	// formatting the integrations as a map will save a few cycles of looping
+	// through when selecting one.
+	integrationMap := make(map[string]Provider)
+	for _, integration := range integrations {
+		integrationMap[integration.Name()] = integration
+	}
+
 	return &Timetrace{
 		config: config,
 		fs:     fs,
 		formatter: &Formatter{
 			use12Hours: config.Use12Hours,
 		},
+		integrations: integrationMap,
 	}
 }
 
@@ -300,4 +310,61 @@ func collides(toCheck Record, allRecords []*Record) bool {
 	}
 
 	return false
+}
+
+// ListIntegrations returns a set of all integrations available to timetrace
+func (t *Timetrace) ListIntegrations() map[string]Provider {
+	if len(t.integrations) < 1 {
+		return nil
+	}
+
+	return t.integrations
+}
+
+// VerifyPush confirms with the user the records that are about to be uploaded
+// to the selected integ
+func (t *Timetrace) VerifyPush(integrationName string) ([]*Record, error) {
+	// get all records locally TODO: obviously improve the time parsing
+	from, _ := t.Formatter().ParseDate("today")
+	records, err := t.ListRecords(from)
+	if err != nil {
+		return nil, err
+	}
+
+	return t.integrations[integrationName].CheckRecordsExist(records)
+}
+
+// PushNotifier is nominally fufilled by the Table in the out package, but is
+// consumed here as an interface to avoid a dependency. When a particular
+// worklog is pushed to the integration, the outcome (success/failure) of that
+// particular operation can be written back to the push notifier at the
+// records index in the list for display to the user
+type PushNotifier interface {
+	Success(index int)
+	Failure(index int, err error)
+}
+
+// Push will attempt to push all given records to the integration specified
+func (t *Timetrace) Push(integrationName string, records []*Record, pn PushNotifier) error {
+	var wg sync.WaitGroup
+
+	wg.Add(len(records))
+
+	integration := t.integrations[integrationName]
+	for i, record := range records {
+		go func(index int, r *Record) {
+			defer wg.Done()
+
+			err := integration.UploadRecord(r)
+			if err != nil {
+				pn.Failure(index, err)
+				return
+			}
+			pn.Success(index)
+		}(i, record)
+	}
+
+	wg.Wait()
+
+	return nil
 }
