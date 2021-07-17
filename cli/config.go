@@ -1,10 +1,11 @@
 package cli
 
 import (
+	"strconv"
+
 	"github.com/dominikbraun/timetrace/core"
 	"github.com/dominikbraun/timetrace/out"
 	"github.com/spf13/cobra"
-	"strconv"
 )
 
 func configCommand(t *core.Timetrace) *cobra.Command {
