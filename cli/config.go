@@ -1,7 +1,9 @@
 package cli
 
 import (
+	"reflect"
 	"strconv"
+	"strings"
 
 	"github.com/dominikbraun/timetrace/core"
 	"github.com/dominikbraun/timetrace/out"
@@ -40,30 +42,31 @@ func getConfigCommand(t *core.Timetrace) *cobra.Command {
 		Short: "Get config values",
 		Args:  cobra.MaximumNArgs(1),
 		Run: func(cmd *cobra.Command, args []string) {
-			configKeys := make([][]string, 4)
-			configKeys[0] = createLine("store", t.Config().Store)
-			configKeys[1] = createLine("editor", t.Config().Editor)
-			configKeys[2] = createLine("reportPath", t.Config().ReportPath)
-			configKeys[3] = createLine("use12Hours", strconv.FormatBool(t.Config().Use12Hours))
-			if len(args) == 0 {
-
-				out.Table([]string{"Key", "Value"}, configKeys, nil)
-				return
-			}
-			for _, configKey := range configKeys {
-				if configKey[0] == args[0] {
-					slice := configKeys[0:1]
-					out.Table([]string{"Key", "Value"}, slice, nil)
+			header := []string{"Key", "Value"}
+			valueOfConfig := reflect.ValueOf(t.Config())
+			typeOfConfig := reflect.Indirect(valueOfConfig).Type()
+			values := make([][]string, reflect.Indirect(valueOfConfig).NumField())
+			for i := 0; i < reflect.Indirect(valueOfConfig).NumField(); i++ {
+				switch reflect.Indirect(valueOfConfig).Field(i).Interface().(type) {
+				case bool:
+					values[i] = []string{typeOfConfig.Field(i).Name, strconv.FormatBool(reflect.Indirect(valueOfConfig).Field(i).Bool())}
+				default:
+					values[i] = []string{typeOfConfig.Field(i).Name, reflect.Indirect(valueOfConfig).Field(i).String()}
 				}
 			}
+			if len(args) == 0 {
+				out.Table(header, values, nil)
+				return
+			}
+			for _, configSetting := range values {
+
+				if strings.ToUpper(configSetting[0]) == strings.ToUpper(args[0]) {
+					out.Table(header, [][]string{configSetting}, nil)
+					return
+				}
+			}
+
 		},
 	}
 	return config
-}
-
-func createLine(key string, value string) []string {
-	line := make([]string, 2)
-	line[0] = key
-	line[1] = value
-	return line
 }
