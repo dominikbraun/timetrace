@@ -86,3 +86,74 @@ func TestReportFilterTimeRange(t *testing.T) {
 		}
 	}
 }
+
+func TestProjectFilter(t *testing.T) {
+	tt := []struct {
+		Key      string
+		R        Record
+		Expected bool
+	}{
+		{
+			Key: "test",
+			R: Record{
+				Project: &Project{
+					Key: "test",
+				},
+			},
+			Expected: true,
+		},
+		{
+			Key: "mod@test",
+			R: Record{
+				Project: &Project{
+					Key: "mod@test",
+				},
+			},
+			Expected: true,
+		},
+		{
+			Key: "test",
+			R: Record{
+				Project: &Project{
+					Key: "mod@test",
+				},
+			},
+			Expected: true,
+		},
+		{
+			Key: "mod@test",
+			R: Record{
+				Project: &Project{
+					Key: "test",
+				},
+			},
+			Expected: false,
+		},
+		{
+			Key: "mod@test",
+			R: Record{
+				Project: &Project{
+					Key: "not-test",
+				},
+			},
+			Expected: false,
+		},
+		{
+			Key: "test",
+			R: Record{
+				Project: &Project{
+					Key: "not-test",
+				},
+			},
+			Expected: false,
+		},
+	}
+
+	for _, tc := range tt {
+		filter := FilterByProject(tc.Key)
+		filtered := filter(&tc.R)
+		if filtered != tc.Expected {
+			t.Fatalf("project-filter failed: want %v, have: %v for key: %s and project.key: %s", tc.Expected, filtered, tc.Key, tc.R.Project.Key)
+		}
+	}
+}
