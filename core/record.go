@@ -140,6 +140,58 @@ func (t *Timetrace) RevertRecord(recordKey time.Time) error {
 	return err
 }
 
+// RevertRecordsByProject is a function called if user opts to also revert records when they revert a project.
+func (t *Timetrace) RevertRecordsByProject(key string) error {
+	keys := make([]string, 0)
+
+	// check if project has submodules
+	project, err := t.LoadProject(key)
+	if err != nil {
+		return err
+	}
+	modules, err := t.loadProjectModules(project)
+	if err != nil {
+		return err
+	}
+	// get all keys for submodules
+	if len(modules) > 0 {
+		for _, module := range modules {
+			keys = append(keys, module.Key)
+		}
+	}
+	// append parent project key
+	keys = append(keys, key)
+
+	// get all record dirs and filepaths in order to load the record for matching the parent key
+	allRecordDirs, err := t.fs.RecordDirs()
+	if err != nil {
+		return err
+	}
+
+	records := make([]*Record, 0)
+	for _, recordDir := range allRecordDirs {
+		r, err := t.loadBackupsFromRecordDir(recordDir)
+		if err != nil {
+			return err
+		}
+		records = append(records, r...)
+	}
+	// check for records that match project key and revert record
+	if len(records) > 0 {
+		for _, k := range keys {
+			for _, record := range records {
+				if record.Project.Key != k {
+					continue
+				}
+				if err := t.RevertRecord(record.Start); err != nil {
+					return err
+				}
+			}
+		}
+	}
+	return nil
+}
+
 // DeleteRecord removes the given record. Returns ErrRecordNotFound if the
 // project doesn't exist.
 func (t *Timetrace) DeleteRecord(record Record) error {
@@ -359,6 +411,42 @@ func (t *Timetrace) loadFromRecordDir(recordDir string, filter ...func(*Record) 
 
 outer:
 	for _, info := range filesInfo {
+		if filepath.Ext(info.Name()) == ".bak" {
+			continue
+		}
+
+		record, err := t.loadRecord(filepath.Join(recordDir, info.Name()))
+		if err != nil {
+			return nil, err
+		}
+		// apply all filter on record to check if Records should be used
+		for _, f := range filter {
+			if !f(record) {
+				// if either filter returns false
+				// skip record
+				continue outer
+			}
+		}
+		foundRecords = append(foundRecords, record)
+	}
+	return foundRecords, nil
+}
+
+// loadBackupsFromRecordDir loads all records for one directory and returns them. The slice can be filtered
+// through the filter options.
+func (t *Timetrace) loadBackupsFromRecordDir(recordDir string, filter ...func(*Record) bool) ([]*Record, error) {
+	filesInfo, err := ioutil.ReadDir(recordDir)
+	if err != nil {
+		return nil, err
+	}
+	var foundRecords = make([]*Record, 0)
+
+outer:
+	for _, info := range filesInfo {
+		if filepath.Ext(info.Name()) != ".bak" {
+			continue
+		}
+
 		record, err := t.loadRecord(filepath.Join(recordDir, info.Name()))
 		if err != nil {
 			return nil, err

@@ -15,14 +15,15 @@ import (
 var confirmed bool
 
 type deleteOptions struct {
-	Revert        bool
-	DeleteRecords bool
+	Revert         bool
+	ExcludeRecords bool
 }
 
 const (
-	deleteRecordsWithProjectPrompt = "Would you like to delete project records as well? [y/N]: "
-	deleteProjectConfirmation      = "Deleting project...Please confirm [y/N]: "
-	deleteRecordConfirmation       = "Deleting record...Please confirm [y/N]: "
+	deleteProjectConfirmation = "Deleting project...Please confirm [y/N]: "
+	deleteRecordConfirmation  = "Deleting record...Please confirm [y/N]: "
+	deleteRecordsWarning      = "Do you wish to delete project records? Please confirm [y/N]: "
+	revertRecordsWarning      = "Do you wish to restore project records from backups?\nWarning! This will overwrite any changes made after the most recent backup. Please confirm [y/N]: "
 )
 
 func deleteCommand(t *core.Timetrace) *cobra.Command {
@@ -51,6 +52,15 @@ func deleteProjectCommand(t *core.Timetrace) *cobra.Command {
 			key := args[0]
 
 			if options.Revert {
+				if !options.ExcludeRecords && askForConfirmation(revertRecordsWarning) {
+					defer func() {
+						if err := t.RevertRecordsByProject(key); err != nil {
+							out.Err("Failed to revert project records from backup: %s", err.Error())
+							return
+						}
+						out.Info("Project records restored successfully")
+					}()
+				}
 				if err := t.RevertProject(key); err != nil {
 					out.Err("Failed to revert project: %s", err.Error())
 					return
@@ -64,7 +74,7 @@ func deleteProjectCommand(t *core.Timetrace) *cobra.Command {
 			}
 
 			if !confirmed && !askForConfirmation(deleteProjectConfirmation) {
-				out.Info("Project NOT deleted.")
+				out.Info("Project NOT deleted")
 				return
 			}
 
@@ -80,7 +90,7 @@ func deleteProjectCommand(t *core.Timetrace) *cobra.Command {
 				}
 			}()
 
-			if options.DeleteRecords || askForConfirmation(deleteRecordsWithProjectPrompt) {
+			if !options.ExcludeRecords && askForConfirmation(deleteRecordsWarning) {
 				// find and delete records.
 				if err := t.DeleteRecordsByProject(key); err != nil {
 					out.Err("Failed to delete project records - %v", err)
@@ -92,7 +102,7 @@ func deleteProjectCommand(t *core.Timetrace) *cobra.Command {
 	}
 
 	deleteProject.PersistentFlags().BoolVarP(&options.Revert, "revert", "r", false, "Restores the project to its state prior to the last 'delete' command.")
-	deleteProject.PersistentFlags().BoolVarP(&options.DeleteRecords, "delete-records", "d", false, "Deletes project records along with the project.")
+	deleteProject.PersistentFlags().BoolVarP(&options.ExcludeRecords, "exclude-records", "e", false, "Exclude project records when deleting the project.")
 
 	return deleteProject
 }
@@ -132,7 +142,7 @@ func deleteRecordCommand(t *core.Timetrace) *cobra.Command {
 			showRecord(record, t.Formatter())
 
 			if !confirmed && !askForConfirmation(deleteRecordConfirmation) {
-				out.Info("Record NOT deleted.")
+				out.Info("Record NOT deleted")
 				return
 			}
 

@@ -486,24 +486,27 @@ timetrace delete project <KEY>
 | `KEY`    | The project key. |
 
 **Flags:**
-|Flag|Short|Description|
-|-|-|-|
-|`--revert`|`-r`|Restore a deleted project.|
-|`--delete-records`|`-d`|Delete records with the given project key along with the project.|
+
+| Flag                | Short | Description                                                                                                                            |
+| ------------------- | ----- | -------------------------------------------------------------------------------------------------------------------------------------- |
+| `--revert`          | `-r`  | Restore a deleted project.                                                                                                             |
+| `--exclude-records` | `-e`  | Exclude associated project records from the deletion. If used together with `--revert`, excludes restoring project records from backup.|
 
 **Example:**
 
-Delete a project called `make-coffee`:
+Delete a project called `make-coffee`. Note that submodules will be deleted along with the parent project:
 
 ```
 timetrace delete project make-coffee
 ```
+The command will prompt for confirmation of whether project records should be deleted too.
 
-:fire: **New:** Restore the project to its pre-deletion state:
+:fire: **New:** Restore the project to its pre-deletion state. Submodules will be restored along with the parent project:
 
 ```
 timetrace delete project make-coffee --revert
 ```
+The command will prompt for confirmation of whether project records should be restored from backup too.
 
 ### Delete a record
 
