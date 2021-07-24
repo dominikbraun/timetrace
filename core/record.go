@@ -28,6 +28,17 @@ type Record struct {
 	IsBillable bool       `json:"is_billable"`
 }
 
+// Duration calculates time duration for a specific record. If the record doesn't
+// have an end time, then it is expected that time is still being tracked, and
+// duration will be counted to a current time since start.
+func (r *Record) Duration() time.Duration {
+	if r.End != nil {
+		return r.End.Sub(r.Start)
+	}
+
+	return time.Since(r.Start)
+}
+
 // LoadRecord loads the record with the given start time. Returns
 // ErrRecordNotFound if the record cannot be found.
 func (t *Timetrace) LoadRecord(start time.Time) (*Record, error) {
@@ -43,25 +54,7 @@ func (t *Timetrace) LoadBackupRecord(start time.Time) (*Record, error) {
 // ListRecords loads and returns all records from the given date. If no records
 // are found, an empty slice and no error will be returned.
 func (t *Timetrace) ListRecords(date time.Time) ([]*Record, error) {
-	dir := t.fs.RecordDirFromDate(date)
-	paths, err := t.fs.RecordFilepaths(dir, func(_, _ string) bool {
-		return true
-	})
-	if err != nil {
-		return nil, err
-	}
-
-	records := make([]*Record, 0)
-
-	for _, path := range paths {
-		record, err := t.loadRecord(path)
-		if err != nil {
-			return nil, err
-		}
-		records = append(records, record)
-	}
-
-	return records, nil
+	return t.loadAllRecords(date)
 }
 
 // SaveRecord persists the given record. Returns ErrRecordAlreadyExists if the
@@ -402,6 +395,7 @@ func (t *Timetrace) loadOldestRecord(date time.Time) (*Record, error) {
 
 // loadFromRecordDir loads all records for one directory and returns them. The slice can be filtered
 // through the filter options.
+// !imporant: .bak files will be ignored by this function - only .json files in the directory will be read!
 func (t *Timetrace) loadFromRecordDir(recordDir string, filter ...func(*Record) bool) ([]*Record, error) {
 	filesInfo, err := ioutil.ReadDir(recordDir)
 	if err != nil {
@@ -411,10 +405,10 @@ func (t *Timetrace) loadFromRecordDir(recordDir string, filter ...func(*Record) 
 
 outer:
 	for _, info := range filesInfo {
-		if filepath.Ext(info.Name()) == ".bak" {
+		// ignore backup file
+		if isBakFile(info.Name()) {
 			continue
 		}
-
 		record, err := t.loadRecord(filepath.Join(recordDir, info.Name()))
 		if err != nil {
 			return nil, err
@@ -443,7 +437,8 @@ func (t *Timetrace) loadBackupsFromRecordDir(recordDir string, filter ...func(*R
 
 outer:
 	for _, info := range filesInfo {
-		if filepath.Ext(info.Name()) != ".bak" {
+		// get only backup files
+		if !isBakFile(info.Name()) {
 			continue
 		}
 
