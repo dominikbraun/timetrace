@@ -405,7 +405,7 @@ func (t *Timetrace) loadFromRecordDir(recordDir string, filter ...func(*Record) 
 
 outer:
 	for _, info := range filesInfo {
-		// ignore backup file
+		// igonre backup file
 		if isBakFile(info.Name()) {
 			continue
 		}
