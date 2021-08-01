@@ -9,9 +9,9 @@
 
 ![CLI screenshot 64x16](timetrace.png)
 
+:fire: **New:** [Support for per-project configuration](#per-project-configuration)  
 :fire: **New:** [Create belated records](#create-a-record)  
 :fire: **New:** [Display the tracking status as JSON or in your own format](#print-the-tracking-status)  
-:fire: **New:** [Reverting `edit` and `delete` commands is now possible](#edit-a-record)
 
 ## Installation
 
@@ -583,6 +583,7 @@ If you prefer to use the 12-hour clock instead of the default 24-hour format,
 add this to your `config.yaml` file:
 
 ```yaml
+# config.yml
 use12hours: true
 ```
 
@@ -599,7 +600,28 @@ By default, timetrace will open the editor specified in `$EDITOR` or fall back
 to `vi`. You may set your provide your preferred editor like so:
 
 ```yaml
+# config.yml
 editor: nano
+```
+
+### Per-project configuration
+
+To add a configuration for a specific project, use the `projects` key which accepts
+a map with the project key as key and the project configuration as value.
+
+Each project configuration currently consists of:
+
+```yaml
+billable: bool
+```
+
+For example, always make records for the `make-coffee` project billable:
+
+```yaml
+# config.yml
+projects:
+    make-coffee:
+        billable: true
 ```
 
 ## Credits
