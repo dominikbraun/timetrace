@@ -6,10 +6,15 @@ import (
 )
 
 type Config struct {
-	Store      string `json:"store"`
-	Use12Hours bool   `json:"use12hours"`
-	Editor     string `json:"editor"`
-	ReportPath string `json:"report-path"`
+	Store      string             `json:"store"`
+	Use12Hours bool               `json:"use12hours"`
+	Editor     string             `json:"editor"`
+	ReportPath string             `json:"report-path"`
+	Projects   map[string]Project `json:"projects"`
+}
+
+type Project struct {
+	Billable bool `json:"billable"`
 }
 
 var cached *Config
