@@ -549,7 +549,8 @@ timetrace report
 
 |Flag|Short|Description|
 |-|-|-|
-|`--billable`|`-b`|Filter report for only billable records.|
+|`--billable`|`-b`|Filter report for billable records.|
+|`--non-billable`||Filter report for non-billable records.|
 |`--start <YYYY-MM-DD>`|`-s`|Filter report from a specific point in time (start is inclusive).|
 |`--end <YYYY-MM-DD>`|`-e`|Filter report to a specific point in time (end is inclusive).|
 |`--project <KEY>`|`-p`|Filter report for only one project.|
