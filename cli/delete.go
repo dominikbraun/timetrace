@@ -23,7 +23,8 @@ const (
 	deleteProjectConfirmation = "Deleting project...Please confirm [y/N]: "
 	deleteRecordConfirmation  = "Deleting record...Please confirm [y/N]: "
 	deleteRecordsWarning      = "Do you wish to delete project records? Please confirm [y/N]: "
-	revertRecordsWarning      = "Do you wish to restore project records from backups?\nWarning! This will overwrite any changes made after the most recent backup. Please confirm [y/N]: "
+	revertRecordsWarning      = `Do you wish to restore project records from backups?
+Warning! This will overwrite any changes made after the most recent backup. Please confirm [y/N]: `
 )
 
 func deleteCommand(t *core.Timetrace) *cobra.Command {
