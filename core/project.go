@@ -161,7 +161,7 @@ func (t *Timetrace) RevertProject(projectKey string) error {
 		return err
 	}
 
-	// get subnodules associated with projectKey
+	// get submodules associated with projectKey
 	var submodules []string
 	for _, backup := range backups {
 		if strings.HasSuffix(backup, fmt.Sprintf("@%s.json.bak", projectKey)) {
