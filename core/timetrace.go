@@ -35,6 +35,7 @@ type Filesystem interface {
 	RecordFilepath(start time.Time) string
 	RecordBackupFilepath(start time.Time) string
 	RecordFilepaths(dir string, less func(a, b string) bool) ([]string, error)
+	RecordFilepathsUnfiltered(dir string, less func(a, b string) bool) ([]string, error)
 	RecordDirs() ([]string, error)
 	ReportDir() string
 	RecordDirFromDate(date time.Time) string
