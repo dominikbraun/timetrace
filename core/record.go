@@ -147,10 +147,8 @@ func (t *Timetrace) RevertRecordsByProject(key string) error {
 		return err
 	}
 	// get all keys for submodules
-	if len(modules) > 0 {
-		for _, module := range modules {
-			keys = append(keys, module.Key)
-		}
+	for _, module := range modules {
+		keys = append(keys, module.Key)
 	}
 	// append parent project key
 	keys = append(keys, key)
@@ -170,15 +168,13 @@ func (t *Timetrace) RevertRecordsByProject(key string) error {
 		records = append(records, r...)
 	}
 	// check for records that match project key and revert record
-	if len(records) > 0 {
-		for _, k := range keys {
-			for _, record := range records {
-				if record.Project.Key != k {
-					continue
-				}
-				if err := t.RevertRecord(record.Start); err != nil {
-					return err
-				}
+	for _, k := range keys {
+		for _, record := range records {
+			if record.Project.Key != k {
+				continue
+			}
+			if err := t.RevertRecord(record.Start); err != nil {
+				return err
 			}
 		}
 	}

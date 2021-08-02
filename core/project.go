@@ -209,16 +209,14 @@ func (t *Timetrace) DeleteProject(project Project) error {
 	}
 
 	// delete all submodules if they exist
-	if len(modules) > 0 {
-		for _, module := range modules {
-			if err := t.delete(module.Key); err != nil {
-				return err
-			}
+	for _, module := range modules {
+		if err := t.delete(module.Key); err != nil {
+			return err
 		}
 	}
 
 	// delete parent project
-	return t.delete((project.Key))
+	return t.delete(project.Key)
 }
 
 func (t *Timetrace) loadProject(path string) (*Project, error) {
