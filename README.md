@@ -137,6 +137,7 @@ timetrace start <PROJECT KEY>
 |Flag|Short|Description|
 |-|-|-|
 |`--billable`|`-b`|Mark the record as billable.|
+|`--non-billable`||Mark the record as non-billable, even if the project is [billable by default](#per-project-configuration).|
 
 **Example:**
 
