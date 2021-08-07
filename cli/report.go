@@ -105,7 +105,7 @@ func generateReportCommand(t *core.Timetrace) *cobra.Command {
 	report.Flags().BoolVarP(&options.isBillable, "billable", "b",
 		false, "filter for only billable records")
 
-	report.Flags().BoolVarP(&options.isNonBillable, "non-billable", "n",
+	report.Flags().BoolVarP(&options.isNonBillable, "non-billable", "B",
 		false, "filter for only none billable records")
 
 	report.Flags().StringVarP(&options.startTime, "start", "s",
