@@ -32,6 +32,7 @@ type Filesystem interface {
 	ProjectFilepath(key string) string
 	ProjectBackupFilepath(key string) string
 	ProjectFilepaths() ([]string, error)
+	ProjectBackupFilepaths() ([]string, error)
 	RecordFilepath(start time.Time) string
 	RecordBackupFilepath(start time.Time) string
 	RecordFilepaths(dir string, less func(a, b string) bool) ([]string, error)

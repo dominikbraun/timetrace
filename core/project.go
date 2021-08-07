@@ -3,9 +3,11 @@ package core
 import (
 	"encoding/json"
 	"errors"
+	"fmt"
 	"io/ioutil"
 	"os"
 	"os/exec"
+	"path/filepath"
 	"strings"
 )
 
@@ -151,26 +153,32 @@ func (t *Timetrace) BackupProject(projectKey string) error {
 	return err
 }
 
+// RevertProject reverts the given project to its latest backup
 func (t *Timetrace) RevertProject(projectKey string) error {
-	project, err := t.LoadBackupProject(projectKey)
-	if err != nil {
-		return err
-	}
-	// get filepath of reverted file
-	path := t.fs.ProjectFilepath(projectKey)
-
-	file, err := os.OpenFile(path, os.O_WRONLY|os.O_CREATE|os.O_TRUNC, 0600)
+	// get all backup filepaths
+	backups, err := t.fs.ProjectBackupFilepaths()
 	if err != nil {
 		return err
 	}
 
-	bytes, err := json.MarshalIndent(&project, "", "\t")
-	if err != nil {
-		return err
+	// get submodules associated with projectKey
+	var submodules []string
+	for _, backup := range backups {
+		if strings.HasSuffix(backup, fmt.Sprintf("@%s.json.bak", projectKey)) {
+			submoduleKey := strings.TrimSuffix(filepath.Base(backup), ".json.bak")
+			submodules = append(submodules, submoduleKey)
+		}
 	}
 
-	_, err = file.Write(bytes)
+	// revert submodules
+	for _, key := range submodules {
+		if err := t.revert(key); err != nil {
+			return err
+		}
+	}
 
+	// revert parent project
+	err = t.revert(projectKey)
 	return err
 }
 
@@ -191,16 +199,24 @@ func (t *Timetrace) EditProject(projectKey string) error {
 	return cmd.Run()
 }
 
-// DeleteProject removes the given project. Returns ErrProjectNotFound if the
+// DeleteProject removes the given project and any associated submodules. Returns ErrProjectNotFound if the
 // project doesn't exist.
 func (t *Timetrace) DeleteProject(project Project) error {
-	path := t.fs.ProjectFilepath(project.Key)
-
-	if _, err := os.Stat(path); os.IsNotExist(err) {
-		return ErrProjectNotFound
+	// check if project has submodules
+	modules, err := t.loadProjectModules(&project)
+	if err != nil {
+		return err
 	}
 
-	return os.Remove(path)
+	// delete all submodules if they exist
+	for _, module := range modules {
+		if err := t.delete(module.Key); err != nil {
+			return err
+		}
+	}
+
+	// delete parent project
+	return t.delete(project.Key)
 }
 
 func (t *Timetrace) loadProject(path string) (*Project, error) {
@@ -270,4 +286,38 @@ func (t *Timetrace) assertParent(project Project) error {
 	}
 
 	return ErrParentlessModule
+}
+
+func (t *Timetrace) revert(key string) error {
+	project, err := t.LoadBackupProject(key)
+	if err != nil {
+		return err
+	}
+
+	// get filepath of reverted file
+	path := t.fs.ProjectFilepath(key)
+
+	file, err := os.OpenFile(path, os.O_WRONLY|os.O_CREATE|os.O_TRUNC, 0600)
+	if err != nil {
+		return err
+	}
+
+	bytes, err := json.MarshalIndent(&project, "", "\t")
+	if err != nil {
+		return err
+	}
+
+	_, err = file.Write(bytes)
+
+	return err
+}
+
+func (t *Timetrace) delete(key string) error {
+	path := t.fs.ProjectFilepath(key)
+
+	if _, err := os.Stat(path); os.IsNotExist(err) {
+		return ErrProjectNotFound
+	}
+
+	return os.Remove(path)
 }

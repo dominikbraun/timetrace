@@ -81,6 +81,33 @@ func (fs *Fs) ProjectFilepaths() ([]string, error) {
 	return filepaths, nil
 }
 
+// ProjectBackupFilepaths returns all backup project filepaths sorted alphabetically.
+func (fs *Fs) ProjectBackupFilepaths() ([]string, error) {
+	dir := fs.projectsDir()
+
+	items, err := ioutil.ReadDir(dir)
+	if err != nil {
+		return nil, err
+	}
+
+	var filepaths []string
+
+	for _, item := range items {
+		if item.IsDir() {
+			continue
+		}
+		itemName := item.Name()
+		if !strings.HasSuffix(itemName, ".bak") {
+			continue
+		}
+
+		filepaths = append(filepaths, filepath.Join(dir, itemName))
+	}
+	sort.Strings(filepaths)
+
+	return filepaths, nil
+}
+
 // RecordFilepath returns the filepath of the record with the given start time.
 //
 // Note that the start time also has to contain the date as this determines the
