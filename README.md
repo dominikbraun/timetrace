@@ -9,6 +9,7 @@
 
 ![CLI screenshot 64x16](timetrace.png)
 
+:fire: **New:** [Restore records when restoring the associated project]()  
 :fire: **New:** [Support for per-project configuration](#per-project-configuration)  
 :fire: **New:** [Create belated records](#create-a-record)  
 :fire: **New:** [Display the tracking status as JSON or in your own format](#print-the-tracking-status)  
@@ -128,16 +129,16 @@ timetrace start <PROJECT KEY>
 
 **Arguments:**
 
-|Argument|Description|
-|-|-|
-|`PROJECT KEY`|The key of the project.|
+| Argument      | Description             |
+| ------------- | ----------------------- |
+| `PROJECT KEY` | The key of the project. |
 
 **Flags:**
 
-|Flag|Short|Description|
-|-|-|-|
-|`--billable`|`-b`|Mark the record as billable.|
-|`--non-billable`||Mark the record as non-billable, even if the project is [billable by default](#per-project-configuration).|
+| Flag             | Short | Description                                                                                                |
+| ---------------- | ----- | ---------------------------------------------------------------------------------------------------------- |
+| `--billable`     | `-b`  | Mark the record as billable.                                                                               |
+| `--non-billable` |       | Mark the record as non-billable, even if the project is [billable by default](#per-project-configuration). |
 
 **Example:**
 
@@ -157,21 +158,21 @@ timetrace status
 
 **Flags:**
 
-|Flag|Short|Description|
-|-|-|-|
-|`--format`|`-f`|Display the status in a custom format (see below).|
-|`--output`|`-o`|Display the status in a specific output. Valid values: `json`|
+| Flag       | Short | Description                                                   |
+| ---------- | ----- | ------------------------------------------------------------- |
+| `--format` | `-f`  | Display the status in a custom format (see below).            |
+| `--output` | `-o`  | Display the status in a specific output. Valid values: `json` |
 
 **Formatting variables:**
 
 The names of the formatting variables are the same as the JSON keys printed by `--output json`.
 
-|Variable|Description|
-|-|-|
-|`{project}`|The key of the current project.|
-|`{trackedTimeCurrent}`|The time tracked for the current record.|
-|`{trackedTimeToday}`|The time tracked today.|
-|`{breakTimeToday}`|The break time since the first record.|
+| Variable               | Description                              |
+| ---------------------- | ---------------------------------------- |
+| `{project}`            | The key of the current project.          |
+| `{trackedTimeCurrent}` | The time tracked for the current record. |
+| `{trackedTimeToday}`   | The time tracked today.                  |
+| `{breakTimeToday}`     | The break time since the first record.   |
 
 **Example:**
 
@@ -203,10 +204,10 @@ The output will look as follows:
 
 ```json
 {
-        "project": "web-store",
-        "trackedTimeCurrent": "1h 45min",
-        "trackedTimeToday": "7h 30min",
-        "breakTimeToday": "0h 30min"
+  "project": "web-store",
+  "trackedTimeCurrent": "1h 45min",
+  "trackedTimeToday": "7h 30min",
+  "breakTimeToday": "0h 30min"
 }
 ```
 
@@ -236,9 +237,9 @@ timetrace create project <KEY>
 
 **Arguments:**
 
-|Argument|Description|
-|-|-|
-|`KEY`|An unique project key.|
+| Argument | Description            |
+| -------- | ---------------------- |
+| `KEY`    | An unique project key. |
 
 **Example:**
 
@@ -260,12 +261,12 @@ timetrace create record <PROJECT KEY> {<YYYY-MM-DD>|today|yesterday} <HH:MM> <HH
 
 **Arguments:**
 
-|Argument|Description|
-|-|-|
-|`PROJECT KEY`|The project key the record should be created for.|
-|`YYYY-MM-DD`|The date the record should be created for. Alternatively `today` or `yesterday`.|
-|`HH:MM`|The start time of the record.|
-|`HH:MM`|The end time of the record.|
+| Argument      | Description                                                                      |
+| ------------- | -------------------------------------------------------------------------------- |
+| `PROJECT KEY` | The project key the record should be created for.                                |
+| `YYYY-MM-DD`  | The date the record should be created for. Alternatively `today` or `yesterday`. |
+| `HH:MM`       | The start time of the record.                                                    |
+| `HH:MM`       | The end time of the record.                                                      |
 
 **Example:**
 
@@ -285,9 +286,9 @@ timetrace get project <KEY>
 
 **Arguments:**
 
-|Argument|Description|
-|-|-|
-|`KEY`|The project key.|
+| Argument | Description      |
+| -------- | ---------------- |
+| `KEY`    | The project key. |
 
 **Example:**
 
@@ -307,14 +308,13 @@ timetrace get record <YYYY-MM-DD-HH-MM>
 
 **Arguments:**
 
-|Argument|Description|
-|-|-|
-|`YYYY-MM-DD-HH-MM`|The start time of the desired record.|
+| Argument           | Description                           |
+| ------------------ | ------------------------------------- |
+| `YYYY-MM-DD-HH-MM` | The start time of the desired record. |
 
 **Example:**
 
-By default, records can be accessed using the 24-hour format, meaning 3:00 PM is
-15. Display a record created on May 1st 2021, 3:00 PM:
+By default, records can be accessed using the 24-hour format, meaning 3:00 PM is 15. Display a record created on May 1st 2021, 3:00 PM:
 
 ```
 timetrace get record 2021-05-01-15-00
@@ -355,18 +355,18 @@ timetrace list records {<YYYY-MM-DD>|today|yesterday}
 
 **Arguments:**
 
-|Argument|Description|
-|-|-|
-|`YYYY-MM-DD`|The date of the records to list, or `today` or `yesterday`.|
-|today|List today's records.|
-|yesterday|List yesterday's records.|
+| Argument     | Description                                                 |
+| ------------ | ----------------------------------------------------------- |
+| `YYYY-MM-DD` | The date of the records to list, or `today` or `yesterday`. |
+| today        | List today's records.                                       |
+| yesterday    | List yesterday's records.                                   |
 
 **Flags:**
 
-|Flag|Short|Description|
-|-|-|-|
-|`--billable`|`-b`|only display billable records.|
-|`--project`|`-p`|filter records by project key.|
+| Flag         | Short | Description                    |
+| ------------ | ----- | ------------------------------ |
+| `--billable` | `-b`  | only display billable records. |
+| `--project`  | `-p`  | filter records by project key. |
 
 **Example:**
 
@@ -384,6 +384,7 @@ timetrace list records 2021-05-01
 ```
 
 Filter records by the `make-coffee` project:
+
 ```
 timetrace list records -p make-coffee 2021-05-01
 +-----+-------------+---------+-------+------------+
@@ -405,14 +406,14 @@ timetrace edit project <KEY>
 
 **Arguments:**
 
-|Argument|Description|
-|-|-|
-|`KEY`|The project key.|
+| Argument | Description      |
+| -------- | ---------------- |
+| `KEY`    | The project key. |
 
 **Flags:**
-|Flag|Short|Description|
-|-|-|-|
-|`--revert`|`-r`|Revert the project to its state prior to the last edit.|
+| Flag       | Short | Description                                             |
+| ---------- | ----- | ------------------------------------------------------- |
+| `--revert` | `-r`  | Revert the project to its state prior to the last edit. |
 
 **Example:**
 
@@ -438,17 +439,17 @@ timetrace edit record {<KEY>|latest}
 
 **Arguments:**
 
-|Argument|Description|
-|-|-|
-|`KEY`|The project key. `YYYY-MM-DD-HH-MM` by default or `YYYY-MM-DD-HH-MMPM` if [`use12hours` is set](#prefer-12-hour-clock-for-storing-records).|
+| Argument | Description                                                                                                                                 |
+| -------- | ------------------------------------------------------------------------------------------------------------------------------------------- |
+| `KEY`    | The project key. `YYYY-MM-DD-HH-MM` by default or `YYYY-MM-DD-HH-MMPM` if [`use12hours` is set](#prefer-12-hour-clock-for-storing-records). |
 
 **Flags:**
 
-|Flag|Short|Description|
-|-|-|-|
-|`--plus`|`-p`|Add the given duration to the record's end time, e.g. `--plus 1h 10m`|
-|`--minus`|`-m`|Subtract the given duration from the record's end time, e.g. `--minus 1h 10m`|
-|`--revert`|`-r`|Revert the record to its state prior to the last edit.|
+| Flag       | Short | Description                                                                   |
+| ---------- | ----- | ----------------------------------------------------------------------------- |
+| `--plus`   | `-p`  | Add the given duration to the record's end time, e.g. `--plus 1h 10m`         |
+| `--minus`  | `-m`  | Subtract the given duration from the record's end time, e.g. `--minus 1h 10m` |
+| `--revert` | `-r`  | Revert the record to its state prior to the last edit.                        |
 
 **Example:**
 
@@ -482,28 +483,32 @@ timetrace delete project <KEY>
 
 **Arguments:**
 
-|Argument|Description|
-|-|-|
-|`KEY`|The project key.|
+| Argument | Description      |
+| -------- | ---------------- |
+| `KEY`    | The project key. |
 
 **Flags:**
-|Flag|Short|Description|
-|-|-|-|
-|`--revert`|`-r`|Restore a deleted project.|
+
+| Flag                | Short | Description                                                                                                                             |
+| ------------------- | ----- | --------------------------------------------------------------------------------------------------------------------------------------- |
+| `--revert`          | `-r`  | Restore a deleted project.                                                                                                              |
+| `--exclude-records` | `-e`  | Exclude associated project records from the deletion. If used together with `--revert`, excludes restoring project records from backup. |
 
 **Example:**
 
-Delete a project called `make-coffee`:
+Delete a project called `make-coffee`. Note that submodules will be deleted along with the parent project:
 
 ```
 timetrace delete project make-coffee
 ```
+The command will prompt for confirmation of whether project records should be deleted too.
 
-:fire: **New:** Restore the project to its pre-deletion state:
+:fire: **New:** Restore the project to its pre-deletion state. Submodules will be restored along with the parent project:
 
 ```
 timetrace delete project make-coffee --revert
 ```
+The command will prompt for confirmation of whether project records should be restored from backup too.
 
 ### Delete a record
 
@@ -515,14 +520,14 @@ timetrace delete record <YYYY-MM-DD-HH-MM>
 
 **Arguments:**
 
-|Argument|Description|
-|-|-|
-|`YYYY-MM-DD-HH-MM`|The start time of the desired record.|
+| Argument           | Description                           |
+| ------------------ | ------------------------------------- |
+| `YYYY-MM-DD-HH-MM` | The start time of the desired record. |
 
-|Flag|Short|Description|
-|-|-|-|
-|`--yes`| |Do not ask for confirmation|
-|`--revert`|`-r`|Restore a deleted record.|
+| Flag       | Short | Description                 |
+| ---------- | ----- | --------------------------- |
+| `--yes`    |       | Do not ask for confirmation |
+| `--revert` | `-r`  | Restore a deleted record.   |
 
 **Example:**
 
@@ -548,15 +553,15 @@ timetrace report
 
 **Flags:**
 
-|Flag|Short|Description|
-|-|-|-|
-|`--billable`|`-b`|Filter report for billable records.|
-|`--non-billable`||Filter report for non-billable records.|
-|`--start <YYYY-MM-DD>`|`-s`|Filter report from a specific point in time (start is inclusive).|
-|`--end <YYYY-MM-DD>`|`-e`|Filter report to a specific point in time (end is inclusive).|
-|`--project <KEY>`|`-p`|Filter report for only one project.|
-|`--output <json>`|`-o`|Write report as JSON to file.|
-|`--file path/to/report`|`-f`|Write report to a specific file <br>(if not given will use config `report-dir`<br> if config not present writes to `$HOME/.timetrace/reports/report-<time.unix>`).|
+| Flag                    | Short | Description                                                                                                                                                        |
+| ----------------------- | ----- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| `--billable`            | `-b`  | Filter report for only billable records.                                                                                                                           |
+| `--non-billable`        |       | Filter report for non-billable records.                                                                                                                            |
+| `--start <YYYY-MM-DD>`  | `-s`  | Filter report from a specific point in time (start is inclusive).                                                                                                  |
+| `--end <YYYY-MM-DD>`    | `-e`  | Filter report to a specific point in time (end is inclusive).                                                                                                      |
+| `--project <KEY>`       | `-p`  | Filter report for only one project.                                                                                                                                |
+| `--output <json>`       | `-o`  | Write report as JSON to file.                                                                                                                                      |
+| `--file path/to/report` | `-f`  | Write report to a specific file <br>(if not given will use config `report-dir`<br> if config not present writes to `$HOME/.timetrace/reports/report-<time.unix>`). |
 
 ### Print version information
 
@@ -630,8 +635,8 @@ projects:
 
 This project depends on the following packages:
 
-* [spf13/cobra](https://github.com/spf13/cobra)
-* [spf13/viper](https://github.com/spf13/viper)
-* [fatih/color](https://github.com/fatih/color)
-* [olekukonko/tablewriter](https://github.com/olekukonko/tablewriter)
-* [enescakir/emoji](https://github.com/enescakir/emoji)
+- [spf13/cobra](https://github.com/spf13/cobra)
+- [spf13/viper](https://github.com/spf13/viper)
+- [fatih/color](https://github.com/fatih/color)
+- [olekukonko/tablewriter](https://github.com/olekukonko/tablewriter)
+- [enescakir/emoji](https://github.com/enescakir/emoji)

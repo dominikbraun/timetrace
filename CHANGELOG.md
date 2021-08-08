@@ -5,6 +5,19 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.13.0] - 2021-08-10
+
+### Added
+* Add support for per-project configuration (#166)
+* Add support for making projects billable by default (#166)
+* Add support for deleting and reverting projects with their modules (#160)
+* Add support for restoring records associated with a restored project (#160)
+* Add `--non-billable` flag for `timetrace start` command (#172) 
+* Add `--non-billable` flag for `timetrace report` command (#142)
+
+### Changed
+* Ask the user whether they want to delete all records when deleting a project (#160)
+
 ## [0.12.0] - 2021-07-30
 
 ### Changed
