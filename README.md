@@ -14,6 +14,42 @@
 :fire: **New:** [Create belated records](#create-a-record)  
 :fire: **New:** [Display the tracking status as JSON or in your own format](#print-the-tracking-status)  
 
+---
+
+- [Installation](#installation)
+  - [Homebrew](#homebrew)
+  - [Snap](#snap)
+  - [AUR](#aur)
+  - [Scoop](#scoop)
+  - [Docker](#docker)
+  - [Binary](#binary)
+- [Usage example](#usage-example)
+  - [Project modules](#project-modules)
+- [Starship integration](#starship-integration)
+- [Command reference](#command-reference)
+  - [Start tracking](#start-tracking)
+  - [Print the tracking status](#print-the-tracking-status)
+  - [Stop tracking](#stop-tracking)
+  - [Create a project](#create-a-project)
+  - [Create a record](#create-a-record)
+  - [Get a project](#get-a-project)
+  - [Get a record](#get-a-record)
+  - [List all projects](#list-all-projects)
+  - [List all records from a date](#list-all-records-from-a-date)
+  - [Edit a project](#edit-a-project)
+  - [Edit a record](#edit-a-record)
+  - [Delete a project](#delete-a-project)
+  - [Delete a record](#delete-a-record)
+  - [Generate a report `[beta]`](#generate-a-report-beta)
+  - [Print version information](#print-version-information)
+- [Configuration](#configuration)
+  - [Prefer 12-hour clock for storing records](#prefer-12-hour-clock-for-storing-records)
+  - [Set your preferred editor](#set-your-preferred-editor)
+  - [Per-project configuration](#per-project-configuration)
+- [Credits](#credits)
+
+---
+
 ## Installation
 
 ### Homebrew
@@ -543,7 +579,7 @@ timetrace delete record 2021-05-01-15-00
 timetrace delete record 2021-05-01-15-00 --revert
 ```
 
-## Generate a report
+### Generate a report `[beta]`
 
 **Syntax:**
 
