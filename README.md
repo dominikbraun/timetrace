@@ -25,7 +25,8 @@
   - [Binary](#binary)
 - [Usage example](#usage-example)
   - [Project modules](#project-modules)
-- [Starship integration](#starship-integration)
+- [Shell integration](#shell-integration)
+  - [Starship](#starship)
 - [Command reference](#command-reference)
   - [Start tracking](#start-tracking)
   - [Print the tracking status](#print-the-tracking-status)
@@ -140,7 +141,9 @@ timetrace list projects
 When filtering by projects, for example with `timetrace list records -p make-coffee today`, the modules of that project
 will be included.
 
-## Starship integration
+## Shell integration
+
+### Starship
 
 To integrate timetrace into Starship, add the following lines to `$HOME/.config/starship.toml`:
 
