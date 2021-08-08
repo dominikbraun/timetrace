@@ -8,7 +8,8 @@ import (
 )
 
 type startOptions struct {
-	isBillable bool
+	isBillable    bool
+	isNonBillable bool // Used for overwriting `billable: true` in the project config.
 }
 
 func startCommand(t *core.Timetrace) *cobra.Command {
@@ -21,7 +22,17 @@ func startCommand(t *core.Timetrace) *cobra.Command {
 		Run: func(cmd *cobra.Command, args []string) {
 			projectKey := args[0]
 
-			if err := t.Start(projectKey, options.isBillable); err != nil {
+			isBillable := options.isBillable
+
+			if projectConfig, ok := t.Config().Projects[projectKey]; ok {
+				isBillable = projectConfig.Billable
+			}
+
+			if options.isNonBillable {
+				isBillable = false
+			}
+
+			if err := t.Start(projectKey, isBillable); err != nil {
 				out.Err("Failed to start tracking: %s", err.Error())
 				return
 			}
@@ -32,6 +43,9 @@ func startCommand(t *core.Timetrace) *cobra.Command {
 
 	start.Flags().BoolVarP(&options.isBillable, "billable", "b",
 		false, `mark tracked time as billable`)
+
+	start.Flags().BoolVar(&options.isNonBillable, "non-billable",
+		false, `mark tracked time as non-billable if the project is configured as billable`)
 
 	return start
 }

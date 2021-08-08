@@ -61,8 +61,7 @@ func New(config *config.Config, fs Filesystem) *Timetrace {
 }
 
 // Start starts tracking time for the given project key. This will create a new
-// record with the current time as start time. The isBillable parameter may be
-// overwritten by the project configuration in config.yml.
+// record with the current time as start time.
 //
 // Since parallel work isn't supported, the previous work must be stopped first.
 func (t *Timetrace) Start(projectKey string, isBillable bool) error {
@@ -82,10 +81,6 @@ func (t *Timetrace) Start(projectKey string, isBillable bool) error {
 		if project, err = t.LoadProject(projectKey); err != nil {
 			return err
 		}
-	}
-
-	if projectConfig, ok := t.Config().Projects[projectKey]; ok {
-		isBillable = projectConfig.Billable
 	}
 
 	record := Record{
