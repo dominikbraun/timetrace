@@ -9,7 +9,7 @@
 
 ![CLI screenshot 64x16](timetrace.png)
 
-:fire: **New:** [Restore records when restoring the associated project]()  
+:fire: **New:** [Restore records when restoring the associated project](#delete-a-project)  
 :fire: **New:** [Support for per-project configuration](#per-project-configuration)  
 :fire: **New:** [Create belated records](#create-a-record)  
 :fire: **New:** [Display the tracking status as JSON or in your own format](#print-the-tracking-status)  
@@ -46,7 +46,7 @@
 - [Configuration](#configuration)
   - [Prefer 12-hour clock for storing records](#prefer-12-hour-clock-for-storing-records)
   - [Set your preferred editor](#set-your-preferred-editor)
-  - [Per-project configuration](#per-project-configuration)
+  - [Configure defaults for projects](#configure-defaults-for-projects)
 - [Credits](#credits)
 
 ---
@@ -547,7 +547,8 @@ The command will prompt for confirmation of whether project records should be de
 ```
 timetrace delete project make-coffee --revert
 ```
-The command will prompt for confirmation of whether project records should be restored from backup too.
+The command will prompt for confirmation of whether project records should be restored from backup too. This is a
+potentially dangerous operation since records edited in the meantime will be overwritten by the backup.
 
 ### Delete a record
 
@@ -650,12 +651,12 @@ to `vi`. You may set your provide your preferred editor like so:
 editor: nano
 ```
 
-### Per-project configuration
+### Configure defaults for projects
 
 To add a configuration for a specific project, use the `projects` key which accepts
 a map with the project key as key and the project configuration as value.
 
-Each project configuration currently consists of:
+Each project configuration currently has the following schema:
 
 ```yaml
 billable: bool
