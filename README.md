@@ -9,9 +9,47 @@
 
 ![CLI screenshot 64x16](timetrace.png)
 
+:fire: **New:** [Restore records when restoring the associated project](#delete-a-project)  
+:fire: **New:** [Support for per-project configuration](#per-project-configuration)  
 :fire: **New:** [Create belated records](#create-a-record)  
 :fire: **New:** [Display the tracking status as JSON or in your own format](#print-the-tracking-status)  
-:fire: **New:** [Reverting `edit` and `delete` commands is now possible](#edit-a-record)
+
+---
+
+- [Installation](#installation)
+  - [Homebrew](#homebrew)
+  - [Snap](#snap)
+  - [AUR](#aur)
+  - [Scoop](#scoop)
+  - [Docker](#docker)
+  - [Binary](#binary)
+- [Usage example](#usage-example)
+  - [Project modules](#project-modules)
+- [Shell integration](#shell-integration)
+  - [Starship](#starship)
+- [Command reference](#command-reference)
+  - [Start tracking](#start-tracking)
+  - [Print the tracking status](#print-the-tracking-status)
+  - [Stop tracking](#stop-tracking)
+  - [Create a project](#create-a-project)
+  - [Create a record](#create-a-record)
+  - [Get a project](#get-a-project)
+  - [Get a record](#get-a-record)
+  - [List all projects](#list-all-projects)
+  - [List all records from a date](#list-all-records-from-a-date)
+  - [Edit a project](#edit-a-project)
+  - [Edit a record](#edit-a-record)
+  - [Delete a project](#delete-a-project)
+  - [Delete a record](#delete-a-record)
+  - [Generate a report `[beta]`](#generate-a-report-beta)
+  - [Print version information](#print-version-information)
+- [Configuration](#configuration)
+  - [Prefer 12-hour clock for storing records](#prefer-12-hour-clock-for-storing-records)
+  - [Set your preferred editor](#set-your-preferred-editor)
+  - [Configure defaults for projects](#configure-defaults-for-projects)
+- [Credits](#credits)
+
+---
 
 ## Installation
 
@@ -103,7 +141,9 @@ timetrace list projects
 When filtering by projects, for example with `timetrace list records -p make-coffee today`, the modules of that project
 will be included.
 
-## Starship integration
+## Shell integration
+
+### Starship
 
 To integrate timetrace into Starship, add the following lines to `$HOME/.config/starship.toml`:
 
@@ -134,9 +174,10 @@ timetrace start <PROJECT KEY>
 
 **Flags:**
 
-| Flag         | Short | Description                  |
-| ------------ | ----- | ---------------------------- |
-| `--billable` | `-b`  | Mark the record as billable. |
+| Flag             | Short | Description                                                                                                |
+| ---------------- | ----- | ---------------------------------------------------------------------------------------------------------- |
+| `--billable`     | `-b`  | Mark the record as billable.                                                                               |
+| `--non-billable` |       | Mark the record as non-billable, even if the project is [billable by default](#per-project-configuration). |
 
 **Example:**
 
@@ -409,9 +450,9 @@ timetrace edit project <KEY>
 | `KEY`    | The project key. |
 
 **Flags:**
-|Flag|Short|Description|
-|-|-|-|
-|`--revert`|`-r`|Revert the project to its state prior to the last edit.|
+| Flag       | Short | Description                                             |
+| ---------- | ----- | ------------------------------------------------------- |
+| `--revert` | `-r`  | Revert the project to its state prior to the last edit. |
 
 **Example:**
 
@@ -487,10 +528,10 @@ timetrace delete project <KEY>
 
 **Flags:**
 
-| Flag                | Short | Description                                                                                                                            |
-| ------------------- | ----- | -------------------------------------------------------------------------------------------------------------------------------------- |
-| `--revert`          | `-r`  | Restore a deleted project.                                                                                                             |
-| `--exclude-records` | `-e`  | Exclude associated project records from the deletion. If used together with `--revert`, excludes restoring project records from backup.|
+| Flag                | Short | Description                                                                                                                             |
+| ------------------- | ----- | --------------------------------------------------------------------------------------------------------------------------------------- |
+| `--revert`          | `-r`  | Restore a deleted project.                                                                                                              |
+| `--exclude-records` | `-e`  | Exclude associated project records from the deletion. If used together with `--revert`, excludes restoring project records from backup. |
 
 **Example:**
 
@@ -506,7 +547,8 @@ The command will prompt for confirmation of whether project records should be de
 ```
 timetrace delete project make-coffee --revert
 ```
-The command will prompt for confirmation of whether project records should be restored from backup too.
+The command will prompt for confirmation of whether project records should be restored from backup too. This is a
+potentially dangerous operation since records edited in the meantime will be overwritten by the backup.
 
 ### Delete a record
 
@@ -541,7 +583,7 @@ timetrace delete record 2021-05-01-15-00
 timetrace delete record 2021-05-01-15-00 --revert
 ```
 
-## Generate a report
+### Generate a report `[beta]`
 
 **Syntax:**
 
@@ -554,6 +596,7 @@ timetrace report
 | Flag                    | Short | Description                                                                                                                                                        |
 | ----------------------- | ----- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
 | `--billable`            | `-b`  | Filter report for only billable records.                                                                                                                           |
+| `--non-billable`        |       | Filter report for non-billable records.                                                                                                                            |
 | `--start <YYYY-MM-DD>`  | `-s`  | Filter report from a specific point in time (start is inclusive).                                                                                                  |
 | `--end <YYYY-MM-DD>`    | `-e`  | Filter report to a specific point in time (end is inclusive).                                                                                                      |
 | `--project <KEY>`       | `-p`  | Filter report for only one project.                                                                                                                                |
@@ -587,6 +630,7 @@ If you prefer to use the 12-hour clock instead of the default 24-hour format,
 add this to your `config.yaml` file:
 
 ```yaml
+# config.yml
 use12hours: true
 ```
 
@@ -603,7 +647,28 @@ By default, timetrace will open the editor specified in `$EDITOR` or fall back
 to `vi`. You may set your provide your preferred editor like so:
 
 ```yaml
+# config.yml
 editor: nano
+```
+
+### Configure defaults for projects
+
+To add a configuration for a specific project, use the `projects` key which accepts
+a map with the project key as key and the project configuration as value.
+
+Each project configuration currently has the following schema:
+
+```yaml
+billable: bool
+```
+
+For example, always make records for the `make-coffee` project billable:
+
+```yaml
+# config.yml
+projects:
+    make-coffee:
+        billable: true
 ```
 
 ## Credits
