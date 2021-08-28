@@ -92,24 +92,6 @@ func (f *Formatter) RecordKey(record *Record) string {
 	return record.Start.Format(f.RecordKeyLayout())
 }
 
-// FormatTodayTime returns the formated string of the total
-// time of today follwoing the format convention
-func (f *Formatter) FormatTodayTime(report *Report) string {
-	return f.FormatDuration(report.TrackedTimeToday)
-}
-
-// FormatCurrentTime returns the formated string of the current
-// report time follwoing the format convention
-func (f *Formatter) FormatCurrentTime(report *Report) string {
-	return f.FormatDuration(*report.TrackedTimeCurrent)
-}
-
-// FormatBreakTime returns the formated string of the total time
-// taking breaks today following the format convention
-func (f *Formatter) FormatBreakTime(report *Report) string {
-	return f.FormatDuration(report.BreakTimeToday)
-}
-
 // formatDuration formats the passed duration into a string.
 // The format will be "8h 24min".
 // seconds information is ignored.
