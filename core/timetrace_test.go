@@ -25,77 +25,77 @@ func TestCollides(t *testing.T) {
 	// rec1 starts and end after savedRec
 	rec1 := newTestRecord(-1, 0)
 
-	if collides(rec1, allRecs) {
+	if collide, _ := collides(rec1, allRecs); collide {
 		t.Error("records should not collide")
 	}
 
 	// rec2 starts in savedRec, ends after
 	rec2 := newTestRecord(-30, 1)
 
-	if !collides(rec2, allRecs) {
+	if collide, _ := collides(rec2, allRecs); !collide {
 		t.Error("records should collide")
 	}
 
 	// rec3 start before savedRec, ends inside
 	rec3 := newTestRecord(-75, -30)
 
-	if !collides(rec3, allRecs) {
+	if collide, _ := collides(rec3, allRecs); !collide {
 		t.Error("records should collide")
 	}
 
 	// rec4 starts and ends before savedRec
 	rec4 := newTestRecord(-75, -70)
 
-	if collides(rec4, allRecs) {
+	if collide, _ := collides(rec4, allRecs); collide {
 		t.Error("records should not collide")
 	}
 
 	// rec5 starts and ends inside savedRec
 	rec5 := newTestRecord(-40, -20)
 
-	if !collides(rec5, allRecs) {
+	if collide, _ := collides(rec5, allRecs); !collide {
 		t.Error("records should collide")
 	}
 
 	// rec6 starts before and ends after savedRec
 	rec6 := newTestRecord(-70, 10)
 
-	if !collides(rec6, allRecs) {
+	if collide, _ := collides(rec6, allRecs); !collide {
 		t.Error("records should collide")
 	}
 
 	// rec7 starts and ends at the same time as savedRec
 	rec7 := newTestRecord(-60, -1)
 
-	if !collides(rec7, allRecs) {
+	if collide, _ := collides(rec7, allRecs); !collide {
 		t.Error("records should collide")
 	}
 
 	// rec7 starts at the same time as savedRecTracked
 	rec8 := newTestRecord(-60, -1)
 
-	if !collides(rec8, allRecsTracked) {
+	if collide, _ := collides(rec8, allRecsTracked); !collide {
 		t.Error("records should collide")
 	}
 
 	// rec9 ends at the time savedRecTracked ends
 	rec9 := newTestRecord(-80, -60)
 
-	if !collides(rec9, allRecsTracked) {
+	if collide, _ := collides(rec9, allRecsTracked); !collide {
 		t.Error("records should collide")
 	}
 
 	// rec10 ends after savedRecTracked starts
 	rec10 := newTestRecord(-80, -50)
 
-	if !collides(rec10, allRecsTracked) {
+	if collide, _ := collides(rec10, allRecsTracked); !collide {
 		t.Error("records should collide")
 	}
 
 	// rec11 ends before savedRecTracked starts
 	rec11 := newTestRecord(-80, -70)
 
-	if collides(rec11, allRecsTracked) {
+	if collide, _ := collides(rec11, allRecsTracked); collide {
 		t.Error("records should not collide")
 	}
 }
