@@ -8,6 +8,7 @@ import (
 	"time"
 
 	"github.com/dominikbraun/timetrace/config"
+	"github.com/dominikbraun/timetrace/out"
 )
 
 const (
@@ -295,17 +296,24 @@ func (t *Timetrace) RecordCollides(toCheck Record) (bool, error) {
 }
 
 func collides(toCheck Record, allRecords []*Record) bool {
+	collide := false
 	for _, rec := range allRecords {
 		if rec.End != nil && rec.Start.Before(*toCheck.End) && rec.End.After(toCheck.Start) {
-			return true
+			defer out.Info("%v %v-%v", rec.Project.Key, rec.Start.String(), rec.End.String())
+			collide = true
 		}
 
 		if rec.End == nil && toCheck.End.After(rec.Start) {
-			return true
+			defer out.Info("%v %v-%v", rec.Project.Key, rec.Start.String(), rec.End.String())
+			collide = true
 		}
 	}
 
-	return false
+	if collide {
+		out.Err("collides with these records :")
+	}
+
+	return collide
 }
 
 // isBackFile checks if a given filename is a backup-file
