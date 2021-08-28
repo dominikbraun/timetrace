@@ -106,7 +106,7 @@ func createRecordCommand(t *core.Timetrace) *cobra.Command {
 				return
 			}
 			if collides {
-				out.Warn(" start and end of the record should not overlap with others")
+				//out.Warn(" start and end of the record should not overlap with others")
 				return
 			}
 
