@@ -298,13 +298,21 @@ func (t *Timetrace) RecordCollides(toCheck Record) (bool, error) {
 func collides(toCheck Record, allRecords []*Record) bool {
 	collide := false
 	for _, rec := range allRecords {
+		var project, end string
+		if rec.Project != nil {
+			project = rec.Project.Key
+		}
+		if rec.End != nil {
+			end = rec.End.String()
+		}
+
 		if rec.End != nil && rec.Start.Before(*toCheck.End) && rec.End.After(toCheck.Start) {
-			defer out.Info("%v %v-%v", rec.Project.Key, rec.Start.String(), rec.End.String())
+			defer out.Info("%v %v-%v", project, rec.Start.String(), end)
 			collide = true
 		}
 
 		if rec.End == nil && toCheck.End.After(rec.Start) {
-			defer out.Info("%v %v-%v", rec.Project.Key, rec.Start.String(), rec.End.String())
+			defer out.Info("%v %v-%v", project, rec.Start.String(), end)
 			collide = true
 		}
 	}
