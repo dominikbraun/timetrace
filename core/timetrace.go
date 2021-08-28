@@ -5,6 +5,7 @@ import (
 	"io"
 	"os"
 	"path/filepath"
+	"strconv"
 	"time"
 
 	"github.com/dominikbraun/timetrace/config"
@@ -274,6 +275,37 @@ func (t *Timetrace) latestNonEmptyDir(dirs []string) (string, error) {
 	return "", ErrAllDirectoriesEmpty
 }
 
+func printCollides(t *Timetrace, records []*Record) {
+	out.Err("collides with these records :")
+
+	rows := make([][]string, len(records))
+
+	for i, record := range records {
+		end := "still running"
+		if record.End != nil {
+			end = t.Formatter().TimeString(*record.End)
+		}
+
+		billable := "no"
+
+		if record.IsBillable {
+			billable = "yes"
+		}
+
+		rows[i] = make([]string, 6)
+		rows[i][0] = strconv.Itoa(i + 1)
+		rows[i][1] = t.Formatter().RecordKey(record)
+		rows[i][2] = record.Project.Key
+		rows[i][3] = t.Formatter().TimeString(record.Start)
+		rows[i][4] = end
+		rows[i][5] = billable
+	}
+
+	out.Table([]string{"#", "Key", "Project", "Start", "End", "Billable"}, rows, []string{})
+
+	out.Warn(" start and end of the record should not overlap with others")
+}
+
 // RecordCollides checks if the time of a record collides
 // with other records of the same day and returns a bool
 func (t *Timetrace) RecordCollides(toCheck Record) (bool, error) {
@@ -292,36 +324,31 @@ func (t *Timetrace) RecordCollides(toCheck Record) (bool, error) {
 		}
 	}
 
-	return collides(toCheck, allRecords), nil
+	collide, collidingRecords := collides(toCheck, allRecords)
+	if collide {
+		printCollides(t, collidingRecords)
+	}
+
+	return collide, nil
 }
 
-func collides(toCheck Record, allRecords []*Record) bool {
+func collides(toCheck Record, allRecords []*Record) (bool, []*Record) {
 	collide := false
+	collidingRecords := make([]*Record, 0)
 	for _, rec := range allRecords {
-		var project, end string
-		if rec.Project != nil {
-			project = rec.Project.Key
-		}
-		if rec.End != nil {
-			end = rec.End.String()
-		}
 
 		if rec.End != nil && rec.Start.Before(*toCheck.End) && rec.End.After(toCheck.Start) {
-			defer out.Info("%v %v-%v", project, rec.Start.String(), end)
+			collidingRecords = append(collidingRecords, rec)
 			collide = true
 		}
 
 		if rec.End == nil && toCheck.End.After(rec.Start) {
-			defer out.Info("%v %v-%v", project, rec.Start.String(), end)
+			collidingRecords = append(collidingRecords, rec)
 			collide = true
 		}
 	}
 
-	if collide {
-		out.Err("collides with these records :")
-	}
-
-	return collide
+	return collide, collidingRecords
 }
 
 // isBackFile checks if a given filename is a backup-file
