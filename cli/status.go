@@ -48,8 +48,8 @@ func statusCommand(t *core.Timetrace) *cobra.Command {
 			statusReport := statusReport{
 				Project:            defaultString,
 				TrackedTimeCurrent: defaultString,
-				TrackedTimeToday:   t.Formatter().FormatTodayTime(report),
-				BreakTimeToday:     t.Formatter().FormatBreakTime(report),
+				TrackedTimeToday:   t.Formatter().FormatDuration(report.TrackedTimeToday),
+				BreakTimeToday:     t.Formatter().FormatDuration(report.BreakTimeToday),
 			}
 
 			if report.Current != nil {
@@ -57,7 +57,7 @@ func statusCommand(t *core.Timetrace) *cobra.Command {
 			}
 
 			if report.TrackedTimeCurrent != nil {
-				statusReport.TrackedTimeCurrent = t.Formatter().FormatCurrentTime(report)
+				statusReport.TrackedTimeCurrent = t.Formatter().FormatDuration(*report.TrackedTimeCurrent)
 			}
 
 			if options.format != "" {
