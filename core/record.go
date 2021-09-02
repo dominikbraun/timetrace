@@ -86,14 +86,9 @@ func (t *Timetrace) SaveRecord(record Record, force bool) error {
 }
 
 // BackupRecord creates a backup of the given record file
-func (t *Timetrace) BackupRecord(recordKey time.Time) error {
-	path := t.fs.RecordFilepath(recordKey)
-	record, err := t.loadRecord(path)
-	if err != nil {
-		return err
-	}
+func (t *Timetrace) BackupRecord(record Record) error {
 	// create a new .bak filepath from the record struct
-	backupPath := t.fs.RecordBackupFilepath(recordKey)
+	backupPath := t.fs.RecordBackupFilepath(record.Start)
 
 	backupFile, err := os.OpenFile(backupPath, os.O_WRONLY|os.O_CREATE|os.O_TRUNC, 0600)
 	if err != nil {
@@ -116,9 +111,19 @@ func (t *Timetrace) RevertRecord(recordKey time.Time) error {
 		return err
 	}
 
-	path := t.fs.RecordFilepath(recordKey)
+	oldPath := t.fs.RecordFilepath(recordKey)
+	newPath := t.fs.RecordFilepath(record.Start)
+	if err = os.Rename(oldPath, newPath); err != nil {
+		return err
+	}
 
-	file, err := os.OpenFile(path, os.O_WRONLY|os.O_CREATE|os.O_TRUNC, 0600)
+	oldBackupPath := t.fs.RecordBackupFilepath(recordKey)
+	newBackupPath := t.fs.RecordBackupFilepath(record.Start)
+	if err = os.Rename(oldBackupPath, newBackupPath); err != nil {
+		return err
+	}
+
+	file, err := os.OpenFile(newPath, os.O_WRONLY|os.O_CREATE|os.O_TRUNC, 0600)
 	if err != nil {
 		return err
 	}
@@ -247,10 +252,13 @@ func (t *Timetrace) DeleteRecordsByProject(key string) error {
 // EditRecordManual opens the record file in the preferred or default editor.
 func (t *Timetrace) EditRecordManual(recordTime time.Time) error {
 	path := t.fs.RecordFilepath(recordTime)
+	backupPath := t.fs.RecordBackupFilepath(recordTime)
 
-	if _, err := t.loadRecord(path); err != nil {
+	rec, err := t.loadRecord(path)
+	if err != nil {
 		return err
 	}
+	originalStart := rec.Start
 
 	editor := t.editorFromEnvironment()
 	cmd := exec.Command(editor, path)
@@ -258,7 +266,28 @@ func (t *Timetrace) EditRecordManual(recordTime time.Time) error {
 	cmd.Stdout = os.Stdout
 	cmd.Stderr = os.Stderr
 
-	return cmd.Run()
+	if err = cmd.Run(); err != nil {
+		return err
+	}
+
+	edittedRec, err := t.loadRecord(path)
+	if err != nil {
+		return err
+	}
+
+	newStart := edittedRec.Start
+	if originalStart == newStart {
+		return nil
+	}
+
+	newPath := t.fs.RecordFilepath(newStart)
+	newBackupPath := t.fs.RecordBackupFilepath(newStart)
+
+	if err = os.Rename(path, newPath); err != nil {
+		return err
+	}
+
+	return os.Rename(backupPath, newBackupPath)
 }
 
 // EditRecord loads the record internally, applies the option values and saves the record
