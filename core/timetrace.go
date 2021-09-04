@@ -275,7 +275,7 @@ func (t *Timetrace) latestNonEmptyDir(dirs []string) (string, error) {
 	return "", ErrAllDirectoriesEmpty
 }
 
-func printCollides(t *Timetrace, records []*Record) {
+func printCollisions(t *Timetrace, records []*Record) {
 	out.Err("collides with these records :")
 
 	rows := make([][]string, len(records))
@@ -326,7 +326,7 @@ func (t *Timetrace) RecordCollides(toCheck Record) (bool, error) {
 
 	collide, collidingRecords := collides(toCheck, allRecords)
 	if collide {
-		printCollides(t, collidingRecords)
+		printCollisions(t, collidingRecords)
 	}
 
 	return collide, nil
