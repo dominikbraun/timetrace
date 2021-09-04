@@ -1,6 +1,7 @@
 package core
 
 import (
+	"reflect"
 	"testing"
 	"time"
 )
@@ -16,6 +17,19 @@ func newTestRecTracked(s int) Record {
 	return Record{Start: start}
 }
 
+func checkConsistent(t *testing.T, expect, result []*Record) {
+	if !reflect.DeepEqual(result, expect) {
+		t.Errorf("should collide with :\n")
+		for _, r := range expect {
+			t.Errorf("%v\n", r)
+		}
+		t.Errorf("while collides return :\n")
+		for _, r := range result {
+			t.Errorf("%v\n", r)
+		}
+	}
+}
+
 func TestCollides(t *testing.T) {
 	savedRec := newTestRecord(-60, -1)
 	allRecs := []*Record{&savedRec}
@@ -25,77 +39,93 @@ func TestCollides(t *testing.T) {
 	// rec1 starts and end after savedRec
 	rec1 := newTestRecord(-1, 0)
 
-	if collide, _ := collides(rec1, allRecs); collide {
+	if collide, collidingRecs := collides(rec1, allRecs); collide && len(collidingRecs) == 0 {
 		t.Error("records should not collide")
 	}
 
 	// rec2 starts in savedRec, ends after
 	rec2 := newTestRecord(-30, 1)
 
-	if collide, _ := collides(rec2, allRecs); !collide {
+	if collide, collidingRecs := collides(rec2, allRecs); !collide {
 		t.Error("records should collide")
+	} else {
+		checkConsistent(t, allRecs, collidingRecs)
 	}
 
 	// rec3 start before savedRec, ends inside
 	rec3 := newTestRecord(-75, -30)
 
-	if collide, _ := collides(rec3, allRecs); !collide {
+	if collide, collidingRecs := collides(rec3, allRecs); !collide {
 		t.Error("records should collide")
+	} else {
+		checkConsistent(t, allRecs, collidingRecs)
 	}
 
 	// rec4 starts and ends before savedRec
 	rec4 := newTestRecord(-75, -70)
 
-	if collide, _ := collides(rec4, allRecs); collide {
+	if collide, collidingRecs := collides(rec4, allRecs); collide && len(collidingRecs) == 0 {
 		t.Error("records should not collide")
 	}
 
 	// rec5 starts and ends inside savedRec
 	rec5 := newTestRecord(-40, -20)
 
-	if collide, _ := collides(rec5, allRecs); !collide {
+	if collide, collidingRecs := collides(rec5, allRecs); !collide {
 		t.Error("records should collide")
+	} else {
+		checkConsistent(t, allRecs, collidingRecs)
 	}
 
 	// rec6 starts before and ends after savedRec
 	rec6 := newTestRecord(-70, 10)
 
-	if collide, _ := collides(rec6, allRecs); !collide {
+	if collide, collidingRecs := collides(rec6, allRecs); !collide {
 		t.Error("records should collide")
+	} else {
+		checkConsistent(t, allRecs, collidingRecs)
 	}
 
 	// rec7 starts and ends at the same time as savedRec
 	rec7 := newTestRecord(-60, -1)
 
-	if collide, _ := collides(rec7, allRecs); !collide {
+	if collide, collidingRecs := collides(rec7, allRecs); !collide {
 		t.Error("records should collide")
+	} else {
+		checkConsistent(t, allRecs, collidingRecs)
 	}
 
 	// rec7 starts at the same time as savedRecTracked
 	rec8 := newTestRecord(-60, -1)
 
-	if collide, _ := collides(rec8, allRecsTracked); !collide {
+	if collide, collidingRecs := collides(rec8, allRecsTracked); !collide {
 		t.Error("records should collide")
+	} else {
+		checkConsistent(t, allRecsTracked, collidingRecs)
 	}
 
 	// rec9 ends at the time savedRecTracked ends
 	rec9 := newTestRecord(-80, -60)
 
-	if collide, _ := collides(rec9, allRecsTracked); !collide {
+	if collide, collidingRecs := collides(rec9, allRecsTracked); !collide {
 		t.Error("records should collide")
+	} else {
+		checkConsistent(t, allRecsTracked, collidingRecs)
 	}
 
 	// rec10 ends after savedRecTracked starts
 	rec10 := newTestRecord(-80, -50)
 
-	if collide, _ := collides(rec10, allRecsTracked); !collide {
+	if collide, collidingRecs := collides(rec10, allRecsTracked); !collide {
 		t.Error("records should collide")
+	} else {
+		checkConsistent(t, allRecsTracked, collidingRecs)
 	}
 
 	// rec11 ends before savedRecTracked starts
 	rec11 := newTestRecord(-80, -70)
 
-	if collide, _ := collides(rec11, allRecsTracked); collide {
+	if collide, collidingRecs := collides(rec11, allRecsTracked); collide && len(collidingRecs) == 0 {
 		t.Error("records should not collide")
 	}
 }
