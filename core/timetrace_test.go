@@ -1,7 +1,6 @@
 package core
 
 import (
-	"reflect"
 	"testing"
 	"time"
 )
@@ -18,7 +17,18 @@ func newTestRecTracked(s int) Record {
 }
 
 func checkConsistent(t *testing.T, expect, result []*Record) {
-	if !reflect.DeepEqual(result, expect) {
+	sameLen := len(result) == len(expect)
+	sameContent := true
+
+	if sameLen {
+		for i := range result {
+			if expect[i] != result[i] {
+				sameContent = false
+			}
+		}
+	}
+
+	if !(sameLen && sameContent) {
 		t.Errorf("should collide with :\n")
 		for _, r := range expect {
 			t.Errorf("%v\n", r)
@@ -28,6 +38,7 @@ func checkConsistent(t *testing.T, expect, result []*Record) {
 			t.Errorf("%v\n", r)
 		}
 	}
+
 }
 
 func TestCollides(t *testing.T) {
