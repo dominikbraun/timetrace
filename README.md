@@ -593,6 +593,46 @@ follows:
 timetrace get record 2021-05-14-03-00PM
 ```
 
+### Prefer decimal hours for status and reports
+
+If your prefer to use decimal hours instead of the default hours min format,
+add this to your `confg.yaml` file:
+
+```yaml
+useDecimalHours: 1
+```
+
+To view both hours mins and decimal minutes,
+add this to your `config.yaml` file
+
+```yaml
+useDecimalHours: 2
+```
+
+Sample Output
+```
+default (useDecimalHours = 0)
++-------------------+----------------------+----------------+----------+
+|  CURRENT PROJECT  |  WORKED SINCE START  |  WORKED TODAY  |  BREAKS  |
++-------------------+----------------------+----------------+----------+
+| make-coffee       | 1h 8min              | 3h 8min        | 0h 11min |
++-------------------+----------------------+----------------+----------+
+
+Decimal Hours (useDecimalHours = 1)
++-------------------+----------------------+----------------+----------+
+|  CURRENT PROJECT  |  WORKED SINCE START  |  WORKED TODAY  |  BREAKS  |
++-------------------+----------------------+----------------+----------+
+| make-coffee       | 1.2h                 | 3.2h           | 0.2h     |
++-------------------+----------------------+----------------+----------+
+
+Both (useDecimalHours = 2)
++-------------------+----------------------+----------------+---------------+
+|  CURRENT PROJECT  |  WORKED SINCE START  |  WORKED TODAY  |    BREAKS     |
++-------------------+----------------------+----------------+---------------+
+| make-coffee       | 1h 8min 1.2h         | 3h 8min 3.2h   | 0h 11min 0.2h |
++-------------------+----------------------+----------------+---------------+
+```
+
 ### Set your preferred editor
 
 By default, timetrace will open the editor specified in `$EDITOR` or fall back

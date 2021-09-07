@@ -5,11 +5,20 @@ import (
 	"github.com/spf13/viper"
 )
 
+type UseDecimalHours int
+
+const (
+	Off UseDecimalHours = iota
+	On
+	Both
+)
+
 type Config struct {
-	Store      string `json:"store"`
-	Use12Hours bool   `json:"use12hours"`
-	Editor     string `json:"editor"`
-	ReportPath string `json:"report-path"`
+	Store           string          `json:"store"`
+	Use12Hours      bool            `json:"use12hours"`
+	UseDecimalHours UseDecimalHours `json:"usedecimalhours"`
+	Editor          string          `json:"editor"`
+	ReportPath      string          `json:"report-path"`
 }
 
 var cached *Config
