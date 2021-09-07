@@ -55,7 +55,8 @@ func New(config *config.Config, fs Filesystem) *Timetrace {
 		config: config,
 		fs:     fs,
 		formatter: &Formatter{
-			use12Hours: config.Use12Hours,
+			useDecimalHours: config.UseDecimalHours,
+			use12Hours:      config.Use12Hours,
 		},
 	}
 }
