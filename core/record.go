@@ -331,6 +331,22 @@ func (t *Timetrace) loadAllRecordsSortedAscending(date time.Time) ([]*Record, er
 	return records, nil
 }
 
+// LoadRecordByID loads a record of the current day by the ID
+// provided in list records (starting with the oldest as #1)
+func (t *Timetrace) LoadRecordByID(ID int) (*Record, error) {
+	recs, err := t.loadAllRecordsSortedAscending(time.Now())
+
+	if err != nil {
+		return nil, err
+	}
+
+	if len(recs) < ID || ID == 0 {
+		return nil, nil
+	}
+
+	return recs[ID-1], nil
+}
+
 // LoadLatestRecord loads the youngest record. This may also be a record from
 // another day. If there is no latest record, nil and no error will be returned.
 func (t *Timetrace) LoadLatestRecord() (*Record, error) {

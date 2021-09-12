@@ -2,6 +2,7 @@ package cli
 
 import (
 	"errors"
+	"strconv"
 	"strings"
 	"time"
 
@@ -73,7 +74,7 @@ func editRecordCommand(t *core.Timetrace) *cobra.Command {
 	var options editOptions
 
 	editRecord := &cobra.Command{
-		Use:   "record {<KEY>|latest}",
+		Use:   "record {<KEY>|latest|@ID}",
 		Short: "Edit a record",
 		Args:  cobra.ExactArgs(1),
 		Run: func(cmd *cobra.Command, args []string) {
@@ -82,22 +83,11 @@ func editRecordCommand(t *core.Timetrace) *cobra.Command {
 				return
 			}
 
-			var recordTime time.Time
-			var err error
-			// if more aliases are needed, this should be expanded to a switch
-			if strings.ToLower(args[0]) == "latest" {
-				rec, err := t.LoadLatestRecord()
-				if err != nil {
-					out.Err("Error on loading last record: %s", err.Error())
-					return
-				}
-				recordTime = rec.Start
-			} else {
-				recordTime, err = t.Formatter().ParseRecordKey(args[0])
-				if err != nil {
-					out.Err("Failed to parse date argument: %s", err.Error())
-					return
-				}
+			recordTime, err := getRecordTimeFromArg(t, args[0])
+
+			if err != nil {
+				out.Err(err.Error())
+				return
 			}
 
 			if options.Revert {
@@ -136,4 +126,42 @@ func editRecordCommand(t *core.Timetrace) *cobra.Command {
 	editRecord.PersistentFlags().BoolVarP(&options.Revert, "revert", "r", false, "Restores the record to it's state prior to the last 'edit' command.")
 
 	return editRecord
+}
+
+func getRecordTimeFromArg(t *core.Timetrace, arg string) (time.Time, error) {
+	var recordTime time.Time
+	var err error
+	// if more aliases are needed, this should be expanded to a switch
+	if strings.ToLower(arg) == "latest" {
+		rec, err := t.LoadLatestRecord()
+		if err != nil {
+			err = errors.New("error on loading last record: " + err.Error())
+			return recordTime, err
+		}
+		recordTime = rec.Start
+	} else if strings.Contains(arg, "@") {
+		id, err := strconv.Atoi(arg[1:])
+		if err != nil {
+			err = errors.New("error on parsing ID: " + err.Error())
+			return recordTime, err
+		}
+		rec, err := t.LoadRecordByID(id)
+		if err != nil {
+			err = errors.New("Error on loading last record: " + err.Error())
+			return recordTime, err
+		}
+		if rec == nil {
+			err = errors.New("no record of given ID started today")
+			return recordTime, err
+		}
+		recordTime = rec.Start
+	} else {
+		recordTime, err = t.Formatter().ParseRecordKey(arg)
+		if err != nil {
+			err = errors.New("Failed to parse date argument: " + err.Error())
+			return recordTime, err
+		}
+	}
+
+	return recordTime, err
 }

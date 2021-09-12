@@ -108,7 +108,7 @@ func listRecordsCommand(t *core.Timetrace) *cobra.Command {
 				}
 
 				rows[i] = make([]string, 6)
-				rows[i][0] = strconv.Itoa(i + 1)
+				rows[i][0] = strconv.Itoa(len(records) - i)
 				rows[i][1] = t.Formatter().RecordKey(record)
 				rows[i][2] = record.Project.Key
 				rows[i][3] = t.Formatter().TimeString(record.Start)
