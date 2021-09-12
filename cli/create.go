@@ -106,7 +106,6 @@ func createRecordCommand(t *core.Timetrace) *cobra.Command {
 				return
 			}
 			if collides {
-				out.Err("Record collides with other record!")
 				return
 			}
 
