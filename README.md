@@ -647,33 +647,33 @@ If your prefer to use decimal hours instead of the default hours min format,
 add this to your `confg.yaml` file:
 
 ```yaml
-useDecimalHours: 1
+useDecimalHours: "On"
 ```
 
 To view both hours mins and decimal minutes,
 add this to your `config.yaml` file
 
 ```yaml
-useDecimalHours: 2
+useDecimalHours: "Both"
 ```
 
 Sample Output
 ```
-default (useDecimalHours = 0)
+default (useDecimalHours = "Off")
 +-------------------+----------------------+----------------+----------+
 |  CURRENT PROJECT  |  WORKED SINCE START  |  WORKED TODAY  |  BREAKS  |
 +-------------------+----------------------+----------------+----------+
 | make-coffee       | 1h 8min              | 3h 8min        | 0h 11min |
 +-------------------+----------------------+----------------+----------+
 
-Decimal Hours (useDecimalHours = 1)
+Decimal Hours (useDecimalHours = "On")
 +-------------------+----------------------+----------------+----------+
 |  CURRENT PROJECT  |  WORKED SINCE START  |  WORKED TODAY  |  BREAKS  |
 +-------------------+----------------------+----------------+----------+
 | make-coffee       | 1.2h                 | 3.2h           | 0.2h     |
 +-------------------+----------------------+----------------+----------+
 
-Both (useDecimalHours = 2)
+Both (useDecimalHours = "Both")
 +-------------------+----------------------+----------------+---------------+
 |  CURRENT PROJECT  |  WORKED SINCE START  |  WORKED TODAY  |    BREAKS     |
 +-------------------+----------------------+----------------+---------------+

@@ -3,15 +3,13 @@ package core
 import (
 	"fmt"
 	"time"
-
-	"github.com/dominikbraun/timetrace/config"
 )
 
 // Formatter represents a date- and time formatter. It provides all displayed
 // date- and time layouts and is capable of parsing those layouts.
 type Formatter struct {
 	use12Hours      bool
-	useDecimalHours config.UseDecimalHours
+	useDecimalHours string
 }
 
 const dateLayout = "2006-01-02"
@@ -106,11 +104,11 @@ func (f *Formatter) FormatDuration(duration time.Duration) string {
 	dec := duration.Minutes() / 60
 	var response string
 	switch f.useDecimalHours {
-	case config.Both:
+	case "Both":
 		response = fmt.Sprintf("%dh %dmin %.1fh", hours, minutes, dec)
-	case config.On:
+	case "On":
 		response = fmt.Sprintf("%.1fh", dec)
-	case config.Off:
+	case "Off":
 		response = fmt.Sprintf("%dh %dmin", hours, minutes)
 	default:
 		response = fmt.Sprintf("%dh %dmin", hours, minutes)

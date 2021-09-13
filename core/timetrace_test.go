@@ -156,7 +156,7 @@ func TestFormatDuration(t *testing.T) {
 		}
 	}
 	//Decimal Hours true
-	formatter.useDecimalHours = 1
+	formatter.useDecimalHours = "On"
 	for _, test := range tt {
 		strFormat := formatter.FormatDuration(test.Duration)
 		if strFormat != test.ExpectedDec {
@@ -164,7 +164,7 @@ func TestFormatDuration(t *testing.T) {
 		}
 	}
 	//Decimal Hours both
-	formatter.useDecimalHours = 2
+	formatter.useDecimalHours = "Both"
 	for _, test := range tt {
 		strFormat := formatter.FormatDuration(test.Duration)
 		if strFormat != test.ExpectedBoth {
