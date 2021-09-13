@@ -5,6 +5,23 @@ CHANGELOG_FILE = "CHANGELOG.md"
 
 
 def main():
+    """
+    Parses the command-line arguments release.py has been called with and
+    runs the respective command.
+
+    Valid commands:
+        - release.py check-changelog --tag <GIT TAG>
+          Checks whether the Git tag provided in the --tag option exists
+          in the changelog. If it doesn't, release.py will error.
+        - release.py print-changelog --tag <GIT TAG>
+          Prints the changelog for the Git tag provided in the --tag option
+          to Stdout. The output will be empty if the tag isn't in the
+          changelog.
+
+    release.py expects the Git tag to start with `v`, e.g. `v0.1.2`. In the
+    changelog however, only the release numbers are expected, e.g. `0.1.2`.
+    Headings for releases need to be in the syntax `## [0.1.2]`.
+    """
     parser = argparse.ArgumentParser()
     parser.add_argument("run", type=str, help="the task to run")
     parser.add_argument("--tag", type=str, help="the Git tag to work with")
