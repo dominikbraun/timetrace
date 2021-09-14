@@ -8,7 +8,8 @@ import (
 // Formatter represents a date- and time formatter. It provides all displayed
 // date- and time layouts and is capable of parsing those layouts.
 type Formatter struct {
-	use12Hours bool
+	use12Hours      bool
+	useDecimalHours string
 }
 
 const dateLayout = "2006-01-02"
@@ -93,11 +94,24 @@ func (f *Formatter) RecordKey(record *Record) string {
 }
 
 // formatDuration formats the passed duration into a string.
-// The format will be "8h 24min".
+// The format is determined by value of UseDecimalHours in config file and
+// will be "8h 24min", "8.4h, or "8h 24min 8.4h".
 // seconds information is ignored.
 func (f *Formatter) FormatDuration(duration time.Duration) string {
 
 	hours := int64(duration.Hours()) % 60
 	minutes := int64(duration.Minutes()) % 60
-	return fmt.Sprintf("%dh %dmin", hours, minutes)
+	dec := duration.Minutes() / 60
+	var response string
+	switch f.useDecimalHours {
+	case "Both":
+		response = fmt.Sprintf("%dh %dmin %.1fh", hours, minutes, dec)
+	case "On":
+		response = fmt.Sprintf("%.1fh", dec)
+	case "Off":
+		response = fmt.Sprintf("%dh %dmin", hours, minutes)
+	default:
+		response = fmt.Sprintf("%dh %dmin", hours, minutes)
+	}
+	return response
 }

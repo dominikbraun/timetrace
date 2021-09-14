@@ -144,41 +144,72 @@ func TestCollides(t *testing.T) {
 func TestFormatDuration(t *testing.T) {
 
 	tt := []struct {
-		Duration time.Duration
-		Expected string
+		Duration     time.Duration
+		Expected     string
+		ExpectedDec  string
+		ExpectedBoth string
 	}{
 		{
-			Duration: time.Duration(12 * time.Second),
-			Expected: "0h 0min",
+			Duration:     time.Duration(12 * time.Second),
+			Expected:     "0h 0min",
+			ExpectedDec:  "0.0h",
+			ExpectedBoth: "0h 0min 0.0h",
 		},
 		{
-			Duration: time.Duration(60 * time.Minute),
-			Expected: "1h 0min",
+			Duration:     time.Duration(60 * time.Minute),
+			Expected:     "1h 0min",
+			ExpectedDec:  "1.0h",
+			ExpectedBoth: "1h 0min 1.0h",
 		},
 		{
-			Duration: time.Duration(24 * time.Minute),
-			Expected: "0h 24min",
+			Duration:     time.Duration(24 * time.Minute),
+			Expected:     "0h 24min",
+			ExpectedDec:  "0.4h",
+			ExpectedBoth: "0h 24min 0.4h",
 		},
 		{
-			Duration: time.Duration((60*8 + 24) * time.Minute),
-			Expected: "8h 24min",
+			Duration:     time.Duration((60*8 + 24) * time.Minute),
+			Expected:     "8h 24min",
+			ExpectedDec:  "8.4h",
+			ExpectedBoth: "8h 24min 8.4h",
 		},
 		{
-			Duration: time.Duration((60*8+24)*time.Minute + 12*time.Second),
-			Expected: "8h 24min",
+			Duration:     time.Duration((60*8+24)*time.Minute + 12*time.Second),
+			Expected:     "8h 24min",
+			ExpectedDec:  "8.4h",
+			ExpectedBoth: "8h 24min 8.4h",
 		},
 		{
-			Duration: time.Duration(0 * time.Second),
-			Expected: "0h 0min",
+			Duration:     time.Duration(0 * time.Second),
+			Expected:     "0h 0min",
+			ExpectedDec:  "0.0h",
+			ExpectedBoth: "0h 0min 0.0h",
 		},
 	}
 
 	formatter := Formatter{}
 
+	//Default Case
 	for _, test := range tt {
 		strFormat := formatter.FormatDuration(test.Duration)
 		if strFormat != test.Expected {
 			t.Fatalf("format error: %s != %s", strFormat, test.Expected)
+		}
+	}
+	//Decimal Hours true
+	formatter.useDecimalHours = "On"
+	for _, test := range tt {
+		strFormat := formatter.FormatDuration(test.Duration)
+		if strFormat != test.ExpectedDec {
+			t.Fatalf("format error: %s != %s", strFormat, test.ExpectedDec)
+		}
+	}
+	//Decimal Hours both
+	formatter.useDecimalHours = "Both"
+	for _, test := range tt {
+		strFormat := formatter.FormatDuration(test.Duration)
+		if strFormat != test.ExpectedBoth {
+			t.Fatalf("format error: %s != %s", strFormat, test.ExpectedBoth)
 		}
 	}
 }
