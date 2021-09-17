@@ -67,7 +67,7 @@ func New(config *config.Config, fs Filesystem) *Timetrace {
 // record with the current time as start time.
 //
 // Since parallel work isn't supported, the previous work must be stopped first.
-func (t *Timetrace) Start(projectKey string, isBillable bool) error {
+func (t *Timetrace) Start(projectKey string, isBillable bool, tags []string) error {
 	latestRecord, err := t.LoadLatestRecord()
 	if err != nil && !errors.Is(err, ErrAllDirectoriesEmpty) {
 		return err
@@ -90,6 +90,7 @@ func (t *Timetrace) Start(projectKey string, isBillable bool) error {
 		Start:      time.Now(),
 		Project:    project,
 		IsBillable: isBillable,
+		Tags:       tags,
 	}
 
 	return t.SaveRecord(record, false)
