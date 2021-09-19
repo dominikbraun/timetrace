@@ -26,6 +26,7 @@ type Record struct {
 	End        *time.Time `json:"end"`
 	Project    *Project   `json:"project"`
 	IsBillable bool       `json:"is_billable"`
+	Tags       []string   `json:"tags"`
 }
 
 // Duration calculates time duration for a specific record. If the record doesn't

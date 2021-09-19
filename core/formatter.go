@@ -115,3 +115,16 @@ func (f *Formatter) FormatDuration(duration time.Duration) string {
 	}
 	return response
 }
+
+func (f *Formatter) FormatTags(tags []string) string {
+	var result string
+
+	for i, t := range tags {
+		result += t
+		if i < len(tags)-1 {
+			result += ", "
+		}
+	}
+
+	return result
+}

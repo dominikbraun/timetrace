@@ -1,11 +1,16 @@
 package cli
 
 import (
+	"fmt"
+	"strings"
+
 	"github.com/dominikbraun/timetrace/core"
 	"github.com/dominikbraun/timetrace/out"
 
 	"github.com/spf13/cobra"
 )
+
+const TagsPrefix = "+"
 
 type startOptions struct {
 	isBillable    bool
@@ -16,14 +21,15 @@ func startCommand(t *core.Timetrace) *cobra.Command {
 	var options startOptions
 
 	start := &cobra.Command{
-		Use:   "start <PROJECT KEY>",
+		Use:   "start <PROJECT KEY> [+TAG1, +TAG2, ...]",
 		Short: "Start tracking time",
-		Args:  cobra.ExactArgs(1),
 		Run: func(cmd *cobra.Command, args []string) {
 			projectKey := args[0]
+			tags := args[1:]
 
 			isBillable := options.isBillable
 
+			// If there is a default configuration for the project key, use that configuration.
 			if projectConfig, ok := t.Config().Projects[projectKey]; ok {
 				isBillable = projectConfig.Billable
 			}
@@ -32,7 +38,13 @@ func startCommand(t *core.Timetrace) *cobra.Command {
 				isBillable = false
 			}
 
-			if err := t.Start(projectKey, isBillable); err != nil {
+			tagNames, err := extractTagNames(tags)
+			if err != nil {
+				out.Err("Failed to start tracking: %s", err.Error())
+				return
+			}
+
+			if err := t.Start(projectKey, isBillable, tagNames); err != nil {
 				out.Err("Failed to start tracking: %s", err.Error())
 				return
 			}
@@ -48,4 +60,17 @@ func startCommand(t *core.Timetrace) *cobra.Command {
 		false, `mark tracked time as non-billable if the project is configured as billable`)
 
 	return start
+}
+
+func extractTagNames(tagsWithPrefix []string) ([]string, error) {
+	tagNames := make([]string, 0)
+
+	for _, tagWithPrefix := range tagsWithPrefix {
+		if !strings.HasPrefix(tagWithPrefix, TagsPrefix) {
+			return nil, fmt.Errorf("'%s' is not a valid tag. Tags must start with %s", tagWithPrefix, TagsPrefix)
+		}
+		tagNames = append(tagNames, tagWithPrefix[1:])
+	}
+
+	return tagNames, nil
 }
