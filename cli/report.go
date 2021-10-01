@@ -60,7 +60,7 @@ func generateReportCommand(t *core.Timetrace) *cobra.Command {
 			}
 			// wont hurt table will just be empty but makes sense to let the user know
 			if options.isBillable && options.isNonBillable {
-				out.Err("Cannot filter for billable and none billable records")
+				out.Err("cannot filter for billable and none billable records")
 				return
 			}
 			if options.isBillable {

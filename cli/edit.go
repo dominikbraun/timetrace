@@ -37,25 +37,25 @@ func editProjectCommand(t *core.Timetrace) *cobra.Command {
 			key := args[0]
 			if options.Revert {
 				if err := t.RevertProject(key); err != nil {
-					out.Err("Failed to revert project: %s", err.Error())
+					out.Err("failed to revert project: %s", err.Error())
 				} else {
-					out.Info("Project backup restored successfuly")
+					out.Info("project backup restored successfuly")
 				}
 				return
 			}
 
 			if err := t.BackupProject(key); err != nil {
-				out.Err("Failed to backup project before edit: %s", err.Error())
+				out.Err("failed to backup project before edit: %s", err.Error())
 				return
 			}
-			out.Info("Opening %s in default editor", key)
+			out.Info("opening %s in default editor", key)
 
 			if err := t.EditProject(key); err != nil {
-				out.Err("Failed to edit project: %s", err.Error())
+				out.Err("failed to edit project: %s", err.Error())
 				return
 			}
 
-			out.Success("Successfully edited %s", key)
+			out.Success("successfully edited %s", key)
 		},
 	}
 
@@ -79,7 +79,7 @@ func editRecordCommand(t *core.Timetrace) *cobra.Command {
 		Args:  cobra.ExactArgs(1),
 		Run: func(cmd *cobra.Command, args []string) {
 			if options.Plus != "" && options.Minus != "" {
-				out.Err("Plus and minus flag can not be combined: %s", errors.New("edit not possible"))
+				out.Err("plus and minus flag can not be combined: %s", errors.New("edit not possible"))
 				return
 			}
 
@@ -92,7 +92,7 @@ func editRecordCommand(t *core.Timetrace) *cobra.Command {
 
 			if options.Revert {
 				if err := t.RevertRecord(recordTime); err != nil {
-					out.Err("Failed to revert record: %s", err.Error())
+					out.Err("failed to revert record: %s", err.Error())
 				} else {
 					out.Info("Record backup restored successfully")
 				}
@@ -100,24 +100,24 @@ func editRecordCommand(t *core.Timetrace) *cobra.Command {
 			}
 
 			if err := t.BackupRecord(recordTime); err != nil {
-				out.Err("Failed to backup record before edit: %s", err.Error())
+				out.Err("failed to backup record before edit: %s", err.Error())
 				return
 			}
 
 			if options.Minus == "" && options.Plus == "" {
 				out.Info("Opening %s in default editor", recordTime)
 				if err := t.EditRecordManual(recordTime); err != nil {
-					out.Err("Failed to edit record: %s", err.Error())
+					out.Err("failed to edit record: %s", err.Error())
 					return
 				}
 			} else {
 				if err := t.EditRecord(recordTime, options.Plus, options.Minus); err != nil {
-					out.Err("Failed to edit record: %s", err.Error())
+					out.Err("failed to edit record: %s", err.Error())
 					return
 				}
 			}
 
-			out.Success("Successfully edited %s", recordTime)
+			out.Success("successfully edited %s", recordTime)
 		},
 	}
 
@@ -147,7 +147,7 @@ func getRecordTimeFromArg(t *core.Timetrace, arg string) (time.Time, error) {
 		}
 		rec, err := t.LoadRecordByID(id)
 		if err != nil {
-			err = errors.New("Error on loading last record: " + err.Error())
+			err = errors.New("error on loading last record: " + err.Error())
 			return recordTime, err
 		}
 		if rec == nil {
@@ -158,7 +158,7 @@ func getRecordTimeFromArg(t *core.Timetrace, arg string) (time.Time, error) {
 	} else {
 		recordTime, err = t.Formatter().ParseRecordKey(arg)
 		if err != nil {
-			err = errors.New("Failed to parse date argument: " + err.Error())
+			err = errors.New("failed to parse date argument: " + err.Error())
 			return recordTime, err
 		}
 	}

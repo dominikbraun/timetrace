@@ -34,7 +34,7 @@ func getProjectCommand(t *core.Timetrace) *cobra.Command {
 
 			project, err := t.LoadProject(key)
 			if err != nil {
-				out.Err("Failed to get project: %s", key)
+				out.Err("failed to get project: %s", key)
 				return
 			}
 
@@ -58,13 +58,13 @@ func getRecordCommand(t *core.Timetrace) *cobra.Command {
 		Run: func(cmd *cobra.Command, args []string) {
 			start, err := t.Formatter().ParseRecordKey(args[0])
 			if err != nil {
-				out.Err("Failed to parse date argument: %s", err.Error())
+				out.Err("failed to parse date argument: %s", err.Error())
 				return
 			}
 
 			record, err := t.LoadRecord(start)
 			if err != nil {
-				out.Err("Failed to read record: %s", err.Error())
+				out.Err("failed to read record: %s", err.Error())
 				return
 			}
 
