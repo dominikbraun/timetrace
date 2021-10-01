@@ -50,8 +50,14 @@ func createProjectCommand(t *core.Timetrace) *cobra.Command {
 
 func createRecordCommand(t *core.Timetrace) *cobra.Command {
 	var options startOptions
+	var usage string
+	if t.Config().Use12Hours {
+		usage = "record <PROJECT KEY> {<YYYY-MM-DD>|today|yesterday} <HH:MMPM> <HH:MMPM>"
+	} else {
+		usage = "record <PROJECT KEY> {<YYYY-MM-DD>|today|yesterday} <HH:MM> <HH:MM>"
+	}
 	createRecord := &cobra.Command{
-		Use:   "record <PROJECT KEY> {<YYYY-MM-DD>|today|yesterday} <HH:MM> <HH:MM>",
+		Use:   usage,
 		Short: "Create a new record",
 		Args:  cobra.ExactArgs(4),
 		Run: func(cmd *cobra.Command, args []string) {
