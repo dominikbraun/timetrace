@@ -41,9 +41,6 @@ jobs:
       - run:
           name: Download dependencies
           command: go mod download
-      - save_cache:
-          key: gomodules-v1-{{ checksum "go.mod" }}
-          paths: /go/pkg
       - run:
           name: Run all tests
           command: go test -v ./...
@@ -69,9 +66,6 @@ jobs:
       - run:
           name: Download dependencies
           command: go mod download
-      - save_cache:
-          key: gomodules-v1-{{ checksum "go.mod" }}
-          paths: /go/pkg
       - run: mkdir -p /tmp/artifacts
       - run:
           name: Build and pack timetrace for Linux
