@@ -9,8 +9,8 @@
 
 ![CLI screenshot 64x16](timetrace.png)
 
-:fire: **New:** [Add tags for records](#start-tracking)
-:fire: **New:** [Use decimal hours when displaying durations](#prefer-decimal-hours-for-status-and-reports)
+:fire: **New:** [Add tags for records](#start-tracking)  
+:fire: **New:** [Use decimal hours when displaying durations](#prefer-decimal-hours-for-status-and-reports)  
 :fire: **New:** [Restore records when restoring the associated project](#delete-a-project)  
 :fire: **New:** [Support for per-project configuration](#per-project-configuration)  
 
