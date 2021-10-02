@@ -5,6 +5,16 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.14.0] - 2021-10-02
+
+### Added
+* Add support for tags (#183)
+* Add support for durations in decimal format (#180)
+* Introduce `@ID` notation for selecting records (#116)
+
+### Changed
+* Print colliding records as table when a collision occurs (#174)
+
 ## [0.13.0] - 2021-08-10
 
 ### Added
