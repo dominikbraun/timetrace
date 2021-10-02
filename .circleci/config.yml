@@ -50,7 +50,7 @@ jobs:
 
   # Verify that the requirements for creating a new release are met.
   pre-release-check:
-    executor: go-container
+    executor: python-container
     steps:
       - checkout
       - run:
