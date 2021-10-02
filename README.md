@@ -9,10 +9,10 @@
 
 ![CLI screenshot 64x16](timetrace.png)
 
+:fire: **New:** [Add tags for records](#start-tracking)
+:fire: **New:** [Use decimal hours when displaying durations](#prefer-decimal-hours-for-status-and-reports)
 :fire: **New:** [Restore records when restoring the associated project](#delete-a-project)  
 :fire: **New:** [Support for per-project configuration](#per-project-configuration)  
-:fire: **New:** [Create belated records](#create-a-record)  
-:fire: **New:** [Display the tracking status as JSON or in your own format](#print-the-tracking-status)  
 
 ---
 
@@ -45,6 +45,7 @@
   - [Print version information](#print-version-information)
 - [Configuration](#configuration)
   - [Prefer 12-hour clock for storing records](#prefer-12-hour-clock-for-storing-records)
+  - [Prefer decimal hours for status and reports](#prefer-decimal-hours-for-status-and-reports)
   - [Set your preferred editor](#set-your-preferred-editor)
   - [Configure defaults for projects](#configure-defaults-for-projects)
 - [Credits](#credits)
@@ -163,14 +164,15 @@ You can find a list of available formatting variables in the [`status` reference
 **Syntax:**
 
 ```
-timetrace start <PROJECT KEY>
+timetrace start <PROJECT KEY> [+TAG1, +TAG2, ...]
 ```
 
 **Arguments:**
 
-| Argument      | Description             |
-| ------------- | ----------------------- |
-| `PROJECT KEY` | The key of the project. |
+| Argument            | Description                                  |
+| ------------------- | -------------------------------------------- |
+| `PROJECT KEY`       | The key of the project.                      |
+| `+TAG1, +TAG2, ...` | One or more optional tags starting with `+`. |
 
 **Flags:**
 
@@ -185,6 +187,12 @@ Start working on a project called `make-coffee` and mark it as billable:
 
 ```
 timetrace start --billable make-coffee
+```
+
+Start working on the `make-coffee` project and add two tags:
+
+```
+timetrace start make-coffee +espresso +morning
 ```
 
 ### Print the tracking status
@@ -643,21 +651,21 @@ timetrace get record 2021-05-14-03-00PM
 
 ### Prefer decimal hours for status and reports
 
-If your prefer to use decimal hours instead of the default hours min format,
-add this to your `confg.yaml` file:
+If your prefer to use decimal hours for durations, e.g. `1.5h` instead of `1h 30m`,
+add this to your `config.yaml` file:
 
 ```yaml
 useDecimalHours: "On"
 ```
 
-To view both hours mins and decimal minutes,
-add this to your `config.yaml` file
+To display durations in _both_ formats at the same time, use:
 
 ```yaml
 useDecimalHours: "Both"
 ```
 
-Sample Output
+**Examples with durations in different formats:**
+
 ```
 default (useDecimalHours = "Off")
 +-------------------+----------------------+----------------+----------+
