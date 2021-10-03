@@ -14,7 +14,7 @@ func stopCommand(t *core.Timetrace) *cobra.Command {
 		Args:  cobra.ExactArgs(0),
 		Run: func(cmd *cobra.Command, args []string) {
 			if err := t.Stop(); err != nil {
-				out.Err("Failed to stop tracking: %s", err.Error())
+				out.Err("failed to stop tracking: %s", err.Error())
 				return
 			}
 

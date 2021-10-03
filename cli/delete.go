@@ -56,14 +56,14 @@ func deleteProjectCommand(t *core.Timetrace) *cobra.Command {
 				if !options.ExcludeRecords && askForConfirmation(revertRecordsWarning) {
 					defer func() {
 						if err := t.RevertRecordsByProject(key); err != nil {
-							out.Err("Failed to revert project records from backup: %s", err.Error())
+							out.Err("failed to revert project records from backup: %s", err.Error())
 							return
 						}
 						out.Info("Project records restored successfully")
 					}()
 				}
 				if err := t.RevertProject(key); err != nil {
-					out.Err("Failed to revert project: %s", err.Error())
+					out.Err("failed to revert project: %s", err.Error())
 					return
 				}
 				out.Info("Project backup restored successfully")
@@ -80,13 +80,13 @@ func deleteProjectCommand(t *core.Timetrace) *cobra.Command {
 			}
 
 			if err := t.BackupProject(key); err != nil {
-				out.Err("Failed to backup project before deletion: %s", err.Error())
+				out.Err("failed to backup project before deletion: %s", err.Error())
 				return
 			}
 
 			defer func() {
 				if err := t.DeleteProject(project); err != nil {
-					out.Err("Failed to delete %s", err.Error())
+					out.Err("failed to delete %s", err.Error())
 					return
 				}
 			}()
@@ -94,7 +94,7 @@ func deleteProjectCommand(t *core.Timetrace) *cobra.Command {
 			if !options.ExcludeRecords && askForConfirmation(deleteRecordsWarning) {
 				// find and delete records.
 				if err := t.DeleteRecordsByProject(key); err != nil {
-					out.Err("Failed to delete project records - %v", err)
+					out.Err("failed to delete project records - %v", err)
 				}
 			}
 
@@ -127,7 +127,7 @@ func deleteRecordCommand(t *core.Timetrace) *cobra.Command {
 
 			if options.Revert {
 				if err := t.RevertRecord(start); err != nil {
-					out.Err("Failed to revert record: %s", err.Error())
+					out.Err("failed to revert record: %s", err.Error())
 					return
 				}
 				out.Info("Record backup restored successfully")
@@ -136,7 +136,7 @@ func deleteRecordCommand(t *core.Timetrace) *cobra.Command {
 
 			record, err := t.LoadRecord(start)
 			if err != nil {
-				out.Err("Failed to read record: %s", err.Error())
+				out.Err("failed to read record: %s", err.Error())
 				return
 			}
 
@@ -148,12 +148,12 @@ func deleteRecordCommand(t *core.Timetrace) *cobra.Command {
 			}
 
 			if err := t.BackupRecord(start); err != nil {
-				out.Err("Failed to backup record before deletion: %s", err.Error())
+				out.Err("failed to backup record before deletion: %s", err.Error())
 				return
 			}
 
 			if err := t.DeleteRecord(*record); err != nil {
-				out.Err("Failed to delete %s", err.Error())
+				out.Err("failed to delete %s", err.Error())
 				return
 			}
 

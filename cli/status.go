@@ -36,12 +36,12 @@ func statusCommand(t *core.Timetrace) *cobra.Command {
 				out.Info("You haven't started tracking time today")
 				return
 			} else if err != nil {
-				out.Err("Failed to obtain status: %s", err.Error())
+				out.Err("failed to obtain status: %s", err.Error())
 				return
 			}
 
 			if report == nil {
-				out.Info("You're not tracking time at the moment")
+				out.Info("you're not tracking time at the moment")
 				return
 			}
 

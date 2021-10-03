@@ -40,12 +40,12 @@ func startCommand(t *core.Timetrace) *cobra.Command {
 
 			tagNames, err := extractTagNames(tags)
 			if err != nil {
-				out.Err("Failed to start tracking: %s", err.Error())
+				out.Err("failed to start tracking: %s", err.Error())
 				return
 			}
 
 			if err := t.Start(projectKey, isBillable, tagNames); err != nil {
-				out.Err("Failed to start tracking: %s", err.Error())
+				out.Err("failed to start tracking: %s", err.Error())
 				return
 			}
 
