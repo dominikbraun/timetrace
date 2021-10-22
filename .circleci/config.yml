@@ -25,9 +25,9 @@ jobs:
       - run:
           name: Check Go format
           command: "! go fmt -l . | read"
-      - run:
-          name: Check Go imports
-          command: "result=$(! goimports -l .); [ -z $result ] || (echo $result; exit 1)"
+      # - run:
+      #     name: Check Go imports
+      #     command: "result=$(! goimports -l .); [ -z $result ] || (echo $result; exit 1)"
 
   # Run all Go tests.
   go-test:
