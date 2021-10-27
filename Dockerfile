@@ -16,6 +16,8 @@ RUN curl -LO https://github.com/dominikbraun/timetrace/releases/download/${VERSI
 # The final stage. This is the image that will be distrubuted.
 FROM alpine:3.11.5 AS final
 
+RUN apk add -U --no-cache tzdata
+
 LABEL org.label-schema.schema-version="1.0"
 LABEL org.label-schema.name="timetrace"
 LABEL org.label-schema.description="A simple CLI for tracking your working time."
