@@ -48,13 +48,14 @@ jobs:
           username: ${{ github.repository_owner }}
           password: ${{ secrets.GITHUB_TOKEN }}
       - 
-        name: Build and push to Docker Hub
+        name: Build and Push 
         uses: docker/build-push-action@v2
         with:
-          image: ${{ github.repository }}
           context: .
           platforms: linux/amd64
           push: true
-          tags: ${{ env.VERSION }}
+          tags: |
+              ${{ github.repository }}:${{ env.VERSION }}
+              ghcr.io/${{ github.repository }}:${{ env.VERSION }}
           build-args: |
             VERSION=${{ env.VERSION }}
