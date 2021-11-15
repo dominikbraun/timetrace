@@ -1,0 +1,35 @@
+name: Build and Release
+
+on:
+  workflow_dispatch:
+    inputs:
+      version:
+        description: 'TimeTrace Version'
+        required: false
+  release:
+    types: [created]
+
+permissions:
+  contents: write
+
+jobs:
+  goreleaser:
+    runs-on: ubuntu-latest
+    steps:
+      -
+        name: Set Tag
+        run: |
+          if [[ $GITHUB_EVENT_NAME  == "workflow_dispatch" ]]; then
+            echo "VERSION=${{ github.event.inputs.tag }} " >> $GITHUB_ENV
+          elif [[ $GITHUB_EVENT_NAME  == "release" ]]; then
+            echo "VERSION=$GITHUB_REF_NAME" >> $GITHUB_ENV
+          else
+            exit 1
+          fi
+          echo ${{ env.VERSION }}
+      -
+        name: Checkout
+        uses: actions/checkout@v2
+      -
+        name: Run Checks
+        run: python release.py check-changelog --tag=${{ env.Version }}
