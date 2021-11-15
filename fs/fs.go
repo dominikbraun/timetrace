@@ -12,6 +12,7 @@ import (
 	"time"
 
 	"github.com/dominikbraun/timetrace/config"
+	"github.com/spf13/afero"
 )
 
 const (
@@ -28,12 +29,14 @@ const (
 )
 
 type Fs struct {
+	Wrapper   afero.Fs
 	config    *config.Config
 	sanitizer *strings.Replacer
 }
 
 func New(config *config.Config) *Fs {
 	return &Fs{
+		Wrapper:   afero.NewMemMapFs(), // change later
 		config:    config,
 		sanitizer: strings.NewReplacer("/", "-", "\\", "-"),
 	}
@@ -58,7 +61,7 @@ func (fs *Fs) ProjectBackupFilepath(key string) string {
 func (fs *Fs) ProjectFilepaths() ([]string, error) {
 	dir := fs.projectsDir()
 
-	items, err := ioutil.ReadDir(dir)
+	items, err := afero.ReadDir(fs.Wrapper, dir)
 	if err != nil {
 		return nil, err
 	}
@@ -212,7 +215,7 @@ func (fs *Fs) EnsureDirectories() error {
 	}
 
 	for _, dir := range dirs {
-		if err := os.MkdirAll(dir, 0777); err != nil {
+		if err := fs.Wrapper.MkdirAll(dir, 0777); err != nil {
 			return err
 		}
 	}
@@ -271,4 +274,8 @@ func (fs *Fs) WriteReport(filepath string, data []byte) error {
 		return err
 	}
 	return nil
+}
+
+func (fs *Fs) Stat(path string) (*os.FileInfo, error) {
+	return nil, fmt.Errorf("not implemented")
 }

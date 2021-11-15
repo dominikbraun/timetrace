@@ -1,9 +1,7 @@
 package core
 
 import (
-	"encoding/json"
 	"errors"
-	"io/ioutil"
 	"os"
 	"os/exec"
 	"path/filepath"
@@ -43,12 +41,13 @@ func (r *Record) Duration() time.Duration {
 // LoadRecord loads the record with the given start time. Returns
 // ErrRecordNotFound if the record cannot be found.
 func (t *Timetrace) LoadRecord(start time.Time) (*Record, error) {
-	path := t.fs.RecordFilepath(start)
+	path := t.recordFS.FilepathByTime(start)
 	return t.loadRecord(path)
 }
 
 func (t *Timetrace) LoadBackupRecord(start time.Time) (*Record, error) {
-	path := t.fs.RecordBackupFilepath(start)
+	// path := t.fs.RecordBackupFilepath(start)
+	path := t.recordFS.BackupByTime(start)
 	return t.loadRecord(path)
 }
 
@@ -61,54 +60,29 @@ func (t *Timetrace) ListRecords(date time.Time) ([]*Record, error) {
 // SaveRecord persists the given record. Returns ErrRecordAlreadyExists if the
 // record already exists and saving isn't forced.
 func (t *Timetrace) SaveRecord(record Record, force bool) error {
-	path := t.fs.RecordFilepath(record.Start)
+	path := t.recordFS.FilepathByTime(record.Start)
 
-	if _, err := os.Stat(path); err == nil && !force {
+	if t.recordFS.Exists(path) {
 		return ErrRecordAlreadyExists
 	}
 
-	if err := t.fs.EnsureRecordDir(record.Start); err != nil {
+	if err := t.recordFS.EnsureDir(record.Start); err != nil {
 		return err
 	}
-
-	file, err := os.OpenFile(path, os.O_WRONLY|os.O_CREATE|os.O_TRUNC, 0600)
-	if err != nil {
-		return err
-	}
-
-	bytes, err := json.MarshalIndent(&record, "", "\t")
-	if err != nil {
-		return err
-	}
-
-	_, err = file.Write(bytes)
-
-	return err
+	return t.recordFS.Save(path, &record)
 }
 
 // BackupRecord creates a backup of the given record file
 func (t *Timetrace) BackupRecord(recordKey time.Time) error {
-	path := t.fs.RecordFilepath(recordKey)
+	path := t.recordFS.FilepathByTime(recordKey)
 	record, err := t.loadRecord(path)
 	if err != nil {
 		return err
 	}
 	// create a new .bak filepath from the record struct
-	backupPath := t.fs.RecordBackupFilepath(recordKey)
+	backupPath := t.recordFS.BackupByTime(recordKey)
 
-	backupFile, err := os.OpenFile(backupPath, os.O_WRONLY|os.O_CREATE|os.O_TRUNC, 0600)
-	if err != nil {
-		return err
-	}
-
-	bytes, err := json.MarshalIndent(&record, "", "\t")
-	if err != nil {
-		return err
-	}
-
-	_, err = backupFile.Write(bytes)
-
-	return err
+	return t.recordFS.Save(backupPath, &record)
 }
 
 func (t *Timetrace) RevertRecord(recordKey time.Time) error {
@@ -117,21 +91,9 @@ func (t *Timetrace) RevertRecord(recordKey time.Time) error {
 		return err
 	}
 
-	path := t.fs.RecordFilepath(recordKey)
+	path := t.recordFS.FilepathByTime(recordKey)
 
-	file, err := os.OpenFile(path, os.O_WRONLY|os.O_CREATE|os.O_TRUNC, 0600)
-	if err != nil {
-		return err
-	}
-
-	bytes, err := json.MarshalIndent(&record, "", "\t")
-	if err != nil {
-		return err
-	}
-
-	_, err = file.Write(bytes)
-
-	return err
+	return t.recordFS.Save(path, &record)
 }
 
 // RevertRecordsByProject is a function called if user opts to also revert records when they revert a project.
@@ -155,7 +117,7 @@ func (t *Timetrace) RevertRecordsByProject(key string) error {
 	keys = append(keys, key)
 
 	// get all record dirs and filepaths in order to load the record for matching the parent key
-	allRecordDirs, err := t.fs.RecordDirs()
+	allRecordDirs, err := t.recordFS.Dirs()
 	if err != nil {
 		return err
 	}
@@ -185,13 +147,12 @@ func (t *Timetrace) RevertRecordsByProject(key string) error {
 // DeleteRecord removes the given record. Returns ErrRecordNotFound if the
 // project doesn't exist.
 func (t *Timetrace) DeleteRecord(record Record) error {
-	path := t.fs.RecordFilepath(record.Start)
+	path := t.recordFS.FilepathByTime(record.Start)
 
-	if _, err := os.Stat(path); os.IsNotExist(err) {
+	if _, err := t.fs.Stat(path); os.IsNotExist(err) {
 		return ErrRecordNotFound
 	}
-
-	return os.Remove(path)
+	return t.recordFS.Delete(path)
 }
 
 func (t *Timetrace) DeleteRecordsByProject(key string) error {
@@ -216,7 +177,7 @@ func (t *Timetrace) DeleteRecordsByProject(key string) error {
 	keys = append(keys, key)
 
 	// get all record dirs and filepaths in order to load the record for matching the parent key
-	allRecordDirs, err := t.fs.RecordDirs()
+	allRecordDirs, err := t.recordFS.Dirs()
 	if err != nil {
 		return err
 	}
@@ -247,7 +208,7 @@ func (t *Timetrace) DeleteRecordsByProject(key string) error {
 
 // EditRecordManual opens the record file in the preferred or default editor.
 func (t *Timetrace) EditRecordManual(recordTime time.Time) error {
-	path := t.fs.RecordFilepath(recordTime)
+	path := t.recordFS.FilepathByTime(recordTime)
 
 	if _, err := t.loadRecord(path); err != nil {
 		return err
@@ -264,7 +225,7 @@ func (t *Timetrace) EditRecordManual(recordTime time.Time) error {
 
 // EditRecord loads the record internally, applies the option values and saves the record
 func (t *Timetrace) EditRecord(recordTime time.Time, plus string, minus string) error {
-	path := t.fs.RecordFilepath(recordTime)
+	path := t.recordFS.FilepathByTime(recordTime)
 
 	record, err := t.loadRecord(path)
 	if err != nil {
@@ -287,7 +248,7 @@ func (t *Timetrace) EditRecord(recordTime time.Time, plus string, minus string) 
 func (t *Timetrace) loadAllRecords(date time.Time) ([]*Record, error) {
 	dir := t.fs.RecordDirFromDate(date)
 
-	recordFilepaths, err := t.fs.RecordFilepaths(dir, func(_, _ string) bool {
+	recordFilepaths, err := t.recordFS.Filepaths(dir, func(_, _ string) bool {
 		return true
 	})
 	if err != nil {
@@ -308,9 +269,9 @@ func (t *Timetrace) loadAllRecords(date time.Time) ([]*Record, error) {
 }
 
 func (t *Timetrace) loadAllRecordsSortedAscending(date time.Time) ([]*Record, error) {
-	dir := t.fs.RecordDirFromDate(date)
+	dir := t.recordFS.DirByDate(date)
 
-	recordFilepaths, err := t.fs.RecordFilepaths(dir, func(a, b string) bool {
+	recordFilepaths, err := t.recordFS.Filepaths(dir, func(a, b string) bool {
 		timeA, _ := time.Parse(recordLayout, a)
 		timeB, _ := time.Parse(recordLayout, b)
 		return timeA.Before(timeB)
@@ -351,7 +312,7 @@ func (t *Timetrace) LoadRecordByID(ID int) (*Record, error) {
 // LoadLatestRecord loads the youngest record. This may also be a record from
 // another day. If there is no latest record, nil and no error will be returned.
 func (t *Timetrace) LoadLatestRecord() (*Record, error) {
-	latestDirs, err := t.fs.RecordDirs()
+	latestDirs, err := t.recordFS.Dirs()
 	if err != nil {
 		return nil, err
 	}
@@ -365,7 +326,7 @@ func (t *Timetrace) LoadLatestRecord() (*Record, error) {
 		return nil, err
 	}
 
-	latestRecords, err := t.fs.RecordFilepaths(dir, func(a, b string) bool {
+	latestRecords, err := t.recordFS.Filepaths(dir, func(a, b string) bool {
 		timeA, _ := time.Parse(recordLayout, a)
 		timeB, _ := time.Parse(recordLayout, b)
 		return timeA.Before(timeB)
@@ -386,9 +347,9 @@ func (t *Timetrace) LoadLatestRecord() (*Record, error) {
 // loadOldestRecord returns the oldest record of the given date. If there is no
 // oldest record, nil and no error will be returned.
 func (t *Timetrace) loadOldestRecord(date time.Time) (*Record, error) {
-	dir := t.fs.RecordDirFromDate(date)
+	dir := t.recordFS.DirByDate(date)
 
-	oldestRecords, err := t.fs.RecordFilepaths(dir, func(a, b string) bool {
+	oldestRecords, err := t.recordFS.Filepaths(dir, func(a, b string) bool {
 		timeA, _ := time.Parse(recordLayout, a)
 		timeB, _ := time.Parse(recordLayout, b)
 		return timeA.After(timeB)
@@ -410,7 +371,7 @@ func (t *Timetrace) loadOldestRecord(date time.Time) (*Record, error) {
 // through the filter options.
 // !imporant: .bak files will be ignored by this function - only .json files in the directory will be read!
 func (t *Timetrace) loadFromRecordDir(recordDir string, filter ...func(*Record) bool) ([]*Record, error) {
-	filesInfo, err := ioutil.ReadDir(recordDir)
+	filesInfo, err := t.recordFS.DirInfo(recordDir)
 	if err != nil {
 		return nil, err
 	}
@@ -442,7 +403,7 @@ outer:
 // loadBackupsFromRecordDir loads all records for one directory and returns them. The slice can be filtered
 // through the filter options.
 func (t *Timetrace) loadBackupsFromRecordDir(recordDir string, filter ...func(*Record) bool) ([]*Record, error) {
-	filesInfo, err := ioutil.ReadDir(recordDir)
+	filesInfo, err := t.recordFS.DirInfo(recordDir)
 	if err != nil {
 		return nil, err
 	}
@@ -472,9 +433,10 @@ outer:
 	return foundRecords, nil
 }
 
+// loadRecord loads a record based of its file path
 func (t *Timetrace) loadRecord(path string) (*Record, error) {
-	file, err := ioutil.ReadFile(path)
-	if err != nil {
+	var record Record
+	if err := t.recordFS.Load(path, &record); err != nil {
 		if os.IsNotExist(err) {
 			if strings.HasSuffix(path, ".bak") {
 				return nil, ErrBackupRecordNotFound
@@ -483,13 +445,6 @@ func (t *Timetrace) loadRecord(path string) (*Record, error) {
 		}
 		return nil, err
 	}
-
-	var record Record
-
-	if err := json.Unmarshal(file, &record); err != nil {
-		return nil, err
-	}
-
 	return &record, nil
 }
 

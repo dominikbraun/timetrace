@@ -3,6 +3,7 @@ package core
 import (
 	"errors"
 	"io"
+	"io/fs"
 	"os"
 	"path/filepath"
 	"strconv"
@@ -31,24 +32,64 @@ type Report struct {
 
 // Filesystem represents a filesystem used for storing and loading resources.
 type Filesystem interface {
-	ProjectFilepath(key string) string
-	ProjectBackupFilepath(key string) string
-	ProjectFilepaths() ([]string, error)
-	ProjectBackupFilepaths() ([]string, error)
-	RecordFilepath(start time.Time) string
-	RecordBackupFilepath(start time.Time) string
-	RecordFilepaths(dir string, less func(a, b string) bool) ([]string, error)
-	RecordDirs() ([]string, error)
-	ReportDir() string
-	RecordDirFromDate(date time.Time) string
-	EnsureDirectories() error
-	EnsureRecordDir(date time.Time) error
-	WriteReport(path string, data []byte) error
+	ProjectFilepath(key string) string                                         // implemented:
+	ProjectBackupFilepath(key string) string                                   // implemented:
+	ProjectFilepaths() ([]string, error)                                       // implemented:
+	ProjectBackupFilepaths() ([]string, error)                                 // implemented:
+	RecordFilepath(start time.Time) string                                     // implemented:
+	RecordBackupFilepath(start time.Time) string                               // implemented:
+	RecordFilepaths(dir string, less func(a, b string) bool) ([]string, error) // implemented:
+	RecordDirs() ([]string, error)                                             // implemented:
+	ReportDir() string                                                         // implemented:
+	RecordDirFromDate(date time.Time) string                                   // implemented:
+	WriteReport(path string, data []byte) error                                // implemented:
+	EnsureRecordDir(date time.Time) error                                      // implemented:
+
+	EnsureDirectories() error               // in which interface does this func fit??
+	Stat(path string) (*os.FileInfo, error) // in which interface does this func fit??
+}
+
+type ProjectFS interface {
+	// CRUD operations to interface with stored projects
+	Load(key string, v interface{}) error
+	Save(key string, v interface{}) error
+	Backup(key string, b []byte) error
+	Delete(key string) error
+
+	Filepath(key string) string
+	BackupFilepath(key string) string
+	Filepaths() ([]string, error)
+	BackupFilepaths() ([]string, error)
+}
+
+type RecordFS interface {
+	// CRUD operations to interface with stored records
+	Load(key string, v interface{}) error
+	Save(key string, v interface{}) error
+	Backup(key string, b []byte) error
+	Delete(path string) error
+	Exists(path string) bool
+
+	BackupByTime(start time.Time) string
+	Filepaths(dir string, less func(a, b string) bool) ([]string, error)
+	FilepathByTime(start time.Time) string
+	Dirs() ([]string, error)
+	DirInfo(path string) ([]fs.FileInfo, error)
+	DirByDate(date time.Time) string
+	EnsureDir(date time.Time) error
+}
+
+type ReportFS interface {
+	Write(path string, data []byte) error
+	Dir() string
 }
 
 type Timetrace struct {
 	config    *config.Config
 	fs        Filesystem
+	recordFS  RecordFS
+	projectFS ProjectFS
+	reportFS  ReportFS
 	formatter *Formatter
 }
 
