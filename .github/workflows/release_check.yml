@@ -13,7 +13,7 @@ permissions:
   contents: write
 
 jobs:
-  goreleaser:
+    checks:
     runs-on: ubuntu-latest
     steps:
       -
