@@ -90,19 +90,6 @@ func editRecordCommand(t *core.Timetrace) *cobra.Command {
 				return
 			}
 
-			// checking if there is a record time collision before actually editing it
-			record := core.Record{
-				Start: recordTime,
-			}
-			collides, err := t.RecordCollides(record)
-			if err != nil {
-				out.Err("Error on check if record collides: %s", err.Error())
-				return
-			}
-			if collides {
-				return
-			}
-
 			if options.Revert {
 				if err := t.RevertRecord(recordTime); err != nil {
 					out.Err("failed to revert record: %s", err.Error())
