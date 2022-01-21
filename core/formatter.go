@@ -99,7 +99,7 @@ func (f *Formatter) RecordKey(record *Record) string {
 // seconds information is ignored.
 func (f *Formatter) FormatDuration(duration time.Duration) string {
 
-	hours := int64(duration.Hours()) % 60
+	hours := int64(duration.Hours())
 	minutes := int64(duration.Minutes()) % 60
 	dec := duration.Minutes() / 60
 	var response string
