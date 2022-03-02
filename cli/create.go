@@ -100,10 +100,11 @@ func createRecordCommand(t *core.Timetrace) *cobra.Command {
 			}
 
 			record := core.Record{
-				Project:    project,
-				Start:      start,
-				End:        &end,
-				IsBillable: options.isBillable,
+				Project:     project,
+				Start:       start,
+				End:         &end,
+				IsBillable:  options.isBillable,
+				Description: options.description,
 			}
 
 			collides, err := t.RecordCollides(record)
@@ -126,6 +127,9 @@ func createRecordCommand(t *core.Timetrace) *cobra.Command {
 
 	createRecord.Flags().BoolVarP(&options.isBillable, "billable", "b",
 		false, `mark tracked time as billable`)
+
+	createRecord.Flags().StringVarP(&options.description, "description", "d",
+		"", `set a description for your record`)
 
 	return createRecord
 }
