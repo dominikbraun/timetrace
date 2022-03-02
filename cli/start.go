@@ -15,6 +15,7 @@ const TagsPrefix = "+"
 type startOptions struct {
 	isBillable    bool
 	isNonBillable bool // Used for overwriting `billable: true` in the project config.
+	description   string
 }
 
 func startCommand(t *core.Timetrace) *cobra.Command {
@@ -36,6 +37,8 @@ func startCommand(t *core.Timetrace) *cobra.Command {
 
 			isBillable := options.isBillable
 
+			description := options.description
+
 			// If there is a default configuration for the project key, use that configuration.
 			if projectConfig, ok := t.Config().Projects[projectKey]; ok {
 				isBillable = projectConfig.Billable
@@ -51,7 +54,7 @@ func startCommand(t *core.Timetrace) *cobra.Command {
 				return
 			}
 
-			if err := t.Start(projectKey, isBillable, tagNames); err != nil {
+			if err := t.Start(projectKey, isBillable, tagNames, description); err != nil {
 				out.Err("failed to start tracking: %s", err.Error())
 				return
 			}
@@ -65,6 +68,9 @@ func startCommand(t *core.Timetrace) *cobra.Command {
 
 	start.Flags().BoolVar(&options.isNonBillable, "non-billable",
 		false, `mark tracked time as non-billable if the project is configured as billable`)
+
+	start.Flags().StringVarP(&options.description, "description", "d",
+		"", `set a description for your record`)
 
 	return start
 }
