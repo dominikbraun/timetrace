@@ -22,11 +22,12 @@ var (
 )
 
 type Record struct {
-	Start      time.Time  `json:"start"`
-	End        *time.Time `json:"end"`
-	Project    *Project   `json:"project"`
-	IsBillable bool       `json:"is_billable"`
-	Tags       []string   `json:"tags"`
+	Start       time.Time  `json:"start"`
+	End         *time.Time `json:"end"`
+	Project     *Project   `json:"project"`
+	IsBillable  bool       `json:"is_billable"`
+	Tags        []string   `json:"tags"`
+	Description string     `json:"description"`
 }
 
 // Duration calculates time duration for a specific record. If the record doesn't

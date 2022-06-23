@@ -180,6 +180,7 @@ timetrace start <PROJECT KEY> [+TAG1, +TAG2, ...]
 | ---------------- | ----- | ---------------------------------------------------------------------------------------------------------- |
 | `--billable`     | `-b`  | Mark the record as billable.                                                                               |
 | `--non-billable` |       | Mark the record as non-billable, even if the project is [billable by default](#per-project-configuration). |
+| `--description`  | `-d`  | Add a description to your record                                                                           |
 
 **Example:**
 
@@ -193,6 +194,12 @@ Start working on the `make-coffee` project and add two tags:
 
 ```
 timetrace start make-coffee +espresso +morning
+```
+
+Start working on the `make-coffee` project and add a description:
+
+```
+timetrace start make-coffee -d "first time using the new beans"
 ```
 
 ### Print the tracking status
