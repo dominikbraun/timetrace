@@ -71,8 +71,12 @@ func listRecordsCommand(t *core.Timetrace) *cobra.Command {
 	listRecords := &cobra.Command{
 		Use:   "records {<YYYY-MM-DD>|today|yesterday}",
 		Short: "List all records from a date",
-		Args:  cobra.ExactArgs(1),
+		Args:  cobra.MaximumNArgs(1),
 		Run: func(cmd *cobra.Command, args []string) {
+			if len(args) <= 0 {
+				args = append(args, "today")
+			}
+
 			date, err := t.Formatter().ParseDate(args[0])
 			if err != nil {
 				out.Err("failed to parse date: %s", err.Error())
