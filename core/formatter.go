@@ -52,7 +52,7 @@ const (
 	defaultTimeLayout        = "15:04"
 	default12HoursTimeLayout = "03:04PM"
 	defaultDatelayoutPretty  = "Monday, 02. January 2006"
-	defaultDurationLayout	 = time.Second
+	defaultDurationLayout	 = time.Minute
 )
 
 func (f *Formatter) timeLayout() string {
@@ -71,7 +71,7 @@ func (f *Formatter) TimeString(input time.Time) string {
 }
 
 func (f *Formatter) DurationString(input time.Duration) string {
-	return input.Truncate(f.durationLayout()).String()
+	return input.Round(f.durationLayout()).String()
 }
 
 // PrettyDateString returns a nice representation of a given time
