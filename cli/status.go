@@ -64,7 +64,7 @@ func statusCommand(t *core.Timetrace) *cobra.Command {
 				format := options.format
 				format = strings.ReplaceAll(format, "{project}", statusReport.Project)
 				format = strings.ReplaceAll(format, "{trackedTimeCurrent}", statusReport.TrackedTimeCurrent)
-				format = strings.ReplaceAll(format, "{trackedTimeToday}", statusReport.BreakTimeToday)
+				format = strings.ReplaceAll(format, "{trackedTimeToday}", statusReport.TrackedTimeToday)
 				format = strings.ReplaceAll(format, "{breakTimeToday}", statusReport.BreakTimeToday)
 				format = strings.ReplaceAll(format, `\n`, "\n")
 				fmt.Printf(format)
