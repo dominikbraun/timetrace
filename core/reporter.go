@@ -1,6 +1,8 @@
 package core
 
 import (
+	"bytes"
+	"encoding/csv"
 	"encoding/json"
 	"fmt"
 	"strings"
@@ -11,8 +13,22 @@ const (
 	defaultTotalSymbol = "∑"
 )
 
+
 func FilterNoneNilEndTime(r *Record) bool {
 	return r.End != nil
+}
+
+// GetHeaderColumns return the header columns for a table print
+// or a CSV export
+func GetHeaderColumns(outputFormat string) []string {
+	switch outputFormat {
+		case "table":
+			return []string{"Project", "Module", "Date", "Start", "End", "Duration", "Billable", "Total"}
+		case "csv":
+			return []string{"Project", "Module", "Date", "Start", "End", "Duration", "Billable"}
+		default:
+			return []string{"Project", "Module", "Date", "Start", "End", "Duration", "Billable", "Total"}
+	}
 }
 
 // FilterBillable returns a record filter for the billable flag
@@ -158,4 +174,42 @@ func (r Reporter) Json() ([]byte, error) {
 		return nil, fmt.Errorf("could not marshal report to json")
 	}
 	return b, nil
+}
+
+// CSV prepares the r.report and r.totals data so that it can be written to a csv file
+func (r Reporter) CSV() ([]byte, error) {
+	var buffer bytes.Buffer
+	writer := csv.NewWriter(&buffer)
+
+	// Writing the header
+	writer.Write(GetHeaderColumns("csv"))
+
+	for _, records := range r.report {
+		for _, record := range records {
+			keyParts := strings.Split(record.Project.Key, "@")
+			module, key := "", keyParts[0]
+			if len(keyParts) > 1 {
+				module = keyParts[0]
+				key = keyParts[1]
+			}
+			billable := "no"
+			if record.IsBillable {
+				billable = "yes"
+			}
+			date := r.t.Formatter().PrettyDateString(record.Start)
+			start := r.t.Formatter().TimeString(record.Start)
+			end := r.t.Formatter().TimeString(*record.End)
+
+			duration := r.t.Formatter().DurationString(record.End.Sub(record.Start))
+
+			writer.Write([]string{key, module, date, start, end, duration, billable, ""})
+		}
+	}
+
+	writer.Flush()
+	if err := writer.Error(); err != nil {
+		return nil, fmt.Errorf("error while writing to buffer")
+	}
+
+	return buffer.Bytes(), nil
 }
