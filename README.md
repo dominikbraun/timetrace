@@ -76,7 +76,7 @@ yay -S timetrace-bin
 ### Scoop
 
 ```
-scoop bucket add https://github.com/Br1ght0ne/scoop-bucket
+scoop bucket add <name> https://github.com/Br1ght0ne/scoop-bucket
 scoop install timetrace
 ```
 
