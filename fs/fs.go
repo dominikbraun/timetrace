@@ -136,9 +136,9 @@ func (fs *Fs) RecordBackupFilepath(start time.Time) string {
 //
 // The less function allows you to sort the records. Assume three record files:
 //
-//   - timetrace/records/2021-05-01/08-00.json
-//   - timetrace/records/2021-05-01/10-00.json
-//   - timetrace/records/2021-05-01/11-30.json
+//	- timetrace/records/2021-05-01/08-00.json
+//	- timetrace/records/2021-05-01/10-00.json
+//	- timetrace/records/2021-05-01/11-30.json
 //
 // The following call to RecordFilepaths will return the paths of those records
 // sorted from newest to oldest:
