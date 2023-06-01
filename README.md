@@ -602,14 +602,14 @@ timetrace report
 **Flags:**
 
 | Flag                    | Short | Description                                                                                                                                                        |
-| ----------------------- | ----- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
-| `--billable`            | `-b`  | Filter report for only billable records.                                                                                                                           |
-| `--non-billable`        |       | Filter report for non-billable records.                                                                                                                            |
-| `--start <YYYY-MM-DD>`  | `-s`  | Filter report from a specific point in time (start is inclusive).                                                                                                  |
-| `--end <YYYY-MM-DD>`    | `-e`  | Filter report to a specific point in time (end is inclusive).                                                                                                      |
-| `--project <KEY>`       | `-p`  | Filter report for only one project.                                                                                                                                |
-| `--output <json>`       | `-o`  | Write report as JSON to file.                                                                                                                                      |
-| `--file path/to/report` | `-f`  | Write report to a specific file <br>(if not given will use config `report-dir`<br> if config not present writes to `$HOME/.timetrace/reports/report-<time.unix>`). |
+| ------------------------- | ----- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| `--billable`              | `-b`  | Filter report for only billable records.                                                                                                                           |
+| `--non-billable`          |       | Filter report for non-billable records.                                                                                                                            |
+| `--start <YYYY-MM-DD>`    | `-s`  | Filter report from a specific point in time (start is inclusive).                                                                                                  |
+| `--end <YYYY-MM-DD>`      | `-e`  | Filter report to a specific point in time (end is inclusive).                                                                                                      |
+| `--project <KEY>`         | `-p`  | Filter report for only one project.                                                                                                                                |
+| `--output <FORMAT>`       | `-o`  | Write report to file. Valid values: `json` or `csv`                                                                                                                |
+| `--file path/to/report`   | `-f`  | Write report to a specific file <br>(if not given will use config `report-dir`<br> if config not present writes to `$HOME/.timetrace/reports/report-<time.unix>`). |
 
 ### Print version information
 

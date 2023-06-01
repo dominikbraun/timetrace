@@ -85,15 +85,21 @@ func generateReportCommand(t *core.Timetrace) *cobra.Command {
 					out.Err(err.Error())
 				}
 				t.WriteReport(options.filePath, data)
+			case "csv":
+				data, err := report.CSV()
+				if err != nil {
+					out.Err(err.Error())
+				}
+				t.WriteReport(options.filePath, data)
 			default:
 				projects, total := report.Table()
 				out.Table(
-					[]string{"Project", "Module", "Date", "Start", "End", "Billable", "Total"},
+					core.GetHeaderColumns(options.outputFormat),
 					projects,
-					[]string{"", "", "", "", "", "TOTAL", total},
+					[]string{"", "", "", "", "", "", "TOTAL", total},
 					out.TableWithCellMerge(0), // merge cells over "Project" (index:0) column
 					out.TableFooterColor(
-						tablewriter.Colors{}, tablewriter.Colors{},
+						tablewriter.Colors{}, tablewriter.Colors{}, tablewriter.Colors{},
 						tablewriter.Colors{}, tablewriter.Colors{}, tablewriter.Colors{},
 						tablewriter.Colors{tablewriter.Bold},          // text "TOTAL"
 						tablewriter.Colors{tablewriter.FgGreenColor}), // digit of "TOTAL"
