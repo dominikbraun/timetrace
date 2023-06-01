@@ -70,6 +70,9 @@ func (fs *Fs) ProjectFilepaths() ([]string, error) {
 			continue
 		}
 		itemName := item.Name()
+		if strings.HasPrefix(itemName, ".") {
+			continue
+		}
 		if strings.HasSuffix(itemName, ".bak") {
 			continue
 		}
@@ -97,6 +100,9 @@ func (fs *Fs) ProjectBackupFilepaths() ([]string, error) {
 			continue
 		}
 		itemName := item.Name()
+		if strings.HasPrefix(itemName, ".") {
+			continue
+		}
 		if !strings.HasSuffix(itemName, ".bak") {
 			continue
 		}
@@ -157,6 +163,9 @@ func (fs *Fs) RecordFilepaths(dir string, less func(a, b string) bool) ([]string
 			continue
 		}
 		itemName := item.Name()
+		if strings.HasPrefix(itemName, ".") {
+			continue
+		}
 		if strings.HasSuffix(itemName, ".bak") {
 			continue
 		}
