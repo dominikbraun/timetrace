@@ -9,5 +9,5 @@ require (
 	github.com/olekukonko/tablewriter v0.0.5
 	github.com/rivo/uniseg v0.4.4 // indirect
 	github.com/spf13/cobra v1.7.0
-	github.com/spf13/viper v1.16.0
+	github.com/spf13/viper v1.17.0
 )
