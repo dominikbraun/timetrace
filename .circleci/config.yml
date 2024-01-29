@@ -6,7 +6,7 @@ executors:
       - image: cimg/python:3.9.7
   go-container:
     docker:
-      - image: cimg/go:1.17.1
+      - image: cimg/go:1.21.6
     environment:
       GO111MODULE: "on"
       GOPROXY: "https://proxy.golang.org"
