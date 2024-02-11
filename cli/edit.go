@@ -2,6 +2,7 @@ package cli
 
 import (
 	"errors"
+	"fmt"
 	"strconv"
 	"strings"
 	"time"
@@ -83,11 +84,27 @@ func editRecordCommand(t *core.Timetrace) *cobra.Command {
 				return
 			}
 
-			recordTime, err := getRecordTimeFromArg(t, args[0])
-
-			if err != nil {
-				out.Err(err.Error())
-				return
+			var recordTime time.Time
+			var err error
+			var rec *core.Record
+			// if more aliases are needed, this should be expanded to a switch
+			if strings.ToLower(args[0]) == "latest" {
+				rec, err = t.LoadLatestRecord()
+				if err != nil {
+					out.Err("Error on loading last record: %s", err.Error())
+					return
+				}
+				recordTime = rec.Start
+			} else {
+				recordTime, err = t.Formatter().ParseRecordKey(args[0])
+				if err != nil {
+					out.Err("Failed to parse date argument: %s", err.Error())
+					return
+				}
+				rec, err = t.LoadRecord(recordTime)
+				if err != nil {
+					return
+				}
 			}
 
 			if options.Revert {
@@ -99,12 +116,17 @@ func editRecordCommand(t *core.Timetrace) *cobra.Command {
 				return
 			}
 
-			if err := t.BackupRecord(recordTime); err != nil {
+			if err := t.BackupRecord(*rec); err != nil {
 				out.Err("failed to backup record before edit: %s", err.Error())
 				return
 			}
 
 			if options.Minus == "" && options.Plus == "" {
+				fmt.Printf("Warning: Directly editing the record can lead to undefined behavior.\nIf you change the start time of the record, the underlying file will be renamed automatically. Make sure it doesn't collide with other records. If you want to change the end time, use --minus or --plus instead.\nContinue? ")
+				if !askForConfirmation("y/[n]") {
+					out.Info("Editting record aborted.")
+					return
+				}
 				out.Info("Opening %s in default editor", recordTime)
 				if err := t.EditRecordManual(recordTime); err != nil {
 					out.Err("failed to edit record: %s", err.Error())
