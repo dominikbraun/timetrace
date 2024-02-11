@@ -4,6 +4,7 @@
 *.dll
 *.so
 *.dylib
+timetrace
 
 # IDE directories
 .idea
