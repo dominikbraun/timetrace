@@ -147,7 +147,7 @@ func deleteRecordCommand(t *core.Timetrace) *cobra.Command {
 				return
 			}
 
-			if err := t.BackupRecord(start); err != nil {
+			if err := t.BackupRecord(*record); err != nil {
 				out.Err("failed to backup record before deletion: %s", err.Error())
 				return
 			}
@@ -167,10 +167,10 @@ func deleteRecordCommand(t *core.Timetrace) *cobra.Command {
 }
 
 func askForConfirmation(msg string) bool {
-	reader := bufio.NewReader(os.Stdin)
+	scanner := bufio.NewScanner(os.Stdin)
 	fmt.Fprint(os.Stderr, msg)
-	s, _ := reader.ReadString('\n')
-	s = strings.TrimSuffix(s, "\n")
+	scanner.Scan()
+	s := scanner.Text()
 	s = strings.ToLower(s)
 
 	return s == "y"
