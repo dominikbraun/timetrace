@@ -251,9 +251,10 @@ func (t *Timetrace) DeleteRecordsByProject(key string) error {
 }
 
 // EditRecordManual opens the record file in the preferred or default editor.
+// note we don't rename the backup, because it could have inconsistency between 
+// start time and file name
 func (t *Timetrace) EditRecordManual(recordTime time.Time) error {
 	path := t.fs.RecordFilepath(recordTime)
-	backupPath := t.fs.RecordBackupFilepath(recordTime)
 
 	rec, err := t.loadRecord(path)
 	if err != nil {
@@ -282,13 +283,8 @@ func (t *Timetrace) EditRecordManual(recordTime time.Time) error {
 	}
 
 	newPath := t.fs.RecordFilepath(newStart)
-	newBackupPath := t.fs.RecordBackupFilepath(newStart)
 
-	if err = os.Rename(path, newPath); err != nil {
-		return err
-	}
-
-	return os.Rename(backupPath, newBackupPath)
+	return os.Rename(path, newPath)
 }
 
 // EditRecord loads the record internally, applies the option values and saves the record
