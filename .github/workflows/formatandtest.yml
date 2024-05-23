@@ -1,0 +1,18 @@
+name: Format and Test
+
+on:
+  push:
+
+jobs:
+  tests:
+    runs-on: ubuntu-latest
+    steps:
+      -
+        name: Checkout
+        uses: actions/checkout@v2
+      -
+        name: format
+        run: go fmt ./...
+      -
+        name: test
+        run: go test -v ./...
