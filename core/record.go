@@ -27,6 +27,7 @@ type Record struct {
 	Project    *Project   `json:"project"`
 	IsBillable bool       `json:"is_billable"`
 	Tags       []string   `json:"tags"`
+	Notes      []string   `json:"notes"`
 }
 
 // Duration calculates time duration for a specific record. If the record doesn't
@@ -346,6 +347,13 @@ func (t *Timetrace) LoadRecordByID(ID int) (*Record, error) {
 	}
 
 	return recs[ID-1], nil
+}
+
+func (t *Timetrace) GetRecordPath(r *Record) string {
+	start := r.Start
+
+	return t.fs.RecordFilepath(start)
+
 }
 
 // LoadLatestRecord loads the youngest record. This may also be a record from

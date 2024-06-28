@@ -128,10 +128,10 @@ func (r Reporter) Table() ([][]string, string) {
 			start := r.t.Formatter().TimeString(record.Start)
 			end := r.t.Formatter().TimeString(*record.End)
 
-			rows = append(rows, []string{key, module, date, start, end, billable, ""})
+			rows = append(rows, []string{key, module, date, start, end, billable, strings.Join(record.Notes, "\n"), ""})
 		}
 		// append with last row for total of tracked time for project
-		rows = append(rows, []string{"", "", "", "", "", defaultTotalSymbol, r.t.Formatter().FormatDuration(r.totals[key])})
+		rows = append(rows, []string{"", "", "", "", "", "", defaultTotalSymbol, r.t.Formatter().FormatDuration(r.totals[key])})
 		totalSum += r.totals[key]
 	}
 	return rows, r.t.Formatter().FormatDuration(totalSum)
