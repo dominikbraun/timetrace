@@ -1,6 +1,8 @@
 package cli
 
 import (
+	"bytes"
+	"encoding/csv"
 	"encoding/json"
 	"errors"
 	"fmt"
@@ -80,6 +82,38 @@ func statusCommand(t *core.Timetrace) *cobra.Command {
 						return
 					}
 					fmt.Println(string(bytes))
+					return
+				case "csv":
+					var buf bytes.Buffer
+					writer := csv.NewWriter(&buf)
+
+					headers := []string{"Project", "Tracked Time Current", "Tracked Time Today", "Break Time Today"}
+					if err := writer.Write(headers); err != nil {
+						out.Err("error writing CSV header: %s", err.Error())
+						return
+					}
+
+					row := []string{
+						statusReport.Project,
+						statusReport.TrackedTimeCurrent,
+						statusReport.TrackedTimeToday,
+						statusReport.BreakTimeToday,
+					}
+					if err := writer.Write(row); err != nil {
+						out.Err("error writing CSV row: %s", err.Error())
+						return
+					}
+
+					writer.Flush()
+
+					if err := writer.Error(); err != nil {
+						out.Err("error flushing CSV: %s", err.Error())
+						return
+					}
+
+					csvBytes := buf.Bytes()
+
+					fmt.Println(string(csvBytes))
 					return
 				default:
 					out.Err("unknown output format: %s", options.format)
