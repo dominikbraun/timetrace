@@ -259,7 +259,51 @@ func (t *Timetrace) EditRecordManual(recordTime time.Time) error {
 	cmd.Stdout = os.Stdout
 	cmd.Stderr = os.Stderr
 
-	return cmd.Run()
+	if err := cmd.Run(); err != nil {
+		return err
+	}
+
+	return t.renameRecordFileIfNeeded(recordTime)
+}
+
+// renameRecordFileIfNeeded moves the record file (and backup, if present) so
+// its on-disk name matches record.Start. Record keys shown in the CLI are
+// derived from the start timestamp inside the JSON, not the filename.
+func (t *Timetrace) renameRecordFileIfNeeded(originalKey time.Time) error {
+	oldPath := t.fs.RecordFilepath(originalKey)
+	record, err := t.loadRecord(oldPath)
+	if err != nil {
+		return err
+	}
+
+	newPath := t.fs.RecordFilepath(record.Start)
+	if oldPath == newPath {
+		return nil
+	}
+
+	if _, err := os.Stat(newPath); err == nil {
+		return ErrRecordAlreadyExists
+	} else if !os.IsNotExist(err) {
+		return err
+	}
+
+	if err := t.fs.EnsureRecordDir(record.Start); err != nil {
+		return err
+	}
+
+	if err := os.Rename(oldPath, newPath); err != nil {
+		return err
+	}
+
+	oldBackupPath := t.fs.RecordBackupFilepath(originalKey)
+	newBackupPath := t.fs.RecordBackupFilepath(record.Start)
+	if _, err := os.Stat(oldBackupPath); err == nil {
+		if err := os.Rename(oldBackupPath, newBackupPath); err != nil {
+			return err
+		}
+	}
+
+	return nil
 }
 
 // EditRecord loads the record internally, applies the option values and saves the record
